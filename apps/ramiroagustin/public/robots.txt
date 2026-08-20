@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ramiroagustin.site/sitemap.xml
+Sitemap: https://ramiroagustin.online/sitemap.xml

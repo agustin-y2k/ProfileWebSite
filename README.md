@@ -2,10 +2,10 @@
 
 Monorepo con los dos sitios que corren en mi Raspberry Pi 4:
 
-| Sitio                  | Qué es                          | Carpeta               |
-| ---------------------- | ------------------------------- | --------------------- |
-| **ramiroagustin.site** | Página personal / portfolio     | `apps/ramiroagustin/` |
-| **bytefix.shop**       | ByteFix — taller de informática | `apps/bytefix/`       |
+| Sitio                    | Qué es                          | Carpeta               |
+| ------------------------ | ------------------------------- | --------------------- |
+| **ramiroagustin.online** | Página personal / portfolio     | `apps/ramiroagustin/` |
+| **bytefix.shop**         | ByteFix — taller de informática | `apps/bytefix/`       |
 
 Los dos comparten sistema de diseño y componentes, pero tienen identidad
 propia: el personal es claro/editorial con toggle de tema; ByteFix es oscuro y
