@@ -119,11 +119,17 @@ Puesta en marcha, en este orden:
    openssl rand -base64 32   # UMAMI_APP_SECRET
    ```
 
-2. Levantar Umami:
+2. Levantar Umami. Va en su propio archivo de compose, que se combina con el
+   principal:
 
    ```bash
-   docker compose up -d umami-db umami
+   docker compose -f docker-compose.yml -f compose.analytics.yml up -d
    ```
+
+   Está separado a propósito: Compose interpola el archivo entero antes de
+   elegir qué servicios levantar, así que tener los requisitos de Umami en el
+   compose principal rompería el despliegue de los sitios en cualquier
+   instalación sin analítica.
 
 3. En Cloudflare, agregar un hostname público al túnel:
    `analytics.ramiroagustin.online` → `http://umami:3000`.
@@ -139,6 +145,12 @@ Puesta en marcha, en este orden:
    ```bash
    docker compose up -d --build web-ramiro web-bytefix
    ```
+
+A partir de ahí, los `up` de todos los días incluyen los dos archivos:
+
+```bash
+docker compose -f docker-compose.yml -f compose.analytics.yml up -d --build
+```
 
 El ID se inyecta **en tiempo de build**, no en runtime: por eso hace falta
 reconstruir. A cambio, el HTML sale con el script ya puesto y no hay que
