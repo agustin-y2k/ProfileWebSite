@@ -4,6 +4,11 @@
 # Dockerfile necesita el lockfile y los paquetes compartidos de packages/.
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Nombre de proyecto explícito. Sin esto, Compose lo deduce del nombre de la
+# carpeta: clonar el repo con otro nombre crearía una red distinta y un stack
+# paralelo que pelearía por los mismos `container_name` que el ya existente.
+name: sites
+
 services:
   web-ramiro:
     build:

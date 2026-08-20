@@ -8,6 +8,8 @@
 # Los puertos se publican solo en 127.0.0.1: no quedan expuestos a la red local.
 # ─────────────────────────────────────────────────────────────────────────────
 
+name: sites-local
+
 services:
   web-ramiro:
     build:
