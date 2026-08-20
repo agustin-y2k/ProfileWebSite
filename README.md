@@ -107,54 +107,63 @@ git pull && docker compose up -d --build
 Umami autohospedado en la misma Pi: sin cookies, sin datos personales y sin
 enviar nada a terceros. Los datos quedan en un volumen de Docker.
 
-Es opcional. Con las variables de analítica vacías en `.env`, los sitios se
-compilan sin ningún script de terceros.
+Es opcional de punta a punta. Con las variables de analítica vacías, los
+sitios se compilan sin ningún script de terceros y no hace falta levantar
+nada de esto.
 
-Puesta en marcha, en este orden:
+Vive en `compose.analytics.yml`, separado del principal: Compose interpola el
+archivo entero antes de elegir qué servicios levantar, así que tener acá los
+requisitos de Umami rompería el despliegue de los sitios en cualquier
+instalación sin analítica.
 
-1. Generar los secretos y completarlos en `.env`:
+### Puesta en marcha
+
+El orden importa: los IDs de sitio no existen hasta que Umami esté corriendo,
+así que se arranca con ellos vacíos y se completa después.
+
+1. **Secretos.** Generarlos y agregarlos al `.env`:
 
    ```bash
    openssl rand -base64 32   # UMAMI_DB_PASSWORD
    openssl rand -base64 32   # UMAMI_APP_SECRET
    ```
 
-2. Levantar Umami. Va en su propio archivo de compose, que se combina con el
-   principal:
+   `ANALYTICS_ID_RAMIROAGUSTIN` y `ANALYTICS_ID_BYTEFIX` quedan **vacías** por
+   ahora.
+
+2. **Levantar Umami**, todavía sin exponerlo:
 
    ```bash
    docker compose -f docker-compose.yml -f compose.analytics.yml up -d
    ```
 
-   Está separado a propósito: Compose interpola el archivo entero antes de
-   elegir qué servicios levantar, así que tener los requisitos de Umami en el
-   compose principal rompería el despliegue de los sitios en cualquier
-   instalación sin analítica.
-
-3. En Cloudflare, agregar un hostname público al túnel:
-   `analytics.ramiroagustin.online` → `http://umami:3000`.
-
-4. Entrar a ese subdominio. El usuario inicial es `admin` / `umami`:
-   **cambiar la contraseña de inmediato.**
-
-5. Settings → Websites → Add website, una vez por sitio. Copiar el _Website ID_
-   de cada uno a `ANALYTICS_ID_RAMIROAGUSTIN` y `ANALYTICS_ID_BYTEFIX`.
-
-6. Reconstruir los sitios para que el script quede inyectado:
+3. **Cambiar la contraseña inicial antes de publicar nada.** Umami arranca con
+   `admin` / `umami`; si el subdominio se publica antes de este paso, cualquiera
+   que dé con la URL entra. El servicio escucha en `127.0.0.1:3000` de la Pi:
 
    ```bash
-   docker compose up -d --build web-ramiro web-bytefix
+   ssh -L 3000:localhost:3000 pi@raspberrypi
    ```
 
-A partir de ahí, los `up` de todos los días incluyen los dos archivos:
+   y abrir `http://localhost:3000`. Settings → Profile → cambiar contraseña.
 
-```bash
-docker compose -f docker-compose.yml -f compose.analytics.yml up -d --build
-```
+4. **Publicar el subdominio** en el túnel de Cloudflare:
+   `analytics.ramiroagustin.online` → `http://umami:3000`.
+
+5. **Dar de alta los sitios.** Settings → Websites → Add website, uno por cada
+   dominio. Copiar el _Website ID_ de cada uno a `ANALYTICS_ID_RAMIROAGUSTIN` y
+   `ANALYTICS_ID_BYTEFIX` en el `.env`.
+
+6. **Reconstruir los sitios** para que el script quede inyectado:
+
+   ```bash
+   docker compose -f docker-compose.yml -f compose.analytics.yml up -d --build
+   ```
 
 El ID se inyecta **en tiempo de build**, no en runtime: por eso hace falta
-reconstruir. A cambio, el HTML sale con el script ya puesto y no hay que
-resolver nada del lado del cliente.
+reconstruir. A cambio el HTML sale con el script ya puesto y no hay que
+resolver nada del lado del cliente. A partir de acá, los `up` de todos los días
+incluyen los dos archivos.
 
 Si se cambia el subdominio, hay que actualizarlo en tres lugares:
 `VITE_ANALYTICS_SRC` del `.env`, el hostname del túnel, y las directivas

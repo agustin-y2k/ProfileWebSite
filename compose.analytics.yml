@@ -24,6 +24,15 @@ services:
       APP_SECRET: ${UMAMI_APP_SECRET:?falta UMAMI_APP_SECRET en .env}
     expose:
       - "3000"
+    # Acceso local para la administración, atado a 127.0.0.1: no queda
+    # expuesto ni a la red de casa. Permite entrar a cambiar la contraseña
+    # inicial (admin/umami) ANTES de publicar el subdominio en el túnel.
+    #
+    # Desde otra máquina, por SSH:
+    #   ssh -L 3000:localhost:3000 pi@raspberrypi
+    #   y después abrir http://localhost:3000
+    ports:
+      - "127.0.0.1:3000:3000"
     networks:
       - web
     depends_on:
