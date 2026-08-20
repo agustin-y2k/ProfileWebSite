@@ -4,7 +4,7 @@
  */
 export const site = {
   name: "Ramiro Agustín",
-  role: "Ingeniero en informática",
+  role: "Programador · Estudiante de Ingeniería en Informática",
   location: "San Rafael, Mendoza",
   email: "agustin.y2k@gmail.com",
   phone: { display: "+54 9 260 431-6731", href: "tel:+5492604316731" },

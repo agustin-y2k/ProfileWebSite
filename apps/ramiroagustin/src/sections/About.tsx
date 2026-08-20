@@ -11,9 +11,9 @@ export function About() {
             Entre el taller y el código
           </h2>
           <p>
-            Soy <strong>ingeniero en informática</strong> y me muevo entre las dos puntas:
-            me interesa entender cómo encajan el hardware, el software y la red cuando hay
-            que resolver algo de verdad.
+            Soy <strong>programador</strong> y estudiante de Ingeniería en Informática, y
+            me muevo entre las dos puntas: me interesa entender cómo encajan el hardware,
+            el software y la red cuando hay que resolver algo de verdad.
           </p>
           <p>
             Esa mezcla es también la razón por la que suelo encontrar la causa: un equipo

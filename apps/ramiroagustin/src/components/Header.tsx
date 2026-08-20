@@ -47,6 +47,9 @@ export function Header() {
               {item.label}
             </a>
           ))}
+          <a className={styles.navCv} href="/cv">
+            CV
+          </a>
           <a
             className={styles.navExternal}
             href={site.bytefix}
@@ -109,6 +112,9 @@ export function Header() {
               {item.label}
             </a>
           ))}
+          <a className={styles.drawerLink} href="/cv" onClick={() => setOpen(false)}>
+            CV
+          </a>
           <a
             className={styles.drawerLink}
             href={site.bytefix}
