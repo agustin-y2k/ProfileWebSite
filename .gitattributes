@@ -1,0 +1,36 @@
+# ─── Fin de línea ────────────────────────────────────────────────────────────
+# Normaliza a LF en el repositorio, sin importar el sistema donde se edite.
+# Coincide con el `end_of_line = lf` del .editorconfig; sin esto, un clon en
+# Windows convertiría todo a CRLF y el próximo commit aparecería como si se
+# hubieran tocado los 141 archivos.
+* text=auto eol=lf
+
+# ─── Binarios ────────────────────────────────────────────────────────────────
+# Evita que git intente tratarlos como texto (y que un `git diff` escupa
+# kilobytes de basura en la terminal).
+*.woff2 binary
+*.avif  binary
+*.webp  binary
+*.jpg   binary
+*.png   binary
+*.ico   binary
+
+# ─── Estadísticas de lenguaje y diffs ────────────────────────────────────────
+# El lockfile es generado: no cuenta como código escrito y los diffs quedan
+# colapsados por defecto en las revisiones.
+pnpm-lock.yaml linguist-generated=true
+
+# Nota sobre el desglose de lenguajes de GitHub, medido sobre este commit:
+#
+#   TypeScript   61,4 KB   51,1 %
+#   CSS          47,8 KB   39,7 %
+#   HTML          7,5 KB    6,3 %
+#   JavaScript    3,5 KB    2,9 %
+#
+# TypeScript ya encabeza sin necesidad de ocultar nada, y el CSS de este repo
+# es trabajo real: son CSS Modules sobre un sistema de tokens propio, no hojas
+# de estilo generadas. Por eso la línea siguiente queda desactivada.
+# Descomentarla solo si se prefiere que la barra de GitHub muestre únicamente
+# TypeScript:
+#
+# *.css linguist-detectable=false
