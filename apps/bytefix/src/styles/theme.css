@@ -42,6 +42,10 @@
   --shadow: 0 24px 60px -24px rgb(0 0 0 / 0.75);
 
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Syne", "Inter", system-ui, sans-serif;
+  /* Los títulos van en Inter. Syne quedó reservada al logotipo: su dibujo es
+     muy ancho en los pesos altos y sus descendentes cortos hacen que la g y
+     la q se lean truncadas a tamaño grande. */
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-logo: "Syne", "Inter", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
