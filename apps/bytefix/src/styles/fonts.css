@@ -1,13 +1,18 @@
-/* Syne (display / logo) + Inter (texto). Self-hosted.
-   Nota: en el sitio anterior estos @font-face apuntaban a `../fonts/`, una
-   carpeta que no existía, y las tres fuentes devolvían 404 en producción. */
+/* Inter (texto) + Syne (display). Self-hosted desde Fontsource.
+ *
+ * Los archivos anteriores estaban rotos: `Inter-Regular.woff2` e
+ * `Inter-Bold.woff2` eran páginas HTML de GitHub de 299 KB cada una —
+ * descargadas desde la URL de la página en vez del archivo raw—, así que el
+ * navegador las rechazaba y el sitio caía a system-ui. Syne, por su parte,
+ * era un TTF renombrado a .woff2.
+ */
 
 @font-face {
   font-family: "Inter";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/Inter-Regular.woff2") format("woff2");
+  src: url("/fonts/inter-latin-400-normal.woff2") format("woff2");
 }
 
 @font-face {
@@ -15,13 +20,19 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("/fonts/Inter-Bold.woff2") format("woff2");
+  src: url("/fonts/inter-latin-700-normal.woff2") format("woff2");
 }
 
+/* Syne es una fuente variable con eje de peso 400–800 en un solo archivo.
+ *
+ * El rango se declara como `400 800` y no como un peso fijo: así el navegador
+ * interpola el eje `wght` y quedan disponibles los pesos intermedios. La
+ * declaración anterior lo fijaba en 800, el extremo donde Syne más se
+ * ensancha — de ahí que los títulos se vieran estirados. */
 @font-face {
   font-family: "Syne";
   font-style: normal;
-  font-weight: 800;
+  font-weight: 400 800;
   font-display: swap;
-  src: url("/fonts/Syne-ExtraBold.woff2") format("woff2");
+  src: url("/fonts/syne-latin-wght-normal.woff2") format("woff2");
 }
