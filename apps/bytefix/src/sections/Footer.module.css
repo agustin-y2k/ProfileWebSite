@@ -1,0 +1,27 @@
+.footer {
+  padding-block: var(--space-7);
+  border-top: 1px solid var(--border);
+}
+
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.copy {
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+}
+
+.link {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--accent-text);
+}

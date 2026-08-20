@@ -1,0 +1,70 @@
+.band {
+  --bytefix: #0e7490;
+  --bytefix-contrast: #ffffff;
+  display: grid;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="claro"])) .band {
+    /* En oscuro el cian se aclara para destacar sobre el fondo, así que el
+       texto encima pasa a ser oscuro: blanco sobre #22d3ee no llega a AA. */
+    --bytefix: #22d3ee;
+    --bytefix-contrast: #04212b;
+  }
+}
+
+:global(:root[data-theme="oscuro"]) .band {
+  --bytefix: #22d3ee;
+  --bytefix-contrast: #04212b;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius);
+  color: var(--bytefix);
+  background: color-mix(in srgb, var(--bytefix) 12%, transparent);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--bytefix);
+  letter-spacing: var(--tracking-tight);
+}
+
+.desc {
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  max-width: 60ch;
+  margin-top: var(--space-1);
+}
+
+.cta {
+  --accent: var(--bytefix);
+  --accent-hover: color-mix(in srgb, var(--bytefix) 85%, black);
+  --accent-contrast: var(--bytefix-contrast);
+  --accent-glow: color-mix(in srgb, var(--bytefix) 45%, transparent);
+  justify-self: start;
+}
+
+@media (min-width: 48rem) {
+  .band {
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-5);
+    padding: var(--space-6) var(--space-7);
+  }
+
+  .cta {
+    justify-self: end;
+  }
+}

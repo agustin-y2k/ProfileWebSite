@@ -1,0 +1,159 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--duration) var(--ease-out),
+    border-color var(--duration) var(--ease-out);
+}
+
+/* El header anterior escribía `style.height` en cada evento de scroll, lo que
+   fuerza reflow por frame. Acá solo cambian color y borde: propiedades que
+   el navegador resuelve sin recalcular layout. */
+.scrolled {
+  background: rgb(8 11 16 / 0.88);
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  border-bottom-color: var(--border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--header-h);
+}
+
+.nav {
+  display: none;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.link {
+  position: relative;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-block: var(--space-2);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--accent-text);
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration) var(--ease-out);
+}
+
+.link[aria-current]::after {
+  transform: scaleX(1);
+}
+
+.link[aria-current] {
+  color: var(--text);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.cta {
+  display: none;
+}
+
+.menuButton {
+  display: grid;
+  place-content: center;
+  gap: 5px;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+
+.bar {
+  display: block;
+  width: 18px;
+  height: 1.8px;
+  border-radius: 2px;
+  background: var(--text);
+  transition:
+    transform var(--duration) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+
+.barTop {
+  transform: translateY(6.8px) rotate(45deg);
+}
+
+.barMid {
+  opacity: 0;
+}
+
+.barBot {
+  transform: translateY(-6.8px) rotate(-45deg);
+}
+
+.drawer {
+  overflow: hidden;
+  max-height: 0;
+  background: var(--surface);
+  border-bottom: 1px solid transparent;
+  transition:
+    max-height var(--duration) var(--ease-out),
+    border-color var(--duration) var(--ease-out);
+}
+
+.drawer[data-open] {
+  max-height: 20rem;
+  border-bottom-color: var(--border);
+}
+
+.drawerLink {
+  display: block;
+  padding: var(--space-4) 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-lg);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.drawerLink:last-child {
+  border-bottom: none;
+}
+
+@media (min-width: 30rem) {
+  .cta {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 52rem) {
+  .nav {
+    display: flex;
+  }
+
+  .menuButton,
+  .drawer {
+    display: none;
+  }
+}

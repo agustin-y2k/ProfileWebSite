@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bytefix.shop/sitemap.xml

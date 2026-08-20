@@ -1,0 +1,71 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration) var(--ease-out);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* ── Tamaños ─────────────────────────────────────────────────────────────── */
+.sm {
+  padding: 0.5rem 1rem;
+  font-size: var(--text-sm);
+}
+
+.md {
+  padding: 0.75rem 1.5rem;
+  font-size: var(--text-base);
+}
+
+.lg {
+  padding: 0.95rem 2rem;
+  font-size: var(--text-md);
+}
+
+/* ── Variantes ───────────────────────────────────────────────────────────── */
+.primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+}
+
+.primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 10px 30px -10px var(--accent-glow);
+}
+
+.soft {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+.soft:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text-muted);
+  padding-inline: var(--space-3);
+}
+
+.ghost:hover {
+  color: var(--text);
+}

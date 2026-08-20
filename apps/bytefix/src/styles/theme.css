@@ -1,0 +1,47 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Tema de bytefix.shop.
+
+   Compromiso deliberado con el modo oscuro: el favicon, la marca y el material
+   que ya circula por WhatsApp son cian sobre negro. Un toggle de tema acá
+   dividiría la identidad comercial en dos, así que no lo hay — a diferencia
+   del sitio personal, donde sí tiene sentido.
+   ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #080b10;
+  --surface: #111823;
+  --surface-raised: #18212e;
+  --surface-sunken: #05080c;
+
+  --border: rgb(148 163 184 / 0.13);
+  --border-strong: rgb(148 163 184 / 0.24);
+
+  --text: #e9eef6;
+  --text-muted: #97a3b6;
+  --text-faint: #6c7787;
+
+  /* Cian de marca: el mismo del favicon y del logo. */
+  --accent: #22d3ee;
+  --accent-hover: #67e8f9;
+  --accent-text: #3fdcf3;
+  --accent-contrast: #04212b;
+  --accent-soft: rgb(34 211 238 / 0.11);
+  --accent-glow: rgb(34 211 238 / 0.4);
+
+  /* Verde de WhatsApp para el CTA de conversión: la gente lo reconoce
+     antes de leer la etiqueta. */
+  --whatsapp: #25d366;
+  --whatsapp-hover: #3ee27b;
+  --whatsapp-contrast: #04240f;
+
+  --focus-ring: #22d3ee;
+
+  --shadow-sm: 0 2px 8px rgb(0 0 0 / 0.4);
+  --shadow: 0 24px 60px -24px rgb(0 0 0 / 0.75);
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Syne", "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}

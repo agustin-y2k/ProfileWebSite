@@ -1,0 +1,65 @@
+.toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+.toggle:hover {
+  color: var(--accent-text);
+  border-color: var(--border-strong);
+}
+
+.icons {
+  display: grid;
+  place-items: center;
+}
+
+/* Ambos iconos ocupan la misma celda del grid; el tema decide cuál se ve.
+   Así el botón no cambia de tamaño al alternar. */
+.icons > * {
+  grid-area: 1 / 1;
+  transition:
+    opacity var(--duration) var(--ease-out),
+    transform var(--duration) var(--ease-out);
+}
+
+.sun {
+  opacity: 0;
+  transform: rotate(-70deg) scale(0.6);
+}
+
+.moon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+:global(:root[data-theme="oscuro"]) .sun {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+:global(:root[data-theme="oscuro"]) .moon {
+  opacity: 0;
+  transform: rotate(70deg) scale(0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="claro"])) .sun {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+
+  :global(:root:not([data-theme="claro"])) .moon {
+    opacity: 0;
+    transform: rotate(70deg) scale(0.6);
+  }
+}

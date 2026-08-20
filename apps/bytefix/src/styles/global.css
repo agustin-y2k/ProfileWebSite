@@ -1,0 +1,64 @@
+@import "@sites/tokens/reset.css";
+@import "@sites/tokens/scale.css";
+@import "./fonts.css";
+@import "./theme.css";
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+/* Fondo «plano de taller»: halo cian + rejilla técnica.
+   Va en una capa `position: fixed` propia y no en `body` con
+   `background-attachment: fixed`. Esa propiedad obliga al navegador a
+   repintar todo el fondo en cada frame de scroll —y iOS Safari directamente
+   la ignora—; como capa fija aparte, el compositor la deja quieta sin
+   repintar nada. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 75% 45% at 50% -12%, rgb(34 211 238 / 0.13), transparent 62%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgb(148 163 184 / 0.028) 39px,
+      rgb(148 163 184 / 0.028) 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 39px,
+      rgb(148 163 184 / 0.028) 39px,
+      rgb(148 163 184 / 0.028) 40px
+    );
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}

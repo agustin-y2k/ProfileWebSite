@@ -1,0 +1,122 @@
+.hero {
+  padding-block: var(--space-8) var(--space-9);
+}
+
+.layout {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--space-4);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  margin-top: var(--space-1);
+}
+
+.name {
+  color: var(--accent-text);
+  /* Subrayado que no choca con las descendentes de la tipografía serif. */
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  text-decoration-color: var(--accent-soft);
+}
+
+.subtitle {
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  color: var(--text);
+  max-width: 32ch;
+  text-wrap: balance;
+}
+
+.lead {
+  color: var(--text-muted);
+  max-width: 54ch;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+/* ── Ficha técnica ───────────────────────────────────────────────────────── */
+.ficha {
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
+}
+
+.fichaRow {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: var(--space-4);
+  align-items: baseline;
+}
+
+.fichaValue {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ── Retrato ─────────────────────────────────────────────────────────────── */
+.visual {
+  justify-self: center;
+  width: min(100%, 20rem);
+}
+
+.frame {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+  box-shadow: var(--shadow);
+}
+
+/* Marco tenue en el color de acento, sin teñir la foto. */
+.frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
+  pointer-events: none;
+}
+
+.photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+@media (min-width: 62rem) {
+  .hero {
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: var(--space-9);
+    align-items: center;
+  }
+
+  .visual {
+    width: 100%;
+  }
+}

@@ -1,0 +1,71 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Escalas compartidas por los dos sitios.
+   Acá NO hay color ni tipografía: eso lo define cada app en su theme.css.
+   Lo que se comparte es el ritmo — espaciado, radios, tipo, motion.
+   ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Espaciado: escala de 4px, sin valores intermedios improvisados ────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  /* ── Tipografía fluida: interpola entre 360px y 1280px de viewport ─────── */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: clamp(1.05rem, 0.99rem + 0.26vw, 1.19rem);
+  --text-lg: clamp(1.2rem, 1.08rem + 0.52vw, 1.5rem);
+  --text-xl: clamp(1.45rem, 1.24rem + 0.91vw, 1.95rem);
+  --text-2xl: clamp(1.75rem, 1.36rem + 1.7vw, 2.7rem);
+  --text-3xl: clamp(2.15rem, 1.45rem + 3.04vw, 3.8rem);
+  --text-4xl: clamp(2.6rem, 1.4rem + 5.2vw, 5.4rem);
+
+  --leading-tight: 1.08;
+  --leading-snug: 1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  --tracking-tight: -0.03em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.08em;
+
+  /* ── Radios ─────────────────────────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  /* ── Layout ─────────────────────────────────────────────────────────────── */
+  --measure: 68ch; /* ancho de lectura cómodo */
+  --container: 1120px;
+  --container-narrow: 780px;
+  --gutter: var(--space-5);
+  --header-h: 4.25rem;
+
+  /* ── Motion ─────────────────────────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 140ms;
+  --duration: 240ms;
+  --duration-slow: 520ms;
+
+  /* ── Elevación ──────────────────────────────────────────────────────────── */
+  --z-header: 50;
+  --z-drawer: 60;
+  --z-skip: 100;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --gutter: var(--space-7);
+    --header-h: 4.75rem;
+  }
+}

@@ -1,0 +1,74 @@
+.layout {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: var(--measure);
+}
+
+.text p {
+  color: var(--text-muted);
+}
+
+.text strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  margin-block: var(--space-1) var(--space-2);
+}
+
+.quote {
+  position: relative;
+  margin: 0;
+  padding: var(--space-6);
+  border-left: 2px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.quoteText {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+.quoteText::before {
+  content: "«";
+  color: var(--accent-text);
+}
+
+.quoteText::after {
+  content: "»";
+  color: var(--accent-text);
+}
+
+.quoteAuthor {
+  margin-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+@media (min-width: 62rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: var(--space-9);
+    align-items: start;
+  }
+}

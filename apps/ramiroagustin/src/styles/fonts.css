@@ -1,0 +1,58 @@
+/* DM Sans (interfaz) + Libre Baskerville (display). Self-hosted: sin request
+   a Google Fonts, sin dependencia externa y sin fuga de IPs de los visitantes. */
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-400-italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-700-italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Libre Baskerville";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/libre-baskerville-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Libre Baskerville";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/libre-baskerville-latin-400-italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Libre Baskerville";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/libre-baskerville-latin-700-normal.woff2") format("woff2");
+}

@@ -1,0 +1,24 @@
+/* Sin JS la clase `js` nunca se agrega y el contenido queda visible tal cual
+   se sirvió. Con JS, arranca oculto y entra al cruzar el viewport. */
+:global(html.js) .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out);
+  will-change: opacity, transform;
+}
+
+:global(html.js) .reveal[data-visible] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(html.js) .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
