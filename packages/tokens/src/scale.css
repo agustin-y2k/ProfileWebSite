@@ -28,7 +28,11 @@
   --text-3xl: clamp(2.15rem, 1.45rem + 3.04vw, 3.8rem);
   --text-4xl: clamp(2.6rem, 1.4rem + 5.2vw, 5.4rem);
 
-  --leading-tight: 1.08;
+  /* 1.2 y no menos: es el alto de línea mínimo que declaran las fuentes del
+     proyecto (Syne 1.200, Inter 1.210, Libre Baskerville 1.240, DM Sans
+     1.302). Por debajo de ese valor los descendentes invaden la línea
+     siguiente y las colas de la g y la q se ven cortadas. */
+  --leading-tight: 1.2;
   --leading-snug: 1.25;
   --leading-normal: 1.6;
   --leading-relaxed: 1.75;
