@@ -13,7 +13,7 @@ export const site = {
     "Hola ByteFix, quería consultar por un servicio.",
   )}`,
   owner: "Ramiro Agustín",
-  ownerSite: "https://ramiroagustin.site",
+  ownerSite: "https://ramiroagustin.online",
 } as const;
 
 export const navItems = [
