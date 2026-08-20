@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ramiro Agustín Pintos — CV</title>
+    <meta
+      name="description"
+      content="Currículum de Ramiro Agustín Pintos, programador en San Rafael, Mendoza."
+    />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+
+    <!-- Este CV no se indexa: lo comparte quien lo recibe, no un buscador. -->
+    <meta name="robots" content="noindex" />
+
+    <style>
+      /* ─────────────────────────────────────────────────────────────────────
+         CV en HTML. Autocontenido a propósito: es un documento, no una app,
+         así que no pasa por React ni por el build de Vite. Se edita acá y
+         listo.
+
+         Para exportar a PDF: Ctrl+P → Guardar como PDF → en «Más opciones»,
+         desactivar «Encabezados y pies de página» y dejar los márgenes en
+         «Predeterminado». El @page de abajo se encarga del resto.
+         ────────────────────────────────────────────────────────────────── */
+
+      @font-face {
+        font-family: "DM Sans";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("/fonts/dm-sans-latin-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "DM Sans";
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url("/fonts/dm-sans-latin-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Libre Baskerville";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("/fonts/libre-baskerville-latin-400-normal.woff2") format("woff2");
+      }
+
+      :root {
+        --tinta: #1a1815;
+        --tenue: #605a51;
+        --apagado: #8b8479;
+        --linea: #e0dbd1;
+        --acento: #9a3c09;
+        --papel: #ffffff;
+        --fondo: #f4f1ea;
+        --sans: "DM Sans", system-ui, sans-serif;
+        --serif: "Libre Baskerville", Georgia, serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      body {
+        background: var(--fondo);
+        color: var(--tinta);
+        font-family: var(--sans);
+        font-size: 10.5pt;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        padding: 2rem 1rem;
+      }
+
+      .hoja {
+        width: 210mm;
+        min-height: 297mm;
+        max-width: 100%;
+        margin-inline: auto;
+        padding: 14mm 15mm;
+        background: var(--papel);
+        box-shadow: 0 12px 40px -16px rgb(0 0 0 / 0.25);
+      }
+
+      /* ── Encabezado ──────────────────────────────────────────────────── */
+      .cabecera {
+        display: flex;
+        align-items: center;
+        gap: 6mm;
+        padding-bottom: 5mm;
+        border-bottom: 2px solid var(--tinta);
+      }
+
+      .retrato {
+        width: 26mm;
+        height: 26mm;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        filter: grayscale(100%) contrast(1.05);
+      }
+
+      .nombre {
+        font-family: var(--serif);
+        font-size: 22pt;
+        font-weight: 400;
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+      }
+
+      .rol {
+        margin-top: 1.5mm;
+        font-size: 10pt;
+        font-weight: 700;
+        color: var(--acento);
+      }
+
+      .ubicacion {
+        margin-top: 1mm;
+        font-size: 9pt;
+        color: var(--apagado);
+      }
+
+      /* ── Cuerpo en dos columnas ──────────────────────────────────────── */
+      .cuerpo {
+        display: grid;
+        grid-template-columns: 62mm 1fr;
+        gap: 8mm;
+        margin-top: 6mm;
+      }
+
+      .bloque {
+        margin-bottom: 6mm;
+        /* Evita que un bloque quede partido entre dos páginas del PDF. */
+        break-inside: avoid;
+      }
+
+      .titulo {
+        font-family: var(--mono);
+        font-size: 7.5pt;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--acento);
+        padding-bottom: 1.5mm;
+        margin-bottom: 3mm;
+        border-bottom: 1px solid var(--linea);
+      }
+
+      /* ── Columna lateral ─────────────────────────────────────────────── */
+      .contacto {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 2mm;
+        font-size: 9pt;
+      }
+
+      .contacto a {
+        color: var(--tinta);
+        text-decoration: none;
+        overflow-wrap: anywhere;
+      }
+
+      .contacto a:hover {
+        color: var(--acento);
+      }
+
+      .grupo + .grupo {
+        margin-top: 3.5mm;
+      }
+
+      .grupo-nombre {
+        font-size: 8.5pt;
+        font-weight: 700;
+        color: var(--tenue);
+        margin-bottom: 1mm;
+      }
+
+      .etiquetas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.2mm;
+        list-style: none;
+        padding: 0;
+      }
+
+      .etiquetas li {
+        font-size: 8.5pt;
+        padding: 0.6mm 2mm;
+        border: 1px solid var(--linea);
+        border-radius: 2mm;
+        color: var(--tenue);
+      }
+
+      /* ── Columna principal ───────────────────────────────────────────── */
+      .perfil {
+        font-size: 10pt;
+        color: var(--tenue);
+        text-wrap: pretty;
+      }
+
+      .entrada {
+        margin-bottom: 4.5mm;
+        break-inside: avoid;
+      }
+
+      .entrada:last-child {
+        margin-bottom: 0;
+      }
+
+      .entrada-titulo {
+        font-size: 10.5pt;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+
+      .entrada-meta {
+        font-size: 8.5pt;
+        color: var(--apagado);
+        margin-top: 0.5mm;
+      }
+
+      .entrada-texto {
+        font-size: 9.5pt;
+        color: var(--tenue);
+        margin-top: 1.5mm;
+      }
+
+      .stack {
+        font-family: var(--mono);
+        font-size: 8pt;
+        color: var(--acento);
+        margin-top: 1mm;
+      }
+
+      .enlace-repo {
+        font-family: var(--mono);
+        font-size: 8pt;
+        color: var(--apagado);
+        text-decoration: none;
+      }
+
+      .enlace-repo:hover {
+        color: var(--acento);
+      }
+
+      .vinetas {
+        margin: 1.5mm 0 0;
+        padding-left: 4mm;
+        font-size: 9.5pt;
+        color: var(--tenue);
+      }
+
+      .vinetas li {
+        margin-bottom: 0.8mm;
+      }
+
+      /* ── Barra de descarga: solo en pantalla ─────────────────────────── */
+      .barra {
+        width: 210mm;
+        max-width: 100%;
+        margin: 0 auto 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        font-size: 10pt;
+        color: var(--tenue);
+      }
+
+      .barra a,
+      .barra button {
+        font: inherit;
+        font-weight: 700;
+        color: var(--papel);
+        background: var(--acento);
+        border: none;
+        border-radius: 99px;
+        padding: 0.55rem 1.2rem;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .barra .volver {
+        background: none;
+        color: var(--tenue);
+        padding-left: 0;
+      }
+
+      /* ── Impresión ───────────────────────────────────────────────────── */
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
+
+      @media print {
+        body {
+          background: #fff;
+          padding: 0;
+          font-size: 10pt;
+        }
+
+        .hoja {
+          width: auto;
+          min-height: 0;
+          padding: 0;
+          box-shadow: none;
+        }
+
+        .barra {
+          display: none;
+        }
+
+        /* Que los enlaces sigan siendo útiles en papel no aplica acá: el PDF
+           conserva los <a> como enlaces clicables, así que no hace falta
+           imprimir la URL entre paréntesis y ensuciar el diseño. */
+        a {
+          color: inherit;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .cuerpo {
+          grid-template-columns: 1fr;
+          gap: 5mm;
+        }
+
+        .hoja {
+          padding: 8mm;
+        }
+
+        .cabecera {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="barra">
+      <a class="volver" href="/">← Volver al sitio</a>
+      <button type="button" id="imprimir">Descargar en PDF</button>
+    </div>
+
+    <main class="hoja">
+      <!--
+        NOMBRE: el CV original decía «Ramiro Pintos» y el sitio usa «Ramiro
+        Agustín». Acá van los dos para que quien busque cualquiera de las dos
+        formas encuentre a la misma persona. Si no es correcto, se corrige en
+        esta única línea.
+      -->
+      <header class="cabecera">
+        <img class="retrato" src="/img/retrato.jpg" alt="" width="98" height="98" />
+        <div>
+          <h1 class="nombre">Ramiro Agustín Pintos</h1>
+          <p class="rol">Programador · Estudiante de Ingeniería en Informática</p>
+          <p class="ubicacion">San Rafael, Mendoza, Argentina</p>
+        </div>
+      </header>
+
+      <div class="cuerpo">
+        <!-- ── Lateral ────────────────────────────────────────────────── -->
+        <aside>
+          <section class="bloque">
+            <h2 class="titulo">Contacto</h2>
+            <ul class="contacto">
+              <li><a href="mailto:agustin.y2k@gmail.com">agustin.y2k@gmail.com</a></li>
+              <li><a href="tel:+5492604316731">+54 9 260 431-6731</a></li>
+              <li><a href="https://ramiroagustin.online">ramiroagustin.online</a></li>
+              <li><a href="https://github.com/agustin-y2k">github.com/agustin-y2k</a></li>
+            </ul>
+          </section>
+
+          <section class="bloque">
+            <h2 class="titulo">Habilidades</h2>
+
+            <div class="grupo">
+              <p class="grupo-nombre">Lenguajes</p>
+              <ul class="etiquetas">
+                <li>Python</li>
+                <li>Go</li>
+                <li>Java</li>
+                <li>TypeScript</li>
+                <li>JavaScript</li>
+              </ul>
+            </div>
+
+            <div class="grupo">
+              <p class="grupo-nombre">Frontend</p>
+              <ul class="etiquetas">
+                <li>React</li>
+                <li>Vite</li>
+                <li>HTML</li>
+                <li>CSS</li>
+              </ul>
+            </div>
+
+            <div class="grupo">
+              <p class="grupo-nombre">Bases de datos</p>
+              <ul class="etiquetas">
+                <li>MySQL</li>
+                <li>MongoDB</li>
+              </ul>
+            </div>
+
+            <div class="grupo">
+              <p class="grupo-nombre">Datos</p>
+              <ul class="etiquetas">
+                <li>Pandas</li>
+                <li>NumPy</li>
+                <li>Matplotlib</li>
+              </ul>
+            </div>
+
+            <div class="grupo">
+              <p class="grupo-nombre">Infraestructura</p>
+              <ul class="etiquetas">
+                <li>Docker</li>
+                <li>nginx</li>
+                <li>Linux</li>
+                <li>Cloudflare Tunnel</li>
+                <li>Git</li>
+                <li>Redes</li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="bloque">
+            <h2 class="titulo">Idiomas</h2>
+            <div class="grupo">
+              <p class="grupo-nombre">Español — nativo</p>
+              <p class="grupo-nombre" style="font-weight: 400">Inglés — intermedio</p>
+            </div>
+          </section>
+        </aside>
+
+        <!-- ── Principal ──────────────────────────────────────────────── -->
+        <div>
+          <section class="bloque">
+            <h2 class="titulo">Perfil</h2>
+            <p class="perfil">
+              Programador con foco en backend y sistemas. Trabajo con Python, Go, Java y
+              TypeScript, y administro mi propia infraestructura: dos sitios en producción
+              sobre una Raspberry Pi con Docker, nginx y Cloudflare Tunnel. Estudiante de
+              Ingeniería en Informática y técnico en reparación de computadoras desde
+              2017, lo que me da criterio para resolver problemas desde el hardware hasta
+              el código.
+            </p>
+          </section>
+
+          <section class="bloque">
+            <h2 class="titulo">Experiencia</h2>
+
+            <article class="entrada">
+              <p class="entrada-titulo">Auxiliar de informática</p>
+              <p class="entrada-meta">
+                Escuela 4-107 «Ejército Argentino», Tunuyán, Mendoza · 2025 — Presente
+              </p>
+              <ul class="vinetas">
+                <li>
+                  Soporte técnico y mantenimiento del parque informático de la escuela.
+                </li>
+              </ul>
+            </article>
+
+            <article class="entrada">
+              <p class="entrada-titulo">Técnico en reparación de computadoras</p>
+              <p class="entrada-meta">ByteFix — autónomo, San Rafael · 2017 — Presente</p>
+              <ul class="vinetas">
+                <li>
+                  Diagnóstico y reparación de hardware, incluida microsoldadura y
+                  reparación a nivel de placa.
+                </li>
+                <li>Recuperación de datos, upgrades e instalación de sistemas.</li>
+                <li>Configuración de redes y servidores para hogares y comercios.</li>
+              </ul>
+            </article>
+          </section>
+
+          <section class="bloque">
+            <h2 class="titulo">Proyectos</h2>
+
+            <article class="entrada">
+              <p class="entrada-titulo">SGRC</p>
+              <p class="entrada-meta">
+                Sistema de gestión y reserva de computadoras educativas
+              </p>
+              <p class="stack">Go · React</p>
+            </article>
+
+            <article class="entrada">
+              <p class="entrada-titulo">Indicator Insight</p>
+              <p class="entrada-meta">
+                Aplicación multiplataforma para análisis técnico financiero
+              </p>
+              <p class="stack">Python · Dart</p>
+            </article>
+
+            <article class="entrada">
+              <p class="entrada-titulo">ramiroagustin.online y bytefix.shop</p>
+              <p class="entrada-meta">
+                Dos sitios en producción en un monorepo, prerenderizados a HTML estático y
+                desplegados en una Raspberry Pi detrás de Cloudflare Tunnel
+              </p>
+              <p class="stack">React · TypeScript · Vite · Docker · nginx</p>
+              <a class="enlace-repo" href="https://github.com/agustin-y2k/ProfileWebSite"
+                >github.com/agustin-y2k/ProfileWebSite</a
+              >
+            </article>
+          </section>
+
+          <section class="bloque">
+            <h2 class="titulo">Formación</h2>
+
+            <article class="entrada">
+              <p class="entrada-titulo">Ingeniería en Informática</p>
+              <p class="entrada-meta">Universidad de Mendoza · En curso</p>
+            </article>
+
+            <article class="entrada">
+              <p class="entrada-titulo">
+                Técnico mecánico con orientación en producción de bienes y servicios
+              </p>
+              <p class="entrada-meta">
+                Escuela Técnica 4-113 «Ing. Jorge Barraquero» · 2012
+              </p>
+            </article>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      document
+        .getElementById("imprimir")
+        ?.addEventListener("click", () => window.print());
+    </script>
+  </body>
+</html>
