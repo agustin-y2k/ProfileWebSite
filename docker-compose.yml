@@ -4,6 +4,14 @@
 # Dockerfile necesita el lockfile y los paquetes compartidos de packages/.
 # ─────────────────────────────────────────────────────────────────────────────
 
+# La analítica vive aparte, en compose.analytics.yml. Compose interpola el
+# archivo entero antes de elegir qué servicios levantar, así que tener acá los
+# guardas `${VAR:?}` de Umami haría fallar el despliegue de los sitios en
+# cualquier instalación que no quiera analítica.
+#
+#   Solo los sitios:   docker compose up -d
+#   Con analítica:     docker compose -f docker-compose.yml -f compose.analytics.yml up -d
+#
 # Nombre de proyecto explícito. Sin esto, Compose lo deduce del nombre de la
 # carpeta: clonar el repo con otro nombre crearía una red distinta y un stack
 # paralelo que pelearía por los mismos `container_name` que el ya existente.
@@ -60,50 +68,6 @@ services:
         condition: service_healthy
       web-bytefix:
         condition: service_healthy
-
-  # ─── Analítica autohospedada ───────────────────────────────────────────────
-  # Umami: sin cookies, sin datos personales, sin terceros. Los datos quedan
-  # en la Pi. Se publica por el mismo túnel, en su propio subdominio.
-  umami:
-    image: ghcr.io/umami-software/umami:postgresql-latest
-    container_name: umami
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD:?falta UMAMI_DB_PASSWORD en .env}@umami-db:5432/umami
-      DATABASE_TYPE: postgresql
-      APP_SECRET: ${UMAMI_APP_SECRET:?falta UMAMI_APP_SECRET en .env}
-    expose:
-      - "3000"
-    networks:
-      - web
-    depends_on:
-      umami-db:
-        condition: service_healthy
-
-  umami-db:
-    image: postgres:16-alpine
-    container_name: umami-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: umami
-      POSTGRES_USER: umami
-      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD:?falta UMAMI_DB_PASSWORD en .env}
-    volumes:
-      - umami-db-data:/var/lib/postgresql/data
-    # No se expone ningún puerto: solo se llega desde la red interna.
-    networks:
-      - web
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-volumes:
-  # Los datos de analítica sobreviven a `docker compose down`. Ojo: `down -v`
-  # sí los borra.
-  umami-db-data:
 
 networks:
   web:
