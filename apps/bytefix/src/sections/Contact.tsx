@@ -25,11 +25,34 @@ export function Contact() {
           <address className={styles.details}>
             <div className={styles.row}>
               <span className={styles.rowLabel}>Dirección</span>
-              <span className={styles.rowValue}>
+              <a
+                className={styles.rowLink}
+                href={site.maps}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {site.street}
                 <br />
                 {site.city}, {site.region}
-              </span>
+                <span className={styles.mapsHint}>
+                  Ver en Google Maps
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="13"
+                    height="13"
+                    aria-hidden="true"
+                    fill="none"
+                  >
+                    <path
+                      d="M7 17L17 7M17 7H9M17 7v8"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              </a>
             </div>
             <div className={styles.row}>
               <span className={styles.rowLabel}>Teléfono</span>
@@ -40,6 +63,15 @@ export function Contact() {
             <div className={styles.row}>
               <span className={styles.rowLabel}>Modalidad</span>
               <span className={styles.rowValue}>En taller o a domicilio</span>
+            </div>
+            <div className={styles.row}>
+              <span className={styles.rowLabel}>Horario</span>
+              {/* Mientras `hours` sea null se muestra cómo se coordina de
+                  verdad, en vez de inventar un horario que haga que alguien
+                  viaje al taller y lo encuentre cerrado. */}
+              <span className={styles.rowValue}>
+                {site.hours ?? "A coordinar por WhatsApp"}
+              </span>
             </div>
           </address>
         </div>

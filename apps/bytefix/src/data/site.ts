@@ -14,6 +14,30 @@ export const site = {
   )}`,
   owner: "Ramiro Agustín",
   ownerSite: "https://ramiroagustin.online",
+
+  /**
+   * Enlace a Google Maps construido desde la dirección.
+   *
+   * Se usa un link y no un iframe embebido a propósito: el iframe cargaría
+   * scripts de Google en la página —lo que además choca con la CSP— y suma
+   * cientos de KB para algo que la mayoría abre en su app de mapas igual.
+   */
+  maps: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    "Dr. Carlos Pellegrini 1157, San Rafael, Mendoza, Argentina",
+  )}`,
+
+  /**
+   * Horario de atención.
+   *
+   * `null` a propósito: no hay un horario confirmado y publicar uno inventado
+   * haría que alguien viaje hasta el taller y lo encuentre cerrado. Mientras
+   * sea null, la ficha de contacto muestra que se coordina por WhatsApp, que
+   * es como se trabaja hoy.
+   *
+   * Para publicarlo, reemplazar por algo como:
+   *   hours: "Lunes a viernes de 9 a 13 y de 17 a 20 h",
+   */
+  hours: null as string | null,
 } as const;
 
 export const navItems = [

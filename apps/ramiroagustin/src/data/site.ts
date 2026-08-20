@@ -9,6 +9,9 @@ export const site = {
   email: "agustin.y2k@gmail.com",
   phone: { display: "+54 9 260 431-6731", href: "tel:+5492604316731" },
   bytefix: "https://bytefix.shop",
+  github: "https://github.com/agustin-y2k",
+  /** El repositorio de este mismo sitio, enlazado desde el colofón. */
+  repo: "https://github.com/agustin-y2k/ProfileWebSite",
 } as const;
 
 export const navItems = [

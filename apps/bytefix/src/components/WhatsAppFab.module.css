@@ -1,0 +1,55 @@
+.fab {
+  position: fixed;
+  right: var(--space-4);
+  /* `env(safe-area-inset-bottom)` deja el botón por encima de la barra de
+     gestos de iOS, que si no lo tapa a medias. */
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-drawer);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-full);
+  background: var(--whatsapp);
+  color: var(--whatsapp-contrast);
+  font-weight: 700;
+  box-shadow:
+    0 8px 24px -6px rgb(0 0 0 / 0.5),
+    0 0 0 1px rgb(255 255 255 / 0.12) inset;
+
+  opacity: 0;
+  transform: translateY(120%);
+  pointer-events: none;
+  transition:
+    opacity var(--duration) var(--ease-out),
+    transform var(--duration) var(--ease-out);
+}
+
+.fab[data-visible] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.label {
+  font-size: var(--text-sm);
+}
+
+/* En pantallas muy angostas queda solo el icono, para no comerse el ancho. */
+@media (max-width: 22rem) {
+  .fab {
+    padding: var(--space-3);
+  }
+
+  .label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab {
+    transition: opacity var(--duration) linear;
+    transform: none;
+  }
+}
