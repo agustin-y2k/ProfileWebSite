@@ -1,0 +1,8 @@
+{
+  // Archivos que corren en Node durante el build, no en el navegador.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["vite.config.ts"]
+}

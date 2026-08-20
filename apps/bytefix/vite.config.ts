@@ -1,8 +1,39 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
+/**
+ * Inyecta el script de analítica solo si está configurado.
+ *
+ * Las dos variables llegan como build args del Dockerfile. Si falta alguna
+ * —por ejemplo en desarrollo, o antes de dar de alta el sitio en Umami— no se
+ * inyecta nada: el HTML sale limpio en vez de con un <script> apuntando a una
+ * URL vacía que el navegador intentaría cargar igual.
+ *
+ * Va como etiqueta en el HTML y no como import del bundle para que la
+ * analítica no forme parte del JavaScript de la aplicación: si el script de
+ * terceros se cae o lo bloquea un adblocker, la página no se entera.
+ */
+function analytics(): Plugin {
+  return {
+    name: "inyectar-analitica",
+    transformIndexHtml() {
+      const src = process.env.VITE_ANALYTICS_SRC;
+      const id = process.env.VITE_ANALYTICS_ID;
+      if (!src || !id) return [];
+
+      return [
+        {
+          tag: "script",
+          attrs: { defer: true, src, "data-website-id": id },
+          injectTo: "head" as const,
+        },
+      ];
+    },
+  };
+}
+
 export default defineConfig(({ isSsrBuild }) => ({
-  plugins: [react()],
+  plugins: [react(), analytics()],
 
   css: {
     modules: {
