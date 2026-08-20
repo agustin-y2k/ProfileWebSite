@@ -18,6 +18,21 @@ const channels = [
     ),
   },
   {
+    label: "GitHub",
+    value: "agustin-y2k",
+    href: site.github,
+    external: true,
+    icon: (
+      <path
+        d="M9 19c-4.5 1.4-4.5-2.3-6-2.7m12 4.7v-3.6a3.1 3.1 0 00-.9-2.4c2.9-.3 6-1.4 6-6.4a4.9 4.9 0 00-1.4-3.4 4.6 4.6 0 00-.1-3.4s-1.1-.3-3.6 1.4a12.3 12.3 0 00-6.4 0C6.1 1.5 5 1.8 5 1.8a4.6 4.6 0 00-.1 3.4A4.9 4.9 0 003.5 8.6c0 5 3 6.1 5.9 6.4a3.1 3.1 0 00-.9 2.4V21"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+  {
     label: "Teléfono",
     value: site.phone.display,
     href: site.phone.href,
@@ -50,7 +65,13 @@ export function Contact() {
         <ul className={styles.grid}>
           {channels.map((channel) => (
             <li key={channel.label}>
-              <a className={styles.card} href={channel.href}>
+              <a
+                className={styles.card}
+                href={channel.href}
+                {...("external" in channel && channel.external
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+              >
                 <span className={styles.icon} aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
                     {channel.icon}

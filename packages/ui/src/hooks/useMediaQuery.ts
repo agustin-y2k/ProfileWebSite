@@ -15,6 +15,11 @@ export function useMediaQuery(query: string): boolean {
       return () => list.removeEventListener("change", onChange);
     },
     () => window.matchMedia(query).matches,
-    () => false, // snapshot de servidor: mobile-first por defecto
+    // Snapshot de servidor: durante el prerender no hay viewport, así que
+    // toda consulta se responde `false`. Para una `min-width` eso equivale a
+    // asumir móvil; para una `max-width`, a asumir escritorio. Conviene
+    // escribir las consultas sabiendo cuál de los dos lados se sirve en el
+    // HTML: lo que dependa de esto aparece recién al hidratar.
+    () => false,
   );
 }
