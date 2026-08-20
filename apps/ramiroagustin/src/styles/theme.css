@@ -1,0 +1,104 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Tema «papel y tinta» de ramiroagustin.site.
+
+   Claro por defecto, oscuro disponible. Tres estados a cubrir:
+     1. Sin elección explícita  → manda `prefers-color-scheme`.
+     2. `data-theme="oscuro"`   → el usuario eligió oscuro; gana siempre.
+     3. `data-theme="claro"`    → el usuario eligió claro; gana incluso si el
+                                  sistema pide oscuro.
+   Por eso la regla de sistema se acota con `:not([data-theme="claro"])`: sin
+   ese guard, elegir claro en un sistema oscuro no tendría efecto.
+   ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  --bg: #fbfaf8;
+  --bg-tint: #f6f2ea;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f3f0e9;
+
+  --border: #e7e2d8;
+  --border-strong: #d5cec0;
+
+  --text: #1a1815;
+  --text-muted: #665f55;
+  --text-faint: #918a7d;
+
+  --accent: #9a3c09;
+  --accent-hover: #7c2f06;
+  --accent-text: #8f3708;
+  --accent-contrast: #fffdfb;
+  --accent-soft: rgb(154 60 9 / 0.08);
+  --accent-glow: rgb(154 60 9 / 0.3);
+
+  --focus-ring: #9a3c09;
+
+  --shadow-sm: 0 1px 2px rgb(26 24 21 / 0.05), 0 4px 12px -6px rgb(26 24 21 / 0.1);
+  --shadow: 0 12px 40px -16px rgb(26 24 21 / 0.22);
+
+  --font-sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Libre Baskerville", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="claro"]) {
+    color-scheme: dark;
+
+    --bg: #12110f;
+    --bg-tint: #17150f;
+    --surface: #1b1917;
+    --surface-raised: #232019;
+    --surface-sunken: #0d0c0b;
+
+    --border: #2d2925;
+    --border-strong: #443d34;
+
+    --text: #f1ede5;
+    --text-muted: #a69e91;
+    --text-faint: #7d7568;
+
+    --accent: #ef8b4c;
+    --accent-hover: #f7a369;
+    --accent-text: #f39a5f;
+    --accent-contrast: #1c1008;
+    --accent-soft: rgb(239 139 76 / 0.12);
+    --accent-glow: rgb(239 139 76 / 0.35);
+
+    --focus-ring: #f39a5f;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px -6px rgb(0 0 0 / 0.5);
+    --shadow: 0 16px 48px -20px rgb(0 0 0 / 0.7);
+  }
+}
+
+:root[data-theme="oscuro"] {
+  color-scheme: dark;
+
+  --bg: #12110f;
+  --bg-tint: #17150f;
+  --surface: #1b1917;
+  --surface-raised: #232019;
+  --surface-sunken: #0d0c0b;
+
+  --border: #2d2925;
+  --border-strong: #443d34;
+
+  --text: #f1ede5;
+  --text-muted: #a69e91;
+  --text-faint: #7d7568;
+
+  --accent: #ef8b4c;
+  --accent-hover: #f7a369;
+  --accent-text: #f39a5f;
+  --accent-contrast: #1c1008;
+  --accent-soft: rgb(239 139 76 / 0.12);
+  --accent-glow: rgb(239 139 76 / 0.35);
+
+  --focus-ring: #f39a5f;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px -6px rgb(0 0 0 / 0.5);
+  --shadow: 0 16px 48px -20px rgb(0 0 0 / 0.7);
+}

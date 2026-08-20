@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Chequeo de tipos
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Formato
+        run: pnpm exec prettier --check .
+
+      - name: Build de los dos sitios
+        run: pnpm build
+
+      # Si el prerender falla en silencio, dist/index.html queda con el <div>
+      # vacío y el sitio pierde todo su SEO sin que nada avise. Este paso lo
+      # convierte en un fallo de CI.
+      - name: Verificar que el HTML se prerenderizó
+        run: |
+          for app in ramiroagustin bytefix; do
+            file="apps/$app/dist/index.html"
+            if grep -q '<div id="root"></div>' "$file"; then
+              echo "::error::$app se publicó sin prerenderizar"
+              exit 1
+            fi
+            echo "✓ $app prerenderizado ($(wc -c < "$file") bytes)"
+          done

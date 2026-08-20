@@ -1,0 +1,26 @@
+{
+  "name": "@sites/ramiroagustin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm build:client && pnpm build:ssr && node scripts/prerender.mjs",
+    "build:client": "vite build",
+    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sites/tokens": "workspace:*",
+    "@sites/ui": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.3"
+  }
+}

@@ -1,0 +1,27 @@
+/* Syne (display / logo) + Inter (texto). Self-hosted.
+   Nota: en el sitio anterior estos @font-face apuntaban a `../fonts/`, una
+   carpeta que no existía, y las tres fuentes devolvían 404 en producción. */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Inter-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/Inter-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Syne";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/fonts/Syne-ExtraBold.woff2") format("woff2");
+}

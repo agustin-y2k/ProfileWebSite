@@ -1,0 +1,19 @@
+.logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.75rem;
+  letter-spacing: -0.05em;
+  color: var(--text);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.fix {
+  color: var(--accent);
+}
+
+@media (min-width: 48rem) {
+  .logo {
+    font-size: 2.1rem;
+  }
+}

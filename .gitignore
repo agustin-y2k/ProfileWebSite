@@ -1,0 +1,29 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Artefactos de build
+dist/
+out/
+*.tsbuildinfo
+
+# Entorno / secretos
+.env
+.env.*
+!.env.example
+
+# Sitios anteriores: se conservan en disco como referencia, pero no se
+# versionan ni se publican.
+legacy/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea/

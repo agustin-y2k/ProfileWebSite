@@ -1,0 +1,28 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Vista previa local de los sitios ya compilados, sin túnel de Cloudflare.
+#
+#   docker compose -f compose.local.yml up --build
+#     → http://localhost:8091  (ramiroagustin)
+#     → http://localhost:8092  (bytefix)
+#
+# Los puertos se publican solo en 127.0.0.1: no quedan expuestos a la red local.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  web-ramiro:
+    build:
+      context: .
+      dockerfile: apps/ramiroagustin/Dockerfile
+      args:
+        APP: ramiroagustin
+    ports:
+      - "127.0.0.1:8091:80"
+
+  web-bytefix:
+    build:
+      context: .
+      dockerfile: apps/bytefix/Dockerfile
+      args:
+        APP: bytefix
+    ports:
+      - "127.0.0.1:8092:80"

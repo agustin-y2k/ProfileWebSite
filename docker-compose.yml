@@ -1,0 +1,55 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Los dos sitios se construyen desde el monorepo y se sirven como estáticos.
+# El contexto de build es la raíz del repo (no la carpeta de la app) porque el
+# Dockerfile necesita el lockfile y los paquetes compartidos de packages/.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  web-ramiro:
+    build:
+      context: .
+      dockerfile: apps/ramiroagustin/Dockerfile
+      args:
+        APP: ramiroagustin
+    image: sites/ramiroagustin:latest
+    container_name: web-ramiro
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - web
+
+  web-bytefix:
+    build:
+      context: .
+      dockerfile: apps/bytefix/Dockerfile
+      args:
+        APP: bytefix
+    image: sites/bytefix:latest
+    container_name: web-bytefix
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - web
+
+  # Enruta ambos dominios desde Cloudflare hacia los contenedores.
+  # No abre ningún puerto hacia internet: la conexión sale desde adentro.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:?falta TUNNEL_TOKEN en el archivo .env}
+    networks:
+      - web
+    depends_on:
+      web-ramiro:
+        condition: service_healthy
+      web-bytefix:
+        condition: service_healthy
+
+networks:
+  web:
+    driver: bridge

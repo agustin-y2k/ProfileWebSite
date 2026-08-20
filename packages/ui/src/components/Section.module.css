@@ -1,0 +1,20 @@
+.section {
+  position: relative;
+}
+
+.tight {
+  padding-block: var(--space-7);
+}
+
+.default {
+  padding-block: var(--space-9);
+}
+
+.loose {
+  padding-block: var(--space-10);
+}
+
+.alt {
+  background: var(--surface-sunken);
+  border-block: 1px solid var(--border);
+}

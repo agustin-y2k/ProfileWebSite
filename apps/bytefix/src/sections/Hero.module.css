@@ -1,0 +1,88 @@
+.hero {
+  padding-block: var(--space-8) var(--space-9);
+  text-align: center;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  max-width: 15ch;
+}
+
+.accent {
+  color: var(--accent);
+  /* Resplandor sutil: refuerza la marca sin sacrificar contraste de lectura. */
+  text-shadow: 0 0 42px var(--accent-glow);
+}
+
+.lead {
+  max-width: 56ch;
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+/* ── Franja de confianza ─────────────────────────────────────────────────── */
+.trust {
+  display: grid;
+  gap: var(--space-4);
+  width: 100%;
+  margin-top: var(--space-7);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border);
+  text-align: left;
+  list-style: none;
+}
+
+.trustItem {
+  display: flex;
+  align-items: start;
+  gap: var(--space-3);
+}
+
+.check {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--accent);
+}
+
+.trustTitle {
+  display: block;
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.trustNote {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+@media (min-width: 48rem) {
+  .hero {
+    padding-block: var(--space-9) var(--space-7);
+  }
+
+  .trust {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+}

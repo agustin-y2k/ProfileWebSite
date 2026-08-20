@@ -1,0 +1,27 @@
+{
+  "name": "sites",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:ramiro": "pnpm --filter @sites/ramiroagustin dev",
+    "dev:bytefix": "pnpm --filter @sites/bytefix dev",
+    "build": "pnpm -r --filter \"./apps/*\" build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "globals": "^15.12.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0"
+  }
+}

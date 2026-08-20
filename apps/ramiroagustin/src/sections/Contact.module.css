@@ -1,0 +1,77 @@
+.head {
+  max-width: var(--measure);
+  margin-bottom: var(--space-7);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  margin-block: var(--space-2) var(--space-3);
+}
+
+.intro {
+  color: var(--text-muted);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card {
+  display: grid;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  transition:
+    border-color var(--duration) var(--ease-out),
+    transform var(--duration) var(--ease-out),
+    box-shadow var(--duration) var(--ease-out);
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius);
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}
+
+.cardLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.cardValue {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text);
+  /* Un mail largo no debe desbordar la tarjeta en pantallas chicas. */
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 40rem) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

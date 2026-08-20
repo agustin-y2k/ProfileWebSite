@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Ramiro Agustín — Ingeniero en informática</title>
+    <meta
+      name="description"
+      content="Ramiro Agustín, ingeniero en informática en San Rafael, Mendoza. Reparación de equipos, desarrollo de software y redes que se sostienen en el día a día."
+    />
+    <link rel="canonical" href="https://ramiroagustin.site/" />
+    <meta name="author" content="Ramiro Agustín" />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="any" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12110f" media="(prefers-color-scheme: dark)" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ramiroagustin.site/" />
+    <meta property="og:title" content="Ramiro Agustín — Ingeniero en informática" />
+    <meta
+      property="og:description"
+      content="Reparación de equipos, desarrollo de software y redes. San Rafael, Mendoza."
+    />
+    <meta property="og:image" content="https://ramiroagustin.site/favicon.png" />
+    <meta property="og:locale" content="es_AR" />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- Las dos fuentes que aparecen en el primer viewport. El resto de los
+         pesos carga bajo demanda con font-display: swap. -->
+    <link
+      rel="preload"
+      href="/fonts/dm-sans-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/libre-baskerville-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Ramiro Agustín",
+        "url": "https://ramiroagustin.site/",
+        "jobTitle": "Ingeniero en informática",
+        "email": "mailto:agustin.y2k@gmail.com",
+        "telephone": "+54-9-260-431-6731",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "San Rafael",
+          "addressRegion": "Mendoza",
+          "addressCountry": "AR"
+        },
+        "knowsAbout": ["Reparación de computadoras", "Desarrollo de software", "Redes"],
+        "owns": {
+          "@type": "Organization",
+          "name": "ByteFix",
+          "url": "https://bytefix.shop/"
+        }
+      }
+    </script>
+
+    <script>
+      /* Corre antes del primer paint para evitar el flash de tema claro en
+         quien eligió oscuro. Es la única razón por la que este script es
+         inline y bloqueante: diferirlo reintroduce el parpadeo. */
+      (function () {
+        document.documentElement.classList.add("js");
+        try {
+          var saved = localStorage.getItem("tema");
+          if (saved === "claro" || saved === "oscuro") {
+            document.documentElement.dataset.theme = saved;
+          }
+        } catch (e) {
+          /* localStorage bloqueado: se usa la preferencia del sistema */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"><!--app-html--></div>
+    <script type="module" src="/src/entry-client.tsx"></script>
+  </body>
+</html>

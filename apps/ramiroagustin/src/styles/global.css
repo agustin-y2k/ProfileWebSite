@@ -1,0 +1,61 @@
+@import "@sites/tokens/reset.css";
+@import "@sites/tokens/scale.css";
+@import "./fonts.css";
+@import "./theme.css";
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  color: var(--text);
+  background-color: var(--bg);
+  transition:
+    background-color var(--duration) var(--ease-out),
+    color var(--duration) var(--ease-out);
+}
+
+/* Tinte tenue de papel. Va en una capa `position: fixed` propia y no en
+   `body` con `background-attachment: fixed`: esa propiedad obliga a repintar
+   todo el fondo en cada frame de scroll —y iOS Safari la ignora—, mientras
+   que como capa fija aparte el compositor la deja quieta. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 45% at 12% -8%, var(--accent-soft), transparent 60%),
+    radial-gradient(ellipse 55% 40% at 95% 12%, var(--bg-tint), transparent 55%);
+  transition: background-color var(--duration) var(--ease-out);
+}
+
+/* ── Utilidades tipográficas del sitio ───────────────────────────────────── */
+
+.display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Etiqueta pequeña en monoespaciada: el «tono ingeniero» del sitio.
+   Usa la stack del sistema, así no suma ni un byte de fuente. */
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
