@@ -21,6 +21,14 @@ COPY tsconfig.base.json ./
 COPY packages/ packages/
 COPY apps/${APP}/ apps/${APP}/
 
+# Analítica: si no se pasan, el plugin de Vite no inyecta nada y el sitio se
+# compila sin script de terceros. Son públicas por naturaleza —terminan en el
+# HTML—, así que no hay secreto que proteger acá.
+ARG VITE_ANALYTICS_SRC=""
+ARG VITE_ANALYTICS_ID=""
+ENV VITE_ANALYTICS_SRC=$VITE_ANALYTICS_SRC
+ENV VITE_ANALYTICS_ID=$VITE_ANALYTICS_ID
+
 RUN pnpm --filter ./apps/${APP} build
 
 # ─── Etapa 2: runtime ────────────────────────────────────────────────────────

@@ -102,6 +102,53 @@ Para actualizar después de un cambio:
 git pull && docker compose up -d --build
 ```
 
+## Analítica
+
+Umami autohospedado en la misma Pi: sin cookies, sin datos personales y sin
+enviar nada a terceros. Los datos quedan en un volumen de Docker.
+
+Es opcional. Con las variables de analítica vacías en `.env`, los sitios se
+compilan sin ningún script de terceros.
+
+Puesta en marcha, en este orden:
+
+1. Generar los secretos y completarlos en `.env`:
+
+   ```bash
+   openssl rand -base64 32   # UMAMI_DB_PASSWORD
+   openssl rand -base64 32   # UMAMI_APP_SECRET
+   ```
+
+2. Levantar Umami:
+
+   ```bash
+   docker compose up -d umami-db umami
+   ```
+
+3. En Cloudflare, agregar un hostname público al túnel:
+   `analytics.ramiroagustin.online` → `http://umami:3000`.
+
+4. Entrar a ese subdominio. El usuario inicial es `admin` / `umami`:
+   **cambiar la contraseña de inmediato.**
+
+5. Settings → Websites → Add website, una vez por sitio. Copiar el _Website ID_
+   de cada uno a `ANALYTICS_ID_RAMIROAGUSTIN` y `ANALYTICS_ID_BYTEFIX`.
+
+6. Reconstruir los sitios para que el script quede inyectado:
+
+   ```bash
+   docker compose up -d --build web-ramiro web-bytefix
+   ```
+
+El ID se inyecta **en tiempo de build**, no en runtime: por eso hace falta
+reconstruir. A cambio, el HTML sale con el script ya puesto y no hay que
+resolver nada del lado del cliente.
+
+Si se cambia el subdominio, hay que actualizarlo en tres lugares:
+`VITE_ANALYTICS_SRC` del `.env`, el hostname del túnel, y las directivas
+`script-src` y `connect-src` de los dos `apps/*/nginx.conf` — la CSP bloquea
+cualquier origen que no esté declarado.
+
 ## Detalles que no son obvios
 
 **El prerender es lo que sostiene el SEO.** `vite build` deja un

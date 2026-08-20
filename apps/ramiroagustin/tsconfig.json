@@ -1,7 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    // Solo tipos de navegador. Deliberadamente sin "node": el código de src/
+    // corre en el navegador, y tener los globales de Node acá haría que un
+    // `process.env` colado en un componente compilara sin protestar y
+    // reventara recién en producción.
     "types": ["vite/client"]
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src"]
 }
