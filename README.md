@@ -147,18 +147,58 @@ lo que permite entrar por SSH si el túnel se cae con un cliente esperando:
 ssh -L 3100:localhost:3100 pi@raspberrypi
 ```
 
-### Qué hay hecho y qué falta
+### Qué hace
 
-Funcionan la carga de la orden, las fotos, la firma, el guardado y la emisión
-del comprobante en PDF. Todavía **no** están el envío por correo, el
-seguimiento público ni la autenticación: hasta que esté el paso de Cloudflare
-Access, el subdominio no se publica.
+El circuito está completo: se carga la orden con fotos y firma, se emite el
+comprobante en PDF, se manda por correo con el número de orden y el enlace de
+seguimiento, se le van cargando novedades y estados, el cliente los sigue desde
+bytefix.shop, y las fotos sueltas se borran solas a los 30 días de entregado el
+equipo.
 
 Las condiciones que se imprimen al pie del comprobante viven en
-`src/condiciones.ts`. Las tres activas repiten lo que bytefix.shop ya publica.
-Las de garantía, guarda de equipos no retirados y responsabilidad sobre los
-datos están escritas pero comentadas: son compromisos nuevos y conviene que las
-revise alguien de derecho antes de emitirlas.
+`src/condiciones.ts` y repiten lo que bytefix.shop ya publica.
+
+### Puesta en marcha en la Pi
+
+El orden importa, porque la contraseña se genera con el propio contenedor.
+
+1. **Contraseña del panel.** Con `TALLER_PASSWORD_HASH` todavía vacía en el
+   `.env`:
+
+   ```bash
+   docker compose run --rm taller node --import tsx src/hash.ts 'tu contraseña'
+   ```
+
+   El valor que imprime —empieza con `scrypt$`— va a `TALLER_PASSWORD_HASH`.
+
+   Por eso esa variable **no** lleva guarda `${...:?}` en el compose, a
+   diferencia de `TUNNEL_TOKEN`: Compose interpola el archivo entero antes de
+   ejecutar nada, así que un guarda ahí haría imposible correr el comando que
+   genera el hash. La validación está en el arranque del servidor, que sale con
+   un mensaje que incluye este mismo comando.
+
+2. **Correo.** `TALLER_SMTP_USUARIO` y `TALLER_SMTP_CLAVE` con una contraseña
+   de aplicación de Gmail —no la de la cuenta; requiere el 2FA activado—. Con
+   estas vacías el sistema funciona igual: las órdenes quedan marcadas como
+   "correo sin configurar" y el PDF se descarga desde el panel.
+
+3. **Levantar.**
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+4. **Subdominio en el túnel**: `taller.bytefix.shop` → `http://taller:3100`.
+   Después completar `TALLER_URL_PUBLICA` y reiniciar, para que el enlace de
+   seguimiento entre en los correos.
+
+5. **Cloudflare Access** delante del subdominio, **excluyendo** `/seguimiento`,
+   `/s/*` y `/estilos.css`, que son las rutas de los clientes. El resto del
+   panel queda detrás.
+
+6. **Publicar el seguimiento en bytefix.shop**: poner la URL en `seguimiento`
+   de `packages/negocio/src/site.ts` y reconstruir. Mientras sea `null`, la
+   sección no se renderiza.
 
 ### Detalles que no son obvios
 

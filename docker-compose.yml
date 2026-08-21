@@ -67,7 +67,12 @@ services:
     restart: unless-stopped
     environment:
       TALLER_DATOS: /datos
-      TALLER_PASSWORD_HASH: ${TALLER_PASSWORD_HASH:?falta TALLER_PASSWORD_HASH en el archivo .env}
+      # Sin guarda `:?` a propósito. Compose interpola el archivo entero antes
+      # de ejecutar cualquier comando, así que un `:?` acá haría imposible
+      # correr el propio comando que genera el hash: no se puede generar sin
+      # tenerlo ya. La validación vive en el arranque del servidor, que falla
+      # con un mensaje que incluye el comando a ejecutar.
+      TALLER_PASSWORD_HASH: ${TALLER_PASSWORD_HASH:-}
       TALLER_URL_PUBLICA: ${TALLER_URL_PUBLICA:-}
       TALLER_SMTP_USUARIO: ${TALLER_SMTP_USUARIO:-}
       TALLER_SMTP_CLAVE: ${TALLER_SMTP_CLAVE:-}
