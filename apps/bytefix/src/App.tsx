@@ -3,6 +3,7 @@ import { Header } from "./components/Header";
 import { WhatsAppFab } from "./components/WhatsAppFab";
 import { Hero } from "./sections/Hero";
 import { Process } from "./sections/Process";
+import { Seguimiento } from "./sections/Seguimiento";
 import { Services } from "./sections/Services";
 import { Pricing } from "./sections/Pricing";
 import { Testimonials } from "./sections/Testimonials";
@@ -20,6 +21,9 @@ export function App() {
         {/* El proceso va antes de los servicios: responde «¿cuánto me va a
             salir?» antes de que el precio aparezca en pantalla. */}
         <Process />
+        {/* No renderiza nada mientras el subdominio del taller no esté
+            publicado. */}
+        <Seguimiento />
         <Services />
         <Pricing />
         {/* No renderiza nada mientras no haya testimonios reales cargados. */}

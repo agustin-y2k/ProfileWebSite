@@ -52,6 +52,43 @@ services:
     networks:
       - web
 
+  # ─── Sistema de órdenes de servicio ────────────────────────────────────────
+  # Único servicio con proceso Node en runtime: tiene base de datos y
+  # formularios. Los dos sitios siguen siendo nginx + estáticos.
+  #
+  # Se publica por el mismo túnel, en su propio subdominio, y va detrás de
+  # Cloudflare Access: es un panel de administración, no una página pública.
+  taller:
+    build:
+      context: .
+      dockerfile: apps/taller/Dockerfile
+    image: sites/taller:latest
+    container_name: taller
+    restart: unless-stopped
+    environment:
+      TALLER_DATOS: /datos
+      TALLER_PASSWORD_HASH: ${TALLER_PASSWORD_HASH:?falta TALLER_PASSWORD_HASH en el archivo .env}
+      TALLER_URL_PUBLICA: ${TALLER_URL_PUBLICA:-}
+      TALLER_SMTP_USUARIO: ${TALLER_SMTP_USUARIO:-}
+      TALLER_SMTP_CLAVE: ${TALLER_SMTP_CLAVE:-}
+      TALLER_EMAIL_NOMBRE: ${TALLER_EMAIL_NOMBRE:-ByteFix}
+      TALLER_EMAIL_COPIA: ${TALLER_EMAIL_COPIA:-}
+    volumes:
+      # Base de datos, PDFs y fotos. Es lo único que tiene que sobrevivir a un
+      # `docker compose up --build`. Ojo: `down -v` sí lo borra.
+      - taller-datos:/datos
+    expose:
+      - "3100"
+    # Acceso local atado a 127.0.0.1, igual que Umami: permite entrar por SSH
+    # sin pasar por internet, que es lo que salva el día si el túnel se cae
+    # justo con un cliente esperando.
+    #
+    #   ssh -L 3100:localhost:3100 pi@raspberrypi
+    ports:
+      - "127.0.0.1:3100:3100"
+    networks:
+      - web
+
   # Enruta ambos dominios desde Cloudflare hacia los contenedores.
   # No abre ningún puerto hacia internet: la conexión sale desde adentro.
   cloudflared:
@@ -72,3 +109,6 @@ services:
 networks:
   web:
     driver: bridge
+
+volumes:
+  taller-datos:
