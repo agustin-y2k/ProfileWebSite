@@ -23,7 +23,7 @@ export function Seguimiento() {
           <div>
             <p className="label">Ya dejaste tu equipo</p>
             <h2 id="seguimiento-titulo" className={styles.title}>
-              Seguí tu reparación
+              Seguí el estado de tu equipo
             </h2>
             <p className={styles.intro}>
               Con el número de orden que te llegó por correo podés ver en qué anda tu

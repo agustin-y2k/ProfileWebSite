@@ -12,7 +12,7 @@ export function vistaBuscarSeguimiento(datos: {
 }): string {
   const contenido = html`
     <form method="post" action="/seguimiento" class="entrar">
-      <h1 class="titulo-publico">Seguí tu reparación</h1>
+      <h1 class="titulo-publico">Seguí el estado de tu equipo</h1>
       <p class="ayuda">
         Ingresá el número de orden que te llegó por correo —tiene la forma
         BF-año-número— y el teléfono con el que dejaste el equipo.
