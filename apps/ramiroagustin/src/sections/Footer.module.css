@@ -6,7 +6,7 @@
 .inner {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: start;
   justify-content: space-between;
   gap: var(--space-3);
 }
@@ -24,4 +24,29 @@
 
 .link:hover {
   color: var(--accent-text);
+}
+
+.identity {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 62ch;
+}
+
+.note {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-faint);
+}
+
+.inlineLink {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.inlineLink:hover {
+  color: var(--accent-text);
+  text-decoration-color: var(--accent);
 }
