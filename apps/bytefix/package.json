@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json"
   },
   "dependencies": {
+    "@sites/negocio": "workspace:*",
     "@sites/tokens": "workspace:*",
     "@sites/ui": "workspace:*",
     "react": "^19.0.0",
