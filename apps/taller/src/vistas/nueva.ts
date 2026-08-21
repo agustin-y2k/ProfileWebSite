@@ -32,6 +32,19 @@ export function vistaNueva({ datos, errores }: Opciones): string {
           : ""
       }
 
+      <!-- El borrador nunca se aplica solo: se ofrece y se decide. Un
+           formulario que aparece con el nombre y las fotos de otra persona es
+           peor que uno vacío. -->
+      <div class="borrador" data-borrador hidden>
+        <p>Quedó una carga sin terminar <span data-borrador-cuando></span>.</p>
+        <div class="borrador-botones">
+          <button type="button" class="secundario" data-borrador-retomar>Retomar</button>
+          <button type="button" class="secundario" data-borrador-descartar>
+            Descartar
+          </button>
+        </div>
+      </div>
+
       <p class="ayuda">
         Solo los datos del cliente son obligatorios: son los que hacen falta para
         mandarle el comprobante. Todo el resto se puede dejar vacío ahora y completar
@@ -41,12 +54,16 @@ export function vistaNueva({ datos, errores }: Opciones): string {
       <fieldset>
         <legend>Cliente</legend>
 
+        <!-- Los tres campos van con autocomplete="off" y no con los valores
+             semánticos (name, tel, email): son datos del cliente, no de quien
+             usa el navegador. Con el valor semántico, Chrome ofrece —y a veces
+             completa solo— los datos de Ramiro en la ficha de otra persona. -->
         <label for="cliente_nombre">Nombre y apellido <span class="req">*</span></label>
         <input
           id="cliente_nombre"
           name="cliente_nombre"
           value="${datos.cliente_nombre}"
-          autocomplete="name"
+          autocomplete="off"
           autocapitalize="words"
           enterkeyhint="next"
           ${describe(errores, "cliente_nombre")}
@@ -60,8 +77,7 @@ export function vistaNueva({ datos, errores }: Opciones): string {
           type="tel"
           inputmode="tel"
           value="${datos.cliente_telefono}"
-          autocomplete="tel"
-          placeholder="260 431-6731"
+          autocomplete="off"
           ${describe(errores, "cliente_telefono")}
         />
         ${error(errores, "cliente_telefono")}
@@ -73,7 +89,7 @@ export function vistaNueva({ datos, errores }: Opciones): string {
           type="email"
           inputmode="email"
           value="${datos.cliente_email}"
-          autocomplete="email"
+          autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
           ${describe(errores, "cliente_email")}
@@ -246,12 +262,11 @@ ${datos.observaciones}</textarea>
               id="presupuesto"
               name="presupuesto"
               value="${datos.presupuesto}"
-              placeholder="$25.000"
             />
           </div>
           <div>
             <label for="plazo">Plazo estimado</label>
-            <input id="plazo" name="plazo" value="${datos.plazo}" placeholder="3 días" />
+            <input id="plazo" name="plazo" value="${datos.plazo}" />
           </div>
         </div>
       </fieldset>

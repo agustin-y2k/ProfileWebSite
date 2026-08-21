@@ -219,6 +219,27 @@ a:focus-visible {
   gap: 0.75rem;
 }
 
+/* ── Borrador ofrecido ────────────────────────────────────────────────────── */
+
+.borrador {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radio);
+  background: var(--surface-raised);
+}
+
+.borrador p {
+  margin: 0 0 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.borrador-botones {
+  display: flex;
+  gap: 0.5rem;
+}
+
 /* ── Chips: radios y checkboxes con área de toque grande ──────────────────── */
 
 .opciones {

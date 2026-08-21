@@ -135,7 +135,6 @@ export function vistaDetalle(
           id="nota"
           name="nota"
           rows="3"
-          placeholder="Llegó el pin de carga, lo sueldo mañana."
         ></textarea>
 
         <button type="submit" class="principal">Guardar novedad</button>
