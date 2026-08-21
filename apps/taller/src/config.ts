@@ -71,7 +71,12 @@ export const config = {
     host: texto("TALLER_SMTP_HOST") || "smtp.gmail.com",
     puerto: Number(process.env["TALLER_SMTP_PUERTO"] ?? 465),
     usuario: texto("TALLER_SMTP_USUARIO"),
-    clave: texto("TALLER_SMTP_CLAVE"),
+    // Google muestra la contraseña de aplicación en cuatro grupos de cuatro
+    // ("abcd efgh ijkl mnop"), pero el secreto son los 16 caracteres sin los
+    // espacios: están solo para poder leerla. Copiarla tal cual se ve es el
+    // error más probable de toda la puesta en marcha, así que se limpian acá
+    // en vez de fallar con un "credenciales inválidas" que no explica nada.
+    clave: texto("TALLER_SMTP_CLAVE").replace(/\s+/g, ""),
     /** Nombre visible del remitente. La dirección es la del usuario SMTP. */
     nombre: texto("TALLER_EMAIL_NOMBRE") || "ByteFix",
     /** Copia oculta para uno mismo: queda en Recibidos, no solo en Enviados. */
