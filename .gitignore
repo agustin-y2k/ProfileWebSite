@@ -7,6 +7,12 @@ dist/
 out/
 *.tsbuildinfo
 
+# Datos del taller: base SQLite, fotos de equipos de clientes y comprobantes en
+# PDF. En la Pi viven en un volumen de Docker, pero si alguna vez se corre el
+# servidor fuera del contenedor aparecen acá. Es información personal de gente
+# real y este repositorio es público.
+datos/
+
 # Entorno / secretos
 .env
 .env.*

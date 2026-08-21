@@ -11,15 +11,21 @@ Los dos comparten sistema de diseño y componentes, pero tienen identidad
 propia: el personal es claro/editorial con toggle de tema; ByteFix es oscuro y
 está comprometido con el cian de su marca.
 
+Y un tercer servicio que no es un sitio: **`apps/taller/`**, el sistema interno
+de órdenes de servicio con el que se recibe un equipo y se le emite un
+comprobante al cliente.
+
 ## Stack
 
 - **React 19 + TypeScript** en modo estricto (`noUncheckedIndexedAccess`
   incluido).
 - **Vite 6** para build y dev server.
 - **CSS Modules** sobre tokens de diseño propios. Sin framework de CSS.
-- **Prerender propio** con `react-dom/server`: el HTML se sirve completo, sin
-  proceso de Node en runtime.
-- **pnpm workspaces** para compartir `packages/ui` y `packages/tokens`.
+- **Prerender propio** con `react-dom/server`: el HTML de los dos sitios se
+  sirve completo, sin proceso de Node en runtime.
+- **Fastify + SQLite** en el taller, que sí necesita servidor: es el único.
+- **pnpm workspaces** para compartir `packages/ui`, `packages/tokens` y
+  `packages/negocio`.
 - **Docker multi-stage** → la imagen final es nginx + estáticos, sin Node.
 - **Cloudflare Tunnel** para publicar sin abrir puertos.
 
@@ -37,10 +43,20 @@ apps/
     scripts/         prerender
     Dockerfile       build + runtime
     nginx.conf       caché, compresión y cabeceras
+  taller/            órdenes de servicio (no es un sitio: ver más abajo)
+    src/
+      vistas/        páginas del panel, HTML renderado en servidor
+      db.ts          esquema de SQLite
+    public/          CSS y el JS de la firma
 packages/
   tokens/            reset, escalas y breakpoints compartidos
   ui/                Button, Card, Section, Container + hooks
+  negocio/           dirección, teléfono y tarifas de ByteFix
 ```
+
+`packages/negocio` es lo que evita el problema clásico del talonario de papel:
+la dirección y los precios que imprime un comprobante salen del mismo módulo
+que los que muestra bytefix.shop, así que no pueden quedar desfasados.
 
 Los tokens compartidos son de **ritmo** (espaciado, tipografía, radios,
 motion), no de color. El color vive en el `theme.css` de cada app: es lo que
@@ -60,6 +76,8 @@ pnpm typecheck        # tsc en todos los paquetes
 pnpm lint             # eslint
 pnpm build            # compila los dos sitios a apps/*/dist
 ```
+
+El taller no tiene paso de build: `pnpm build` solo toca los sitios.
 
 ### Sin Node instalado
 
@@ -82,8 +100,13 @@ docker compose -f compose.local.yml up --build
 
 - http://localhost:8091 → ramiroagustin
 - http://localhost:8092 → bytefix
+- http://localhost:3100 → taller (órdenes de servicio)
 
 Los puertos se publican solo en `127.0.0.1`.
+
+El taller se levanta con el código montado y `--watch`: al guardar un archivo
+el proceso se reinicia solo. Los dos sitios sí hay que reconstruirlos, porque
+se sirven ya compilados.
 
 ## Despliegue en la Raspberry
 
@@ -101,6 +124,170 @@ Para actualizar después de un cambio:
 ```bash
 git pull && docker compose up -d --build
 ```
+
+## Órdenes de servicio
+
+`apps/taller/` es el sistema con el que se recibe un equipo: se cargan los
+datos, el cliente firma en la pantalla del celular y se emite un comprobante.
+Es el único servicio del repo con un proceso Node en runtime — los dos sitios
+siguen siendo nginx y estáticos.
+
+```bash
+docker compose up -d --build taller
+```
+
+Se publica por el mismo túnel, en su propio subdominio, y va **detrás de
+Cloudflare Access**: es un panel de administración, no una página pública. El
+subdominio se da de alta en el túnel apuntando a `http://taller:3100`.
+
+También queda escuchando en `127.0.0.1:3100` de la Pi, igual que Umami. Eso es
+lo que permite entrar por SSH si el túnel se cae con un cliente esperando:
+
+```bash
+ssh -L 3100:localhost:3100 pi@raspberrypi
+```
+
+### Qué hay hecho y qué falta
+
+Funcionan la carga de la orden, las fotos, la firma, el guardado y la emisión
+del comprobante en PDF. Todavía **no** están el envío por correo, el
+seguimiento público ni la autenticación: hasta que esté el paso de Cloudflare
+Access, el subdominio no se publica.
+
+Las condiciones que se imprimen al pie del comprobante viven en
+`src/condiciones.ts`. Las tres activas repiten lo que bytefix.shop ya publica.
+Las de garantía, guarda de equipos no retirados y responsabilidad sobre los
+datos están escritas pero comentadas: son compromisos nuevos y conviene que las
+revise alguien de derecho antes de emitirlas.
+
+### Detalles que no son obvios
+
+**Corre TypeScript directo con `tsx`, sin compilar a `dist/`.** Evita el paso
+de build y el bundling de los paquetes del workspace. El costo es alrededor de
+un segundo de arranque en un proceso que queda levantado durante semanas.
+
+**La imagen es Debian y no Alpine.** `better-sqlite3` publica binarios ya
+compilados para linux-arm64 con glibc, pero no para musl: en Alpine, la Pi
+tendría que compilarlo desde fuente en cada build.
+
+**Todo lo que se interpola en las vistas se escapa solo.** Las plantillas usan
+un tag `html` que escapa cualquier valor que no venga de otra plantilla. Sin
+eso, olvidarse un escapado en un solo campo —el nombre de un cliente— alcanza
+para inyectar HTML en el panel.
+
+**Prettier tiene el formateo embebido apagado para `src/vistas/`.** Reconoce el
+tag `html` como HTML y lo reformatea, pero el resultado no es idempotente:
+`--write` seguido de `--check` falla solo y rompe CI.
+
+**El formulario guarda un borrador en `localStorage` mientras se completa.** El
+modo de falla más probable del sistema es que suene el teléfono a la mitad de
+la carga; al volver, la orden tiene que seguir ahí.
+
+**El número de orden se calcula en hora argentina.** Con UTC, una orden cargada
+el 31 de diciembre a las 21:30 quedaría numerada con el año siguiente.
+
+**El POST redirige en vez de responder HTML.** Si no, un refresh del navegador
+reenvía el formulario y emite una segunda orden del mismo equipo.
+
+**Las fotos se suben aparte del formulario, apenas se sacan.** Guardar la orden
+queda instantáneo aunque tenga cuatro fotos, una señal mala no arruina toda la
+carga, y en el borrador entran como un id de 32 caracteres en vez de varios MB.
+
+**El navegador las redimensiona antes de subirlas** a 1600 px de lado mayor y
+JPEG de calidad 0.75: una foto de celular pasa de varios MB a ~200 KB. Se usa
+`createImageBitmap` con `imageOrientation: "from-image"` porque sin eso las
+fotos sacadas en vertical se guardan acostadas.
+
+**Hay dos botones y no uno.** `capture="environment"` abre la cámara directo,
+que es lo que se quiere en el mostrador, pero en varios teléfonos impide elegir
+una foto ya sacada. El segundo botón es el input sin `capture`.
+
+**`rutaDeFoto` valida el id antes de tocar el disco.** Es lo único que separa
+`GET /fotos/:id` de servir cualquier archivo del contenedor.
+
+**El PDF es determinista y su hash se graba una sola vez.** `CreationDate` y
+`ModDate` salen de la fecha de la orden, no del reloj: si salieran del reloj,
+dos generaciones del mismo comprobante darían bytes distintos y el SHA-256
+dejaría de servir para compararlo con la copia del cliente. Por la misma razón
+una regeneración no pisa el hash ya guardado.
+
+**Lo que hace verificable al comprobante no es el PDF.** Un PDF se edita en
+cualquier lado y la firma dibujada con el dedo es una imagen, no una firma
+digital en el sentido de la Ley 25.506. Lo que prueba algo es el registro del
+servidor —el hash en la base— más la copia del correo, que queda con fecha en
+las dos casillas.
+
+**El comprobante usa las fuentes estándar de PDF, que codifican en cp1252.**
+Cubren el español entero, pero un nombre con un emoji haría fallar la emisión:
+`limpiar()` descarta lo que no se puede representar en vez de romper.
+
+**Los títulos de sección del PDF se dibujan recién si hay un dato debajo.** Con
+casi todos los campos opcionales, un "TRABAJO" solo y vacío es la situación
+normal, y se lee como si el comprobante hubiera salido incompleto.
+
+**Si la emisión del PDF falla, la orden igual se guarda.** Perder la carga con
+el cliente enfrente es peor que quedarse sin PDF; se regenera al pedirlo desde
+el detalle. El correo, por lo mismo, sale en segundo plano con reintentos: si
+Gmail está lento, esa espera no se paga con el cliente en el mostrador.
+
+**La clave de firma de las sesiones se deriva del hash de la contraseña.** No
+hace falta un secreto más en el `.env`, las sesiones sobreviven a un reinicio,
+y cambiar la contraseña cierra todas las sesiones abiertas — que es justo lo
+que se quiere si el motivo del cambio es que el teléfono se perdió.
+
+**El enlace de seguimiento lleva un token aleatorio, no el número de orden.**
+Los números son correlativos: con `/s/BF-2026-0001`, contar hasta 0002 daría
+los datos de otro cliente.
+
+**El seguimiento público muestra deliberadamente poco**: equipo, estado,
+novedades y lo presupuestado. Nada de DNI, correo, teléfono ni fotos. El token
+es impredecible, pero un enlace se reenvía por WhatsApp sin pensarlo.
+
+**Buscar una orden que no existe y acertar el número con el teléfono
+equivocado dan el mismo error.** Con dos mensajes distintos, probar números
+diría cuáles existen.
+
+**El número de orden se entrega por dos vías, no una.** Va en el asunto y en
+el cuerpo del correo —en un recuadro propio, porque es el dato que el cliente
+va a volver a buscar dentro de tres semanas—, y además hay un botón que lo
+manda por WhatsApp con el cliente todavía enfrente. Si el correo cae en spam o
+la dirección quedó mal tipeada, el WhatsApp llegó igual.
+
+**El aviso de "está listo" va por WhatsApp, no por correo.** Todo bytefix.shop
+empuja a ese canal y es por donde la gente contesta. El botón del detalle abre
+WhatsApp con el mensaje y el enlace ya escritos.
+
+**El reloj de los 30 días arranca en "entregada", no en "lista para
+retirar".** Un equipo puede quedar listo y retirarse tres semanas después;
+borrar las fotos mientras todavía puede haber un reclamo sería al revés. Y el
+equipo que nunca se retira conserva sus fotos para siempre, que es el caso en
+que más hacen falta.
+
+**El borrado de fotos tiene dos guardas y ninguna es opcional.** Solo se
+borran si el comprobante se envió por correo y si el PDF está en el disco. Si
+el correo no salió, las fotos no están en ninguna otra parte; si falta el PDF,
+borrarlas las perdería del sistema por completo y el comprobante se regeneraría
+sin ellas. No borrar cuesta unos MB; borrar de más no se deshace.
+
+**Las filas de `fotos` no se borran, solo los archivos.** Son el registro de
+cuántas hubo, y permiten que el detalle diga "se borró el tal día" en vez de
+mostrar imágenes rotas.
+
+**La limpieza corre adentro del proceso, no en un contenedor de cron.** La
+decisión se toma comparando fechas, no midiendo tiempo transcurrido: que la Pi
+haya estado apagada una semana no saltea ninguna pasada.
+
+**Las fotos huérfanas esperan 24 horas.** Una foto subida en una orden que se
+abandonó a la mitad queda sin ninguna fila que la referencie; el margen evita
+llevarse por delante una carga en curso.
+
+**`trustProxy` está activado.** Detrás de Cloudflare, sin eso todos los
+intentos de login vendrían de la IP del túnel y el freno de fuerza bruta
+bloquearía a Ramiro junto con todos los demás.
+
+**Solo los datos del cliente son obligatorios.** Cualquier otro campo exigido
+es un segundo de más con la persona esperando enfrente, y el sistema que tarda
+es el que no se usa.
 
 ## Analítica
 
