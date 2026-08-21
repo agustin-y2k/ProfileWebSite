@@ -10,17 +10,26 @@ import { config } from "./config";
  * hogareña es un blanco de fuerza bruta; con Access adelante, no lo es.
  */
 
+/**
+ * El separador es `:` y no el `$` de la convención de crypt(3) de Unix.
+ *
+ * Este valor viaja en un archivo `.env` que lee Docker Compose, y Compose
+ * interpola `$` ahí adentro: con `scrypt$sal$hash`, la sal se toma como el
+ * nombre de una variable y se reemplaza por vacío, en silencio. El hash llega
+ * mutilado al contenedor y el login falla sin ninguna pista de por qué.
+ */
 const ALGORITMO = "scrypt";
+const SEPARADOR = ":";
 const LARGO_CLAVE = 64;
 
 export function hashDeContrasena(contrasena: string): string {
   const sal = randomBytes(16);
   const derivada = scryptSync(contrasena.normalize("NFC"), sal, LARGO_CLAVE);
-  return `${ALGORITMO}$${sal.toString("hex")}$${derivada.toString("hex")}`;
+  return [ALGORITMO, sal.toString("hex"), derivada.toString("hex")].join(SEPARADOR);
 }
 
 export function contrasenaValida(contrasena: string): boolean {
-  const partes = config.contrasenaHash.split("$");
+  const partes = config.contrasenaHash.split(SEPARADOR);
   if (partes.length !== 3 || partes[0] !== ALGORITMO) return false;
 
   const sal = Buffer.from(partes[1] ?? "", "hex");
