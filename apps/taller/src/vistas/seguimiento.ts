@@ -14,8 +14,8 @@ export function vistaBuscarSeguimiento(datos: {
     <form method="post" action="/seguimiento" class="entrar">
       <h1 class="titulo-publico">Seguí tu reparación</h1>
       <p class="ayuda">
-        Ingresá el número de orden que te llegó por correo y el teléfono con el
-        que dejaste el equipo.
+        Ingresá el número de orden que te llegó por correo —tiene la forma
+        BF-año-número— y el teléfono con el que dejaste el equipo.
       </p>
 
       ${datos.error ? html`<p class="aviso-error" role="alert">${datos.error}</p>` : ""}
@@ -25,7 +25,6 @@ export function vistaBuscarSeguimiento(datos: {
         id="numero"
         name="numero"
         value="${datos.numero ?? ""}"
-        placeholder="BF-2026-0001"
         autocapitalize="characters"
         spellcheck="false"
         required

@@ -7,8 +7,9 @@
    3. Autocompletado del presupuesto desde la tarifa del servicio.
    4. Borrador en localStorage mientras se completa.
 
-   El borrador va último a propósito: al restaurar necesita poder volver a
+   El borrador va último a propósito: al retomarlo necesita poder volver a
    dibujar las miniaturas, así que las fotos tienen que estar inicializadas.
+   Nunca se aplica solo: se ofrece con un botón.
    ────────────────────────────────────────────────────────────────────────── */
 (function () {
   "use strict";
@@ -283,20 +284,22 @@
 
   var CLAVE = "taller:borrador";
   var aviso = formulario.querySelector("[data-borrador-aviso]");
+  var caja = formulario.querySelector("[data-borrador]");
+  var cuando = formulario.querySelector("[data-borrador-cuando]");
   var hayErrores = formulario.querySelector(".aviso-error") !== null;
 
   function guardarBorrador() {
     var deposito = almacen();
     if (!deposito) return;
 
-    var datos = {};
+    var datos = { guardadoEn: Date.now(), campos: {} };
     new FormData(formulario).forEach(function (valor, nombre) {
       // La firma se guarda aparte: es lo único pesado del formulario y
       // reescribirla en cada tecla haría trabajar al disco de más. Las fotos
       // sí entran, porque en el borrador son solo su id.
       if (nombre === "firma") return;
-      if (datos[nombre] === undefined) datos[nombre] = [];
-      datos[nombre].push(valor);
+      if (datos.campos[nombre] === undefined) datos.campos[nombre] = [];
+      datos.campos[nombre].push(valor);
     });
 
     try {
@@ -307,41 +310,19 @@
     }
   }
 
-  function restaurarBorrador() {
+  function leerBorrador() {
     var deposito = almacen();
-    if (!deposito) return;
+    if (!deposito) return null;
 
     var crudo = deposito.getItem(CLAVE);
-    if (!crudo) return;
+    if (!crudo) return null;
 
-    var datos;
     try {
-      datos = JSON.parse(crudo);
+      var datos = JSON.parse(crudo);
+      return datos && datos.campos ? datos : null;
     } catch (e) {
-      return;
+      return null;
     }
-
-    Object.keys(datos).forEach(function (nombre) {
-      var valores = datos[nombre];
-
-      // Las fotos no tienen un campo fijo que rellenar: hay que volver a
-      // dibujar la miniatura de cada una.
-      if (nombre === "fotos") {
-        valores.forEach(agregarFoto);
-        return;
-      }
-
-      var campos = formulario.querySelectorAll('[name="' + nombre + '"]');
-      Array.prototype.forEach.call(campos, function (campo) {
-        if (campo.type === "checkbox" || campo.type === "radio") {
-          campo.checked = valores.indexOf(campo.value) !== -1;
-        } else {
-          campo.value = valores[0] || "";
-        }
-      });
-    });
-
-    if (aviso) aviso.hidden = false;
   }
 
   function olvidarBorrador() {
@@ -354,9 +335,62 @@
     }
   }
 
-  // Con errores del servidor, lo que está en pantalla ya es lo que se tipeó:
-  // pisarlo con el borrador solo puede empeorarlo.
-  if (!hayErrores) restaurarBorrador();
+  function aplicarBorrador(campos) {
+    Object.keys(campos).forEach(function (nombre) {
+      var valores = campos[nombre];
+
+      // Las fotos no tienen un campo fijo que rellenar: hay que volver a
+      // dibujar la miniatura de cada una.
+      if (nombre === "fotos") {
+        valores.forEach(agregarFoto);
+        return;
+      }
+
+      var campos_ = formulario.querySelectorAll('[name="' + nombre + '"]');
+      Array.prototype.forEach.call(campos_, function (campo) {
+        if (campo.type === "checkbox" || campo.type === "radio") {
+          campo.checked = valores.indexOf(campo.value) !== -1;
+        } else {
+          campo.value = valores[0] || "";
+        }
+      });
+    });
+  }
+
+  function haceCuanto(marca) {
+    var minutos = Math.round((Date.now() - marca) / 60000);
+    if (!isFinite(minutos) || minutos < 1) return "recién";
+    if (minutos < 60) return "hace " + minutos + " min";
+    var horas = Math.round(minutos / 60);
+    if (horas < 24) return "hace " + horas + (horas === 1 ? " hora" : " horas");
+    var dias = Math.round(horas / 24);
+    return "hace " + dias + (dias === 1 ? " día" : " días");
+  }
+
+  // El formulario arranca SIEMPRE vacío. Si hay un borrador, se ofrece; nunca
+  // se aplica solo. Aparecer con el nombre y las fotos de otro cliente es peor
+  // que no recordar nada.
+  var borrador = hayErrores ? null : leerBorrador();
+
+  if (borrador && caja) {
+    caja.hidden = false;
+    if (cuando) cuando.textContent = haceCuanto(borrador.guardadoEn);
+
+    formulario
+      .querySelector("[data-borrador-retomar]")
+      .addEventListener("click", function () {
+        aplicarBorrador(borrador.campos);
+        caja.hidden = true;
+        if (aviso) aviso.hidden = false;
+      });
+
+    formulario
+      .querySelector("[data-borrador-descartar]")
+      .addEventListener("click", function () {
+        olvidarBorrador();
+        caja.hidden = true;
+      });
+  }
 
   var pendiente = null;
   formulario.addEventListener("input", function () {
