@@ -487,6 +487,49 @@ button,
   text-align: center;
 }
 
+/* ── Otros equipos del mismo cliente ──────────────────────────────────────── */
+
+.otras {
+  margin-top: 2rem;
+}
+
+.otras h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.otras ul {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.otras a {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: start;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.otras .que {
+  font-weight: 600;
+}
+
+.otras .cuando {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
 /* ── Detalle ──────────────────────────────────────────────────────────────── */
 
 .numero-grande {

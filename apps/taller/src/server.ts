@@ -34,6 +34,7 @@ import {
   buscarPorNumero,
   buscarPorToken,
   crearOrden,
+  ordenesDelTelefono,
   esEstado,
   eventosDe,
   leerFormulario,
@@ -295,7 +296,14 @@ app.get("/s/:token", async (peticion, reply) => {
   const orden = buscarPorToken(token);
   if (!orden) return reply.callNotFound();
 
-  return pagina(reply, vistaSeguimiento(orden, eventosDe(orden.id)));
+  // Todas las órdenes del mismo teléfono. Quien llega hasta acá ya probó ser
+  // el dueño —con el token del correo o con número más teléfono—, así que ver
+  // su propio historial no expone nada nuevo.
+  const otras = ordenesDelTelefono(orden.cliente_telefono).filter(
+    (previa) => previa.id !== orden.id,
+  );
+
+  return pagina(reply, vistaSeguimiento(orden, eventosDe(orden.id), otras));
 });
 
 app.get("/seguimiento", async (_peticion, reply) => {

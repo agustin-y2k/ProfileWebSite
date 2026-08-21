@@ -1,6 +1,6 @@
 import { site } from "@sites/negocio";
 import { html } from "../html";
-import { comoFechaHora } from "../fecha";
+import { comoFecha, comoFechaHora } from "../fecha";
 import type { Evento, Orden } from "../ordenes";
 import { layout } from "./layout";
 
@@ -15,7 +15,8 @@ export function vistaBuscarSeguimiento(datos: {
       <h1 class="titulo-publico">Seguí el estado de tu equipo</h1>
       <p class="ayuda">
         Ingresá el número de orden que te llegó por correo —tiene la forma
-        BF-año-número— y el teléfono con el que dejaste el equipo.
+        BF-año-número— y el teléfono con el que dejaste el equipo. Vas a ver
+        ese equipo y también los demás que hayas traído.
       </p>
 
       ${datos.error ? html`<p class="aviso-error" role="alert">${datos.error}</p>` : ""}
@@ -60,7 +61,11 @@ export function vistaBuscarSeguimiento(datos: {
  * impredecible, pero un enlace se reenvía por WhatsApp sin pensarlo y termina
  * en cualquier lado.
  */
-export function vistaSeguimiento(orden: Orden, eventos: Evento[]): string {
+export function vistaSeguimiento(
+  orden: Orden,
+  eventos: Evento[],
+  otras: Orden[],
+): string {
   const equipo =
     [orden.equipo_tipo, orden.marca, orden.modelo].filter(Boolean).join(" ") ||
     "Equipo en reparación";
@@ -112,6 +117,39 @@ export function vistaSeguimiento(orden: Orden, eventos: Evento[]): string {
         )}
       </ol>
     </section>
+
+    ${
+      otras.length > 0
+        ? html`
+            <section class="otras">
+              <h2>Tus otros equipos</h2>
+              <ul>
+                ${otras.map(
+                  (previa) => html`
+                    <li>
+                      <a href="/s/${previa.token}">
+                        <span class="que">
+                          ${
+                            [previa.equipo_tipo, previa.marca, previa.modelo]
+                              .filter(Boolean)
+                              .join(" ") || "Equipo"
+                          }
+                        </span>
+                        <span class="cuando">
+                          ${previa.numero} · ${comoFecha(previa.creada_en)}
+                        </span>
+                        <span class="estado" data-estado="${previa.estado}">
+                          ${previa.estado}
+                        </span>
+                      </a>
+                    </li>
+                  `,
+                )}
+              </ul>
+            </section>
+          `
+        : ""
+    }
 
     <p class="ayuda centrado">
       Cualquier consulta, escribinos por
