@@ -169,7 +169,7 @@ El orden importa, porque la contraseña se genera con el propio contenedor.
    docker compose run --rm taller node --import tsx src/hash.ts 'tu contraseña'
    ```
 
-   El valor que imprime —empieza con `scrypt$`— va a `TALLER_PASSWORD_HASH`.
+   El valor que imprime —empieza con `scrypt:`— va a `TALLER_PASSWORD_HASH`.
 
    Por eso esa variable **no** lleva guarda `${...:?}` en el compose, a
    diferencia de `TUNNEL_TOKEN`: Compose interpola el archivo entero antes de
