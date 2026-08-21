@@ -339,6 +339,23 @@ export function registrarEnvio(
   marcarCorreo.run(estado, estado === "enviado" ? ahora() : null, error ?? null, ordenId);
 }
 
+/**
+ * Compara dos teléfonos por sus dígitos.
+ *
+ * Nadie escribe un teléfono dos veces con el mismo formato: con o sin 0, con
+ * o sin 15, con guiones, con el código de país. Se comparan solo los dígitos y
+ * alcanza con que uno termine como el otro.
+ */
+function mismoTelefono(guardado: string, buscado: string): boolean {
+  const soloDigitos = (valor: string) => valor.replace(/\D/g, "");
+  const a = soloDigitos(guardado);
+  const b = soloDigitos(buscado);
+  // Menos de seis dígitos no identifica a nadie: sería una llave que abre
+  // cualquier puerta.
+  if (b.length < 6) return false;
+  return a.endsWith(b) || b.endsWith(a);
+}
+
 /** Busca por número de orden y teléfono, para el seguimiento público. */
 export function buscarParaSeguimiento(
   numero: string,
@@ -346,15 +363,23 @@ export function buscarParaSeguimiento(
 ): Orden | undefined {
   const orden = buscarPorNumero(numero.trim().toUpperCase());
   if (!orden) return undefined;
+  return mismoTelefono(orden.cliente_telefono, telefono) ? orden : undefined;
+}
 
-  // Se comparan solo los dígitos: nadie escribe el teléfono dos veces con el
-  // mismo formato, y los últimos ocho alcanzan para distinguir.
-  const soloDigitos = (valor: string) => valor.replace(/\D/g, "");
-  const guardado = soloDigitos(orden.cliente_telefono);
-  const buscado = soloDigitos(telefono);
-  if (buscado.length < 6) return undefined;
-
-  return guardado.endsWith(buscado) || buscado.endsWith(guardado) ? orden : undefined;
+/**
+ * Todas las órdenes de un mismo teléfono, de la más nueva a la más vieja.
+ *
+ * El filtro se hace en JavaScript y no en SQL porque hay que normalizar los
+ * dígitos, y SQLite no tiene una forma simple de hacerlo dentro de la
+ * consulta. Con el volumen de un taller —cientos de órdenes por año— recorrer
+ * la tabla es instantáneo. Si algún día dejara de serlo, la solución es
+ * guardar el teléfono ya normalizado en su propia columna.
+ */
+export function ordenesDelTelefono(telefono: string): Orden[] {
+  return db
+    .prepare<[], Orden>(`SELECT * FROM ordenes ORDER BY creada_en DESC, id DESC`)
+    .all()
+    .filter((orden) => mismoTelefono(orden.cliente_telefono, telefono));
 }
 
 export function buscarPorToken(token: string): Orden | undefined {
