@@ -52,7 +52,7 @@ if (config.autenticar && !config.contrasenaHash) {
       "Falta TALLER_PASSWORD_HASH.",
       "",
       "Generarlo con:",
-      "  docker compose run --rm taller node --import tsx src/hash.ts 'tu contraseña'",
+      "  docker compose run --rm taller node --import tsx src/hash.ts 'LA-QUE-ELIJAS'",
       "",
       "y ponerlo en el .env. Para correr sin contraseña —solo con el puerto",
       "atado a 127.0.0.1— usar TALLER_AUTH=off.",
