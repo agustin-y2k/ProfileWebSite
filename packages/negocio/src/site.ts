@@ -51,13 +51,13 @@ export const site = {
   /**
    * Panel público donde un cliente sigue el estado de su reparación.
    *
-   * `null` a propósito hasta que el subdominio esté publicado en el túnel de
-   * Cloudflare. Mientras sea null, la sección de seguimiento de bytefix.shop
-   * directamente no se renderiza: un botón que lleva a un dominio que no
-   * resuelve es peor que no tener el botón.
+   * Mientras sea `null`, la sección de seguimiento de bytefix.shop no se
+   * renderiza: un botón que lleva a un dominio que no resuelve es peor que no
+   * tener el botón. Se completa recién cuando el subdominio está publicado en
+   * el túnel Y Cloudflare Access ya deja pasar las rutas públicas.
    *
-   * Para publicarlo, reemplazar por:
-   *   seguimiento: "https://taller.bytefix.shop/seguimiento",
+   * Si alguna vez cambia el subdominio, se cambia acá y se reconstruye el
+   * sitio: el valor se congela en el build, no se resuelve en runtime.
    */
-  seguimiento: null as string | null,
+  seguimiento: "https://taller.bytefix.shop/seguimiento" as string | null,
 } as const;
