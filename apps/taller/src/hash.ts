@@ -19,18 +19,19 @@ function preguntar(mensaje: string): Promise<string> {
   return new Promise((resolver) => {
     const lector = createInterface({ input: stdin, output: stdout, terminal: true });
 
-    stdout.write(mensaje);
-    // Silencia el eco de lo tipeado. `_writeToOutput` es API interna de
-    // readline, pero es la única forma de ocultar la entrada sin sumar una
-    // dependencia solo para esto.
-    (lector as unknown as { _writeToOutput: (texto: string) => void })._writeToOutput =
-      () => {};
-
-    lector.question("", (valor) => {
+    lector.question(mensaje, (valor) => {
       lector.close();
       stdout.write("\n");
       resolver(valor);
     });
+
+    // El silenciador va DESPUÉS de `question()`, no antes: readline redibuja
+    // la línea al arrancar y borra cualquier cosa escrita de antemano. Puesto
+    // acá, el mensaje alcanza a dibujarse y lo único que se oculta es el eco
+    // de las teclas. `_writeToOutput` es API interna, pero es la única forma
+    // de ocultar la entrada sin sumar una dependencia solo para esto.
+    (lector as unknown as { _writeToOutput: (texto: string) => void })._writeToOutput =
+      () => {};
   });
 }
 
