@@ -205,6 +205,28 @@ El orden importa, porque la contraseña se genera con el propio contenedor.
    de `packages/negocio/src/site.ts` y reconstruir. Mientras sea `null`, la
    sección no se renderiza.
 
+### Borrar una orden
+
+Para las de prueba y las cargadas por error:
+
+```bash
+docker compose run --rm taller node --import tsx src/borrar.ts BF-2026-0001
+```
+
+Muestra qué se va a borrar y pide escribir el número para confirmar. Se lleva
+las fotos, el comprobante y el historial.
+
+Va como script y no como botón del panel a propósito: un botón de borrar al
+lado de una orden real es un accidente esperando que pase. Y conviene tener
+presente que borrar una orden se lleva puesto el registro que la hacía
+verificable — el hash del comprobante incluido.
+
+Para ver qué hay antes de borrar nada:
+
+```bash
+docker compose exec taller node --import tsx src/listar.ts
+```
+
 ### Detalles que no son obvios
 
 **Corre TypeScript directo con `tsx`, sin compilar a `dist/`.** Evita el paso
