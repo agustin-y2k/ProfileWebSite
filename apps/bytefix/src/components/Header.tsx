@@ -39,6 +39,16 @@ export function Header() {
               {item.label}
             </a>
           ))}
+
+          {/* Enlace externo, no un ancla: el seguimiento vive en el subdominio
+              del taller. Solo aparece cuando ese subdominio está publicado.
+              Va en el menú porque es el primer lugar donde lo busca alguien
+              que entra específicamente a ver cómo va su equipo. */}
+          {site.seguimiento && (
+            <a href={site.seguimiento} className={styles.link}>
+              Seguimiento
+            </a>
+          )}
         </nav>
 
         <div className={styles.actions}>
@@ -84,6 +94,16 @@ export function Header() {
               {item.label}
             </a>
           ))}
+
+          {site.seguimiento && (
+            <a
+              href={site.seguimiento}
+              className={styles.drawerLink}
+              onClick={() => setOpen(false)}
+            >
+              Seguimiento
+            </a>
+          )}
         </Container>
       </div>
     </header>
