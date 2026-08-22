@@ -166,12 +166,15 @@ El orden importa, porque la contraseña se genera con el propio contenedor.
    `.env`:
 
    ```bash
-   docker compose run --rm taller node --import tsx src/hash.ts 'LA-QUE-ELIJAS'
+   docker compose run --rm taller node --import tsx src/hash.ts
    ```
 
-   `LA-QUE-ELIJAS` es un ejemplo: va la contraseña de verdad, entre comillas.
-   El valor que imprime —empieza con `scrypt:`— va a `TALLER_PASSWORD_HASH`.
-   Del hash no se vuelve atrás: si se olvida la contraseña, se genera otra.
+   La pregunta es interactiva, no muestra lo que se escribe y la pide dos
+   veces. Imprime la línea entera lista para pegar en el `.env`. Del hash no se
+   vuelve atrás: si se olvida la contraseña, se genera otra.
+
+   Se puede pasar como argumento para scripts, pero por esa vía queda en el
+   historial del shell y visible en `ps`.
 
    Por eso esa variable **no** lleva guarda `${...:?}` en el compose, a
    diferencia de `TUNNEL_TOKEN`: Compose interpola el archivo entero antes de
