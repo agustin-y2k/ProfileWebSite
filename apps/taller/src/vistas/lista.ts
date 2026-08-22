@@ -15,6 +15,12 @@ export function vistaLista(ordenes: Orden[], reciente?: string): string {
 
     <a class="principal enlace-boton" href="/nueva">Nueva orden</a>
 
+    <!-- Sirve para ver exactamente lo que ve el cliente cuando llama a
+         preguntar. Es la misma pantalla, sin sesión de por medio. -->
+    <p class="ayuda centrado">
+      <a href="/seguimiento">Ver el seguimiento como lo ve un cliente</a>
+    </p>
+
     ${
       ordenes.length === 0
         ? html`<p class="vacio">
