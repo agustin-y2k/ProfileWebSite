@@ -23,7 +23,7 @@ export const services: readonly Service[] = [
     id: "hardware",
     title: "Reparación de Hardware",
     description:
-      "Microsoldadura y reparación a nivel de placa: pin de carga, detección de cortos, reemplazo de componentes SMD y diagnóstico de fallas eléctricas.",
+      "Microsoldadura para reemplazo de pin de carga y conectores dañados. Cada caso se evalúa antes: si no tiene arreglo, te lo digo.",
   },
   {
     id: "datos",

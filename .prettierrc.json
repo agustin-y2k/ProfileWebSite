@@ -2,5 +2,12 @@
   "semi": true,
   "singleQuote": false,
   "printWidth": 90,
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "overrides": [
+    {
+      "comment": "Las vistas del taller son plantillas `html` etiquetadas. Prettier las reconoce como HTML embebido y las reformatea, pero el resultado no es idempotente: `--write` seguido de `--check` falla solo. Formatea el TypeScript y deja el HTML como está escrito.",
+      "files": "apps/taller/src/vistas/*.ts",
+      "options": { "embeddedLanguageFormatting": "off" }
+    }
+  ]
 }

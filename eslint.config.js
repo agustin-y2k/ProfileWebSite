@@ -31,4 +31,9 @@ export default tseslint.config(
     files: ["**/scripts/*.mjs", "**/*.config.ts"],
     languageOptions: { globals: globals.node },
   },
+  // El taller es un servicio de servidor entero: nada de su código toca el DOM.
+  {
+    files: ["apps/taller/src/**/*.ts"],
+    languageOptions: { globals: globals.node },
+  },
 );

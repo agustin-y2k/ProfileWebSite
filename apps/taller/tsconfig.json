@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Código de servidor: sin `lib.dom`, para que un `document` o un `window`
+    // escritos por error sean un error de tipos y no una sorpresa en runtime.
+    "lib": ["ES2023"],
+    "types": ["node"]
+  },
+  "include": ["src"]
+}
