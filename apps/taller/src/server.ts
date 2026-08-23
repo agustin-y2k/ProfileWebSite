@@ -1,4 +1,5 @@
 import { createReadStream } from "node:fs";
+import { filasDeTarifas } from "@sites/negocio";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import Fastify from "fastify";
@@ -22,11 +23,13 @@ import { vistaLista } from "./vistas/lista";
 import { vistaNueva } from "./vistas/nueva";
 import { vistaDetalle } from "./vistas/detalle";
 import { vistaEntrar } from "./vistas/entrar";
+import { vistaTarifas } from "./vistas/tarifas";
 import { vistaBuscarSeguimiento, vistaSeguimiento } from "./vistas/seguimiento";
 import { FOTO_MAX_BYTES, guardarFoto, rutaDeFoto } from "./fotos";
 import { asegurarComprobante, emitirComprobante } from "./comprobante";
 import { encolarComprobante } from "./correo";
 import { programarLimpieza } from "./limpieza";
+import { comoFilas, guardarTarifas, leerFormularioTarifas, leerTarifas } from "./tarifas";
 import {
   ORDEN_VACIA,
   agregarEvento,
@@ -101,7 +104,10 @@ function pagina(reply: { type: (t: string) => unknown }, cuerpo: string): string
 // Todo el panel pide sesión. Quedan fuera el healthcheck, la pantalla de login
 // y el seguimiento público —que es para los clientes, no para Ramiro—, más el
 // CSS y el JS, que los necesita justamente la pantalla de login.
-const PUBLICAS = ["/salud", "/entrar", "/seguimiento"];
+// `/tarifas.html` es el fragmento que incluye el nginx de bytefix.shop en cada
+// visita: son los mismos precios que la tabla pública, así que pedirle sesión
+// dejaría al sitio mostrando siempre el respaldo horneado en su imagen.
+const PUBLICAS = ["/salud", "/entrar", "/seguimiento", "/tarifas.html"];
 
 function esPublica(url: string): boolean {
   const ruta = url.split("?")[0] ?? "";
@@ -158,6 +164,51 @@ app.post("/salir", async (peticion, reply) => {
 });
 
 app.get("/salud", async () => ({ ok: true }));
+
+// ── Tarifas ─────────────────────────────────────────────────────────────────
+//
+// El sitio de bytefix es nginx con estáticos: no puede leer un archivo del
+// volumen de este contenedor. Lo que hace es un `<!--#include virtual -->` de
+// SSI contra esta ruta, por la red interna de Docker. Devuelve solo las filas
+// `<tr>` de la tabla, ya escapadas.
+
+app.get("/tarifas.html", async (_peticion, reply) => {
+  return (
+    reply
+      .type("text/html; charset=utf-8")
+      // Sin caché: el sentido de todo esto es que un precio cambiado se vea en la
+      // visita siguiente. Son unos cientos de bytes por página servida.
+      .header("Cache-Control", "no-store")
+      .send(filasDeTarifas(leerTarifas()))
+  );
+});
+
+app.get("/tarifas", async (peticion, reply) => {
+  const { guardado } = peticion.query as { guardado?: string };
+  return pagina(
+    reply,
+    vistaTarifas({ filas: comoFilas(leerTarifas()), guardado: guardado === "1" }),
+  );
+});
+
+app.post("/tarifas", async (peticion, reply) => {
+  const filas = leerFormularioTarifas((peticion.body ?? {}) as Record<string, unknown>);
+
+  try {
+    guardarTarifas(filas);
+  } catch (error) {
+    // Se vuelve a dibujar con lo que se escribió: perder las siete filas por
+    // un precio vacío significa volver a tipearlas todas.
+    reply.status(400);
+    return pagina(
+      reply,
+      vistaTarifas({ filas, error: String((error as Error).message) }),
+    );
+  }
+
+  peticion.log.info({ tarifas: filas.length }, "tarifas actualizadas");
+  return reply.redirect("/tarifas?guardado=1", 303);
+});
 
 // ── Panel ───────────────────────────────────────────────────────────────────
 

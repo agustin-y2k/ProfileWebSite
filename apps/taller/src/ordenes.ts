@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { db, proximoNumero } from "./db";
+import { tarifaDe } from "./tarifas";
 import { ahora } from "./fecha";
 import { filtrarExistentes } from "./fotos";
 
@@ -53,6 +54,8 @@ export type Orden = {
   enciende: string | null;
   observaciones: string | null;
   servicio_id: string | null;
+  /** Nombre del servicio congelado al recibir el equipo. Ver `db.ts`. */
+  servicio_nombre: string | null;
   falla: string | null;
   presupuesto: string | null;
   plazo: string | null;
@@ -183,13 +186,13 @@ const insertarOrden = db.prepare(`
     numero, token, creada_en, estado,
     cliente_nombre, cliente_telefono, cliente_email, cliente_dni,
     equipo_tipo, marca, modelo, serie, accesorios, enciende, observaciones,
-    servicio_id, falla, presupuesto, plazo,
+    servicio_id, servicio_nombre, falla, presupuesto, plazo,
     firma_png, firmada_en
   ) VALUES (
     @numero, @token, @creada_en, 'recibida',
     @cliente_nombre, @cliente_telefono, @cliente_email, @cliente_dni,
     @equipo_tipo, @marca, @modelo, @serie, @accesorios, @enciende, @observaciones,
-    @servicio_id, @falla, @presupuesto, @plazo,
+    @servicio_id, @servicio_nombre, @falla, @presupuesto, @plazo,
     @firma_png, @firmada_en
   )
 `);
@@ -231,6 +234,11 @@ export const crearOrden = db.transaction((datos: DatosOrden): string => {
     enciende: datos.enciende || null,
     observaciones: datos.observaciones || null,
     servicio_id: datos.servicio_id || null,
+    // Se resuelve contra la tarifa vigente ahora y se guarda. Es lo que hace
+    // que editar las tarifas más tarde no reescriba comprobantes ya emitidos.
+    servicio_nombre: datos.servicio_id
+      ? (tarifaDe(datos.servicio_id)?.service ?? null)
+      : null,
     falla: datos.falla || null,
     presupuesto: datos.presupuesto || null,
     plazo: datos.plazo || null,

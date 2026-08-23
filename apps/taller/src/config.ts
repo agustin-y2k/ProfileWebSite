@@ -24,6 +24,13 @@ export const config = {
   /** Fotos y PDFs. Van al disco y no a la base: un blob de varios MB por orden
    *  infla el archivo de SQLite sin ganar nada a cambio. */
   archivos: resolve(datos, "archivos"),
+  /**
+   * Tarifas editables. Va al volumen y no a la base porque es la única cosa
+   * del sistema que tiene sentido poder arreglar a mano por SSH: si el panel
+   * quedara inaccesible un sábado, un `nano tarifas.json` deja los precios del
+   * sitio al día sin reconstruir ni reiniciar nada.
+   */
+  tarifas: resolve(datos, "tarifas.json"),
 
   /**
    * Todo lo que se muestra y el número de orden se calculan en hora argentina.

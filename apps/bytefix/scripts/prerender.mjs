@@ -25,6 +25,7 @@ const { render } = await import(resolve(root, "dist-ssr/entry-server.js"));
 const appHtml = render();
 
 await writeFile(templatePath, template.replace(MARKER, appHtml), "utf8");
+
 await rm(resolve(root, "dist-ssr"), { recursive: true, force: true });
 
 const kb = (Buffer.byteLength(appHtml, "utf8") / 1024).toFixed(1);

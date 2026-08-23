@@ -1,6 +1,6 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { site } from "@sites/negocio";
-import { tarifaDe } from "@sites/negocio";
+import { tarifaDe } from "./tarifas";
 import { comoFechaHora } from "./fecha";
 import { condiciones } from "./condiciones";
 import { accesoriosDe, type Orden } from "./ordenes";
@@ -242,10 +242,16 @@ export async function construirComprobante(
     );
   }
 
-  const servicio = orden.servicio_id ? tarifaDe(orden.servicio_id) : undefined;
+  // El nombre guardado manda sobre la tarifa vigente: el comprobante tiene que
+  // decir siempre lo mismo que decía cuando se firmó, aunque el servicio se
+  // haya renombrado o dado de baja después. `tarifaDe` queda solo para las
+  // órdenes anteriores a que existiera la columna.
+  const servicio =
+    orden.servicio_nombre ??
+    (orden.servicio_id ? tarifaDe(orden.servicio_id)?.service : undefined);
 
   titulo("Trabajo");
-  dato("Servicio", servicio?.service);
+  dato("Servicio", servicio);
   dato("Falla reportada", orden.falla);
   dato("Presupuesto estimado", orden.presupuesto);
   dato("Plazo estimado", orden.plazo);

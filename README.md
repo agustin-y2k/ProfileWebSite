@@ -38,7 +38,7 @@ apps/
     src/
       components/    piezas propias del sitio
       sections/      cada bloque de la página
-      data/          textos, servicios, tarifas (una sola fuente de verdad)
+      data/          textos y servicios (una sola fuente de verdad)
       styles/        tema y tipografías del sitio
     scripts/         prerender
     Dockerfile       build + runtime
@@ -51,12 +51,14 @@ apps/
 packages/
   tokens/            reset, escalas y breakpoints compartidos
   ui/                Button, Card, Section, Container + hooks
-  negocio/           dirección, teléfono y tarifas de ByteFix
+  negocio/           dirección, teléfono y forma de las tarifas
 ```
 
 `packages/negocio` es lo que evita el problema clásico del talonario de papel:
-la dirección y los precios que imprime un comprobante salen del mismo módulo
-que los que muestra bytefix.shop, así que no pueden quedar desfasados.
+la dirección y los precios que imprime un comprobante salen de la misma fuente
+que los que muestra bytefix.shop, así que no pueden quedar desfasados. Las
+tarifas, además, no están compiladas: se editan desde el panel y se ven en el
+sitio al instante (ver **[Cambiar los precios](#cambiar-los-precios)**).
 
 Los tokens compartidos son de **ritmo** (espaciado, tipografía, radios,
 motion), no de color. El color vive en el `theme.css` de cada app: es lo que
@@ -204,6 +206,50 @@ El orden importa, porque la contraseña se genera con el propio contenedor.
 6. **Publicar el seguimiento en bytefix.shop**: poner la URL en `seguimiento`
    de `packages/negocio/src/site.ts` y reconstruir. Mientras sea `null`, la
    sección no se renderiza.
+
+### Cambiar los precios
+
+Las tarifas **no** están horneadas en la imagen: viven en `tarifas.json`,
+dentro del volumen de datos del taller, y se editan en `/tarifas` del panel.
+Un cambio se ve en bytefix.shop en la visita siguiente, sin reconstruir ni
+reiniciar nada.
+
+Cómo llega un precio del panel a la página:
+
+```
+   panel /tarifas  ──escribe──▶  /datos/tarifas.json
+                                        │
+                       taller lo sirve como filas <tr> en /tarifas.html
+                                        │  (red interna de Docker)
+   index.html  <!--#include virtual="/tarifas" stub="…" -->
+                                        │
+                       nginx de bytefix lo resuelve en cada visita
+```
+
+Sigue siendo HTML del lado del servidor: la tabla llega hecha, sin `fetch`,
+sin JavaScript y sin tocar la CSP. Un buscador la indexa igual.
+
+Tres cosas que sostienen esto:
+
+- **Si el taller está caído**, el `stub` del propio SSI imprime las tarifas del
+  último build (`TARIFAS_POR_DEFECTO` en `packages/negocio`). La tabla nunca
+  queda vacía; a lo sumo muestra precios viejos.
+- **`/tarifas.html` no necesita excepción en Cloudflare Access.** Quien lo pide
+  es el nginx de bytefix por la red interna de Docker, no un navegador.
+- **Renombrar o borrar una tarifa no reescribe comprobantes ya emitidos.** Cada
+  orden guarda el nombre del servicio al recibir el equipo (`servicio_nombre`),
+  así que el PDF dice siempre lo que decía cuando se firmó.
+
+El archivo también se puede editar a mano, que es el plan B si el panel queda
+inaccesible: el taller relee el JSON cuando cambia su fecha de modificación, sin
+reiniciar el proceso.
+
+```bash
+docker compose exec taller vi /datos/tarifas.json
+```
+
+Si el JSON queda inválido, el taller lo registra en el log y sigue sirviendo las
+tarifas anteriores en vez de publicar una tabla a medias.
 
 ### Borrar una orden
 

@@ -1,6 +1,6 @@
-import { pricing } from "@sites/negocio";
 import { html, type Html } from "../html";
 import { ACCESORIOS, TIPOS_EQUIPO, type DatosOrden } from "../ordenes";
+import { leerTarifas } from "../tarifas";
 import { layout } from "./layout";
 
 type Opciones = {
@@ -239,7 +239,7 @@ ${datos.observaciones}</textarea>
         <label for="servicio_id">Servicio</label>
         <select id="servicio_id" name="servicio_id">
           <option value="">Elegir…</option>
-          ${pricing.map(
+          ${leerTarifas().map(
             (fila) => html`
               <option
                 value="${fila.id}"

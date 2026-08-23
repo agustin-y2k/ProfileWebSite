@@ -1,5 +1,5 @@
 import { Container, Section } from "@sites/ui";
-import { pricing } from "../data/pricing";
+import { cuerpoDeTarifas } from "../data/pricing";
 import styles from "./Pricing.module.css";
 
 export function Pricing() {
@@ -33,29 +33,15 @@ export function Pricing() {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {pricing.map((row) => (
-              // El id permite que las tarjetas de servicio enlacen su tarifa y
-              // que CSS `:target` la resalte: sin JavaScript de por medio.
-              <tr key={row.id} id={`tarifa-${row.id}`} className={styles.row}>
-                <th scope="row" className={styles.service}>
-                  {row.service}
-                </th>
-                <td className={styles.price}>
-                  {row.negotiable ? (
-                    <span className={styles.negotiable}>{row.price}</span>
-                  ) : (
-                    <>
-                      <span className={styles.amount}>{row.price}</span>
-                      {row.note ? (
-                        <small className={styles.note}>{row.note}</small>
-                      ) : null}
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
+          {/* Las filas las pone nginx con SSI, pidiéndoselas al sistema de
+              órdenes por la red interna de Docker (ver `data/pricing.ts` y
+              `nginx.conf`). React no hidrata los hijos de un nodo con
+              `dangerouslySetInnerHTML`, así que lo que insertó el servidor
+              queda como está: el cliente no lo pisa con lo del build. */}
+          <tbody
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{ __html: cuerpoDeTarifas }}
+          />
         </table>
       </Container>
     </Section>

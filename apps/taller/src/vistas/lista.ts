@@ -19,6 +19,7 @@ export function vistaLista(ordenes: Orden[], reciente?: string): string {
          preguntar. Es la misma pantalla, sin sesión de por medio. -->
     <p class="ayuda centrado">
       <a href="/seguimiento">Ver el seguimiento como lo ve un cliente</a>
+      · <a href="/tarifas">Tarifas</a>
     </p>
 
     ${

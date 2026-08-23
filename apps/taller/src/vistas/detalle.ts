@@ -1,4 +1,4 @@
-import { tarifaDe } from "@sites/negocio";
+import { tarifaDe } from "../tarifas";
 import { html, type Html } from "../html";
 import { comoFechaHora } from "../fecha";
 import { config } from "../config";
@@ -30,7 +30,11 @@ export function vistaDetalle(
 ): string {
   const accesorios = accesoriosDe(orden);
   const fotos = fotosDe(orden);
-  const servicio = orden.servicio_id ? tarifaDe(orden.servicio_id) : undefined;
+  // Igual que en el comprobante: el nombre guardado primero, la tarifa vigente
+  // solo como respaldo para las órdenes viejas.
+  const servicio =
+    orden.servicio_nombre ??
+    (orden.servicio_id ? tarifaDe(orden.servicio_id)?.service : undefined);
 
   const equipo = [orden.equipo_tipo, orden.marca, orden.modelo].filter(Boolean).join(" ");
   const enlacePublico = config.urlPublica
@@ -172,7 +176,7 @@ export function vistaDetalle(
       ${fila("Equipo", equipo)} ${fila("Serie", orden.serie)}
       ${fila("Se recibió con", accesorios.join(", "))} ${fila("Enciende", orden.enciende)}
       ${fila("Estado al recibirlo", orden.observaciones)}
-      ${fila("Servicio", servicio?.service)} ${fila("Falla reportada", orden.falla)}
+      ${fila("Servicio", servicio)} ${fila("Falla reportada", orden.falla)}
       ${fila("Presupuesto", orden.presupuesto)} ${fila("Plazo", orden.plazo)}
       ${fila("Entregada", orden.entregada_en ? comoFechaHora(orden.entregada_en) : null)}
     </dl>

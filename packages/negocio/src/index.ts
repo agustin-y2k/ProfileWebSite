@@ -1,3 +1,8 @@
 export { site } from "./site";
-export { pricing, tarifaDe } from "./pricing";
+export {
+  TARIFAS_POR_DEFECTO,
+  filasDeTarifas,
+  normalizarTarifas,
+  tarifaDe,
+} from "./pricing";
 export type { PriceRow } from "./pricing";

@@ -44,6 +44,11 @@ db.exec(`
     observaciones     TEXT,
 
     servicio_id       TEXT,
+    -- Copia del nombre del servicio al momento de recibir el equipo. El id
+    -- solo apunta a la tarifa vigente, y las tarifas ahora se editan: sin esta
+    -- copia, renombrar un servicio cambiaría lo que dice un comprobante ya
+    -- firmado, y borrarlo lo dejaría sin servicio.
+    servicio_nombre   TEXT,
     falla             TEXT,
     presupuesto       TEXT,
     plazo             TEXT,
@@ -83,6 +88,24 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS fotos_orden ON fotos (orden_id, posicion);
 `);
+
+/**
+ * Agrega una columna si todavía no está.
+ *
+ * `CREATE TABLE IF NOT EXISTS` no toca una tabla que ya existe, así que una
+ * columna nueva nunca llegaría a la base de la Raspberry. SQLite no tiene
+ * `ADD COLUMN IF NOT EXISTS`, de ahí la consulta al PRAGMA.
+ */
+function agregarColumna(tabla: string, columna: string, definicion: string): void {
+  const columnas = db
+    .prepare<[string], { name: string }>(`SELECT name FROM pragma_table_info(?)`)
+    .all(tabla);
+
+  if (columnas.some((existente) => existente.name === columna)) return;
+  db.exec(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${definicion}`);
+}
+
+agregarColumna("ordenes", "servicio_nombre", "TEXT");
 
 /**
  * Próximo número de orden, con el formato `BF-2026-0001`.
