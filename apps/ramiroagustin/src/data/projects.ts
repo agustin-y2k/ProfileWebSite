@@ -1,24 +1,4 @@
-import sgrcAvif640 from "../assets/sgrc-640.avif";
-import sgrcAvif1280 from "../assets/sgrc-1280.avif";
-import sgrcAvif1920 from "../assets/sgrc-1920.avif";
-import sgrcWebp640 from "../assets/sgrc-640.webp";
-import sgrcWebp1280 from "../assets/sgrc-1280.webp";
-import sgrcWebp1920 from "../assets/sgrc-1920.webp";
-import sgrcJpg640 from "../assets/sgrc-640.jpg";
-import sgrcJpg1280 from "../assets/sgrc-1280.jpg";
-import sgrcJpg1920 from "../assets/sgrc-1920.jpg";
-
-/** Los tres formatos de una misma captura, ya como `srcSet`. */
-export type ProjectImage = {
-  avif: string;
-  webp: string;
-  /** Fallback para navegadores sin avif ni webp; también el `src` del `img`. */
-  jpg: string;
-  fallback: string;
-  width: number;
-  height: number;
-  alt: string;
-};
+import { capturas, type Captura } from "./capturas";
 
 export type Project = {
   id: string;
@@ -31,13 +11,9 @@ export type Project = {
   repo?: string;
   /** Solo para lo que todavía no está terminado; ausente significa publicado. */
   status?: string;
-  image?: ProjectImage;
+  /** Las pantallas que muestra la galería. Sin esto, la ficha va sin imágenes. */
+  capturas?: readonly Captura[];
 };
-
-const srcSet = (variants: Record<number, string>) =>
-  Object.entries(variants)
-    .map(([width, url]) => `${url} ${width}w`)
-    .join(", ");
 
 export const projects: readonly Project[] = [
   {
@@ -53,14 +29,6 @@ export const projects: readonly Project[] = [
     ],
     stack: ["Go", "PostgreSQL", "React 19", "TypeScript", "Docker", "Cloudflare Tunnel"],
     repo: "https://github.com/agustin-y2k/sgrc",
-    image: {
-      avif: srcSet({ 640: sgrcAvif640, 1280: sgrcAvif1280, 1920: sgrcAvif1920 }),
-      webp: srcSet({ 640: sgrcWebp640, 1280: sgrcWebp1280, 1920: sgrcWebp1920 }),
-      jpg: srcSet({ 640: sgrcJpg640, 1280: sgrcJpg1280, 1920: sgrcJpg1920 }),
-      fallback: sgrcJpg1280,
-      width: 1920,
-      height: 1000,
-      alt: "Pantalla de inicio del administrador de SGRC: qué entregar ahora, qué está afuera del laboratorio y con cuántos equipos se cuenta",
-    },
+    capturas,
   },
 ];

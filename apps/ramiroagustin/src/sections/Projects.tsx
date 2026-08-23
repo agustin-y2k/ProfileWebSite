@@ -1,31 +1,7 @@
 import { Container, Reveal, Section } from "@sites/ui";
-import { projects, type ProjectImage } from "../data/projects";
+import { Galeria } from "../components/Galeria";
+import { projects } from "../data/projects";
 import styles from "./Projects.module.css";
-
-/** Ancho real de render de la captura: el ancho útil de la tarjeta. Debajo de
- *  62rem es el viewport menos el gutter y el padding de la tarjeta, 1.5rem
- *  cada uno de los cuatro. */
-const IMAGE_SIZES = "(min-width: 62rem) 1024px, calc(100vw - 6rem)";
-
-function Shot({ image }: { image: ProjectImage }) {
-  return (
-    <picture>
-      <source type="image/avif" srcSet={image.avif} sizes={IMAGE_SIZES} />
-      <source type="image/webp" srcSet={image.webp} sizes={IMAGE_SIZES} />
-      <img
-        src={image.fallback}
-        srcSet={image.jpg}
-        sizes={IMAGE_SIZES}
-        width={image.width}
-        height={image.height}
-        alt={image.alt}
-        className={styles.shot}
-        loading="lazy"
-        decoding="async"
-      />
-    </picture>
-  );
-}
 
 export function Projects() {
   return (
@@ -47,10 +23,8 @@ export function Projects() {
             <li key={project.id}>
               <Reveal delay={i * 80}>
                 <article className={styles.card}>
-                  {project.image ? (
-                    <figure className={styles.media}>
-                      <Shot image={project.image} />
-                    </figure>
+                  {project.capturas ? (
+                    <Galeria capturas={project.capturas} proyecto={project.name} />
                   ) : null}
 
                   <div className={styles.body}>

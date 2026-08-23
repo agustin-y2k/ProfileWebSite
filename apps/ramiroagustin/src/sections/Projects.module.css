@@ -29,33 +29,6 @@
   background: var(--surface);
 }
 
-/* ── Captura ─────────────────────────────────────────────────────────────── */
-.media {
-  position: relative;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  /* Blanco fijo: la captura es de la interfaz clara y el borde tiene que
-     leerse como el marco de una pantalla, también con el sitio en oscuro. */
-  background: #fff;
-  box-shadow: var(--shadow);
-}
-
-.media::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 1px var(--accent-soft);
-  pointer-events: none;
-}
-
-.shot {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 /* ── Ficha ───────────────────────────────────────────────────────────────── */
 .body {
   display: grid;
