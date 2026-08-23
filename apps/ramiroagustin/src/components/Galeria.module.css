@@ -257,6 +257,11 @@
 
 .lupaCaja {
   display: grid;
+  /* `minmax(0, 1fr)` y no `1fr`: una columna `1fr` no baja del min-content de
+     la barra, así que en un teléfono angosto la caja se hace más ancha que el
+     <dialog>, que recorta, y los botones de la derecha —cerrar entre ellos—
+     quedan fuera de la pantalla y sin forma de alcanzarlos. */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
   height: 100%;
 }
@@ -266,6 +271,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
+  min-width: 0;
   padding: var(--space-3) var(--space-4);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -276,6 +282,12 @@
   align-items: baseline;
   gap: var(--space-3);
   min-width: 0;
+}
+
+/* El que cede cuando no entra todo es el nombre, no el contador ni los
+   botones: se corta con puntos suspensivos y el resto queda intacto. */
+.barraNombre {
+  min-width: 0;
   font-family: var(--font-serif);
   font-size: var(--text-base);
   white-space: nowrap;
@@ -284,6 +296,7 @@
 }
 
 .barraContador {
+  flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--text-faint);
@@ -294,6 +307,15 @@
   align-items: center;
   gap: var(--space-2);
   flex-shrink: 0;
+}
+
+/* En un teléfono angosto al nombre le quedan dos letras y unos puntos
+   suspensivos, que no dicen nada. Entre eso y nada, la barra limpia: el
+   contador sigue ubicando, y qué pantalla es lo cuenta el pie de la imagen. */
+@media (max-width: 30rem) {
+  .barraNombre {
+    display: none;
+  }
 }
 
 .control {
@@ -325,25 +347,33 @@
   cursor: default;
 }
 
+/* Un contenedor de bloque y no uno flexible. Como ítem flexible, la figura
+   se encogía al ancho de la ventana por el `flex-shrink` implícito: agrandar
+   no agrandaba nada y no quedaba nada por donde desplazarse. */
 .lupaCuerpo {
-  display: flex;
   overflow: auto;
   overscroll-behavior: contain;
   padding: var(--space-5) var(--space-4);
 }
 
-/* `margin: auto` y no `justify-content: center`: cuando la imagen agrandada
-   es más ancha que la ventana, centrar deja el borde izquierdo fuera del
-   alcance del scroll; los márgenes automáticos se rinden a cero y no. */
 .lupaFigura {
   display: grid;
   gap: var(--space-4);
-  margin: auto;
   width: min(1200px, 100%);
+  margin-inline: auto;
 }
 
+/* Agrandada, la imagen se muestra al tamaño real del archivo que se sirve. En
+   un teléfono eso es unas cinco veces el ancho de la pantalla: la letra chica
+   se lee y la captura se recorre arrastrando.
+
+   El margen pasa a cero. Un bloque más ancho que su contenedor con márgenes
+   `auto` se centra igual, con márgenes negativos, y entonces el borde
+   izquierdo queda fuera del alcance del scroll. */
 .lupaCuerpo[data-zoom] .lupaFigura {
-  width: min(1800px, 200%);
+  width: 1800px;
+  max-width: none;
+  margin-inline: 0;
 }
 
 .lupaMarco {

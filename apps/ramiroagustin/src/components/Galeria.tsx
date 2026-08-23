@@ -163,6 +163,15 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
     return () => nodo.removeEventListener("scrollend", acomodar);
   }, [quieto]);
 
+  // Agrandada, la captura es mucho más ancha que la ventana, y el borde
+  // izquierdo de una pantalla de sistema es margen vacío. Se arranca en el
+  // medio, que es donde está el contenido.
+  useEffect(() => {
+    const nodo = cuerpo.current;
+    if (!zoom || !nodo) return;
+    nodo.scrollLeft = (nodo.scrollWidth - nodo.clientWidth) / 2;
+  }, [zoom]);
+
   // `showModal` no tiene equivalente declarativo: el estado de React manda y
   // este efecto lo empuja al método imperativo del <dialog>. A cambio se
   // heredan gratis el foco atrapado, el `inert` del resto de la página y el
@@ -181,6 +190,8 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
     setZoom(false);
     cuerpo.current?.scrollTo({ top: 0, left: 0 });
   }, [ampliada]);
+
+  const alternarZoom = () => setZoom((valor) => !valor);
 
   const moverLupa = (paso: number) =>
     setAmpliada((indice) =>
@@ -331,18 +342,18 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
         {enLupa ? (
           <div className={styles.lupaCaja}>
             <div className={styles.barra}>
-              <p className={styles.barraTitulo}>
-                {enLupa.titulo}
+              <div className={styles.barraTitulo}>
+                <p className={styles.barraNombre}>{enLupa.titulo}</p>
                 <span className={styles.barraContador}>
                   {(ampliada ?? 0) + 1} / {total}
                 </span>
-              </p>
+              </div>
 
               <div className={styles.barraBotones}>
                 <button
                   type="button"
                   className={styles.control}
-                  onClick={() => setZoom((valor) => !valor)}
+                  onClick={alternarZoom}
                   aria-pressed={zoom}
                 >
                   {zoom ? "Achicar" : "Agrandar"}
@@ -396,7 +407,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
               <figure className={styles.lupaFigura}>
                 <div
                   className={styles.lupaMarco}
-                  onClick={() => setZoom((valor) => !valor)}
+                  onClick={alternarZoom}
                 >
                   <Imagen
                     key={enLupa.id}
