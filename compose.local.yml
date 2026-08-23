@@ -4,6 +4,12 @@
 #   docker compose -f compose.local.yml up --build
 #     → http://localhost:8091  (ramiroagustin)
 #     → http://localhost:8092  (bytefix)
+#     → http://localhost:3100  (taller: órdenes de servicio)
+#     → http://localhost:8025  (bandeja de correo de prueba)
+#
+# El taller se levanta con el código montado y `--watch`: al guardar un archivo
+# el servidor se reinicia solo, sin reconstruir la imagen. Los dos sitios sí
+# hay que reconstruirlos, porque se sirven ya compilados.
 #
 # Los puertos se publican solo en 127.0.0.1: no quedan expuestos a la red local.
 # ─────────────────────────────────────────────────────────────────────────────
@@ -28,3 +34,50 @@ services:
         APP: bytefix
     ports:
       - "127.0.0.1:8092:80"
+
+  taller:
+    build:
+      context: .
+      dockerfile: apps/taller/Dockerfile
+    command: ["node", "--import", "tsx", "--watch", "src/server.ts"]
+    environment:
+      TALLER_DATOS: /datos
+      NODE_ENV: development
+      # Correo contra Mailpit: los comprobantes se mandan de verdad, pero
+      # quedan en una bandeja local en vez de salir a internet. Permite probar
+      # el envío entero —adjunto, asunto, enlace de seguimiento— sin usar la
+      # casilla real ni arriesgarse a escribirle a un cliente por accidente.
+      TALLER_SMTP_HOST: correo
+      TALLER_SMTP_PUERTO: "1025"
+      TALLER_SMTP_USUARIO: taller@bytefix.local
+      TALLER_SMTP_CLAVE: prueba
+      TALLER_EMAIL_NOMBRE: ByteFix
+      TALLER_EMAIL_COPIA: ramiro@bytefix.local
+      # Con esto el enlace de seguimiento del correo apunta acá y se puede
+      # hacer clic desde la bandeja de prueba.
+      TALLER_URL_PUBLICA: http://localhost:3100
+      # Sin contraseña en la vista previa local. Es aceptable solo porque el
+      # puerto está atado a 127.0.0.1; el servidor avisa en cada arranque.
+      # En la Pi, docker-compose.yml exige TALLER_PASSWORD_HASH.
+      TALLER_AUTH: "off"
+    volumes:
+      - taller-datos-local:/datos
+      # Código montado desde el host: editar y ver el cambio sin rebuild.
+      - ./apps/taller/src:/repo/apps/taller/src:ro
+      - ./apps/taller/public:/repo/apps/taller/public:ro
+      - ./packages/negocio/src:/repo/packages/negocio/src:ro
+    ports:
+      - "127.0.0.1:3100:3100"
+    depends_on:
+      - correo
+
+  # Servidor SMTP de prueba: recibe todo y no reenvía nada. La bandeja se ve
+  # en http://localhost:8025.
+  correo:
+    image: axllent/mailpit
+    command: ["--smtp-auth-accept-any", "--smtp-auth-allow-insecure"]
+    ports:
+      - "127.0.0.1:8025:8025"
+
+volumes:
+  taller-datos-local:

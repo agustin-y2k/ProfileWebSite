@@ -1,0 +1,773 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Panel del taller. Mismo cian sobre negro que bytefix.shop, pero sin traer
+   nada del sistema de diseño de los sitios: acá no hay build, el CSS se sirve
+   tal cual y las fuentes son las del sistema para que cargue al instante con
+   mala señal.
+
+   Está pensado para usarse de pie, con una mano y el cliente enfrente: todo
+   lo tocable mide al menos 44 px.
+   ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #080b10;
+  --surface: #111823;
+  --surface-raised: #18212e;
+  --surface-sunken: #05080c;
+  --border: rgb(148 163 184 / 0.13);
+  --border-strong: rgb(148 163 184 / 0.24);
+  --text: #e9eef6;
+  --text-muted: #97a3b6;
+  --text-faint: #6c7787;
+  --accent: #22d3ee;
+  --accent-contrast: #04212b;
+  --accent-soft: rgb(34 211 238 / 0.11);
+  --peligro: #f87171;
+  --peligro-soft: rgb(248 113 113 / 0.12);
+  --whatsapp: #25d366;
+  --ok: #34d399;
+  --ok-soft: rgb(52 211 153 / 0.12);
+  --radio: 12px;
+
+  --sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  /* Evita el zoom automático de iOS al enfocar un campo: con 16 px no lo hace. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ── Barra superior ───────────────────────────────────────────────────────── */
+
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: rgb(8 11 16 / 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.volver {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: -0.5rem;
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 1.3rem;
+  text-decoration: none;
+}
+
+.volver:active {
+  background: var(--surface-raised);
+}
+
+.marca {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+}
+
+.seccion {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.seccion::before {
+  content: "· ";
+}
+
+.contenido {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem;
+}
+
+/* ── Avisos ───────────────────────────────────────────────────────────────── */
+
+.aviso-ok,
+.aviso-error {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radio);
+  font-size: 0.95rem;
+}
+
+.aviso-ok {
+  background: var(--ok-soft);
+  border: 1px solid rgb(52 211 153 / 0.3);
+  color: var(--ok);
+}
+
+.aviso-error {
+  background: var(--peligro-soft);
+  border: 1px solid rgb(248 113 113 / 0.3);
+  color: var(--peligro);
+}
+
+/* ── Formulario ───────────────────────────────────────────────────────────── */
+
+fieldset {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--surface);
+}
+
+legend {
+  padding: 0 0.4rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+label,
+.etiqueta {
+  display: block;
+  margin: 0.9rem 0 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+fieldset > label:first-of-type,
+fieldset > .etiqueta:first-of-type {
+  margin-top: 0;
+}
+
+.req {
+  color: var(--accent);
+}
+
+.opt {
+  color: var(--text-faint);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+[aria-invalid="true"] {
+  border-color: var(--peligro);
+}
+
+.error {
+  margin: 0.4rem 0 0;
+  color: var(--peligro);
+  font-size: 0.85rem;
+}
+
+.ayuda {
+  margin: 0.5rem 0 0;
+  color: var(--text-faint);
+  font-size: 0.82rem;
+}
+
+.centrado {
+  text-align: center;
+}
+
+.par {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* ── Borrador ofrecido ────────────────────────────────────────────────────── */
+
+.borrador {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radio);
+  background: var(--surface-raised);
+}
+
+.borrador p {
+  margin: 0 0 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.borrador-botones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Chips: radios y checkboxes con área de toque grande ──────────────────── */
+
+.opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.chip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.chip input:checked + span {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.chip input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Fotos ────────────────────────────────────────────────────────────────── */
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.fotos-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* Tres por fila en un celular, más a medida que hay lugar. */
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 0.5rem;
+}
+
+.fotos-lista:empty {
+  display: none;
+}
+
+.fotos-lista li {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-raised);
+}
+
+.fotos-lista img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fotos-lista .quitar {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  /* Más chico que los 44 px del resto a propósito: se toca por error muy
+     cerca de la miniatura que se quiere mirar, no al revés. */
+  width: 30px;
+  min-height: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(8 11 16 / 0.78);
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.fotos-botones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.fotos-lista:not(:empty) + .fotos-botones {
+  margin-top: 0.75rem;
+}
+
+.bloque-fotos {
+  margin-top: 1.25rem;
+}
+
+.bloque-fotos h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ── Firma ────────────────────────────────────────────────────────────────── */
+
+.firma {
+  margin-top: 0.75rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radio);
+  background: #f8fafc;
+}
+
+.firma canvas {
+  display: block;
+  width: 100%;
+  height: 180px;
+  /* Sin esto, arrastrar el dedo para firmar hace scroll de la página. */
+  touch-action: none;
+}
+
+.firma-botones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* ── Botones ──────────────────────────────────────────────────────────────── */
+
+button,
+.enlace-boton {
+  min-height: 48px;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.principal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 0;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  text-decoration: none;
+}
+
+.secundario {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+/* ── Lista de órdenes ─────────────────────────────────────────────────────── */
+
+.ordenes {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ordenes a {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.ordenes .numero {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+.ordenes .cliente {
+  font-weight: 600;
+}
+
+.ordenes .equipo {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.estado {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.estado[data-estado="recibida"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.fecha {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+.vacio {
+  margin-top: 1.5rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── Otros equipos del mismo cliente ──────────────────────────────────────── */
+
+.otras {
+  margin-top: 2rem;
+}
+
+.otras h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.otras ul {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.otras a {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: start;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.otras .que {
+  font-weight: 600;
+}
+
+.otras .cuando {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+/* ── Detalle ──────────────────────────────────────────────────────────────── */
+
+.numero-grande {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitulo {
+  margin: 0 0 1.25rem;
+  color: var(--text-faint);
+  font-size: 0.85rem;
+}
+
+.ficha {
+  margin: 0;
+  padding: 0.25rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--surface);
+}
+
+.ficha .fila {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ficha .fila:last-child {
+  border-bottom: 0;
+}
+
+.ficha dt {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.ficha dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.bloque-firma {
+  margin-top: 1.25rem;
+}
+
+.bloque-firma h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.bloque-firma img {
+  width: 100%;
+  max-width: 320px;
+  border-radius: var(--radio);
+  background: #f8fafc;
+}
+
+.huella {
+  margin-top: 1.5rem;
+}
+
+.huella h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.huella code {
+  display: block;
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  /* El hash es una sola palabra de 64 caracteres: sin esto desborda. */
+  overflow-wrap: anywhere;
+}
+
+.detalle-acciones {
+  margin-bottom: 1.25rem;
+}
+
+/* ── Entrar y seguimiento ─────────────────────────────────────────────────── */
+
+.entrar {
+  max-width: 380px;
+  margin: 2rem auto 0;
+}
+
+.titulo-publico {
+  margin: 0 0 0.25rem;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+}
+
+.estado-grande {
+  display: inline-block;
+  margin: 0 0 1.25rem;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Acciones de la orden ─────────────────────────────────────────────────── */
+
+.acciones {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* ── Envío del comprobante ────────────────────────────────────────────────── */
+
+.envio {
+  margin: 1rem 0 1.5rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.envio p {
+  margin: 0;
+}
+
+.envio form {
+  margin-top: 0.6rem;
+}
+
+.envio[data-envio="enviado"] {
+  border-color: rgb(52 211 153 / 0.3);
+  color: var(--ok);
+}
+
+.envio[data-envio="error"] {
+  border-color: rgb(248 113 113 / 0.3);
+  color: var(--peligro);
+}
+
+/* ── Novedades e historial ────────────────────────────────────────────────── */
+
+.novedades,
+.linea-tiempo {
+  margin-top: 1.75rem;
+}
+
+.novedades h2,
+.linea-tiempo h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.novedades form {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--surface);
+}
+
+.whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 0.6rem;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  background: var(--whatsapp, #25d366);
+  color: #04240f;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.linea-tiempo ol {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0 0 0 1rem;
+  border-left: 1px solid var(--border-strong);
+  display: grid;
+  gap: 1rem;
+}
+
+.linea-tiempo li {
+  position: relative;
+}
+
+.linea-tiempo li::before {
+  content: "";
+  position: absolute;
+  left: calc(-1rem - 4px);
+  top: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.linea-tiempo .momento {
+  display: block;
+  color: var(--text-faint);
+  font-size: 0.75rem;
+}
+
+.linea-tiempo .hito {
+  font-weight: 600;
+}
+
+.linea-tiempo .nota {
+  margin: 0.2rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 380px) {
+  .par {
+    grid-template-columns: 1fr;
+  }
+
+  .ficha .fila {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}

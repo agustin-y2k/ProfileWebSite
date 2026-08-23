@@ -1,0 +1,27 @@
+{
+  "name": "@sites/taller",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --import tsx --watch src/server.ts",
+    "start": "node --import tsx src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fastify/formbody": "^8.0.1",
+    "@fastify/static": "^8.0.3",
+    "@sites/negocio": "workspace:*",
+    "better-sqlite3": "^11.7.0",
+    "fastify": "^5.2.0",
+    "nodemailer": "^6.9.16",
+    "pdf-lib": "^1.17.1",
+    "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.1",
+    "@types/nodemailer": "^6.4.17",
+    "typescript": "^5.6.3"
+  }
+}
