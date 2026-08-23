@@ -405,10 +405,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
               }}
             >
               <figure className={styles.lupaFigura}>
-                <div
-                  className={styles.lupaMarco}
-                  onClick={alternarZoom}
-                >
+                <div className={styles.lupaMarco} onClick={alternarZoom}>
                   <Imagen
                     key={enLupa.id}
                     captura={enLupa}
