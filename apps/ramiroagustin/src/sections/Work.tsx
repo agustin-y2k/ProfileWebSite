@@ -12,8 +12,7 @@ export function Work() {
             En qué puedo ayudarte
           </h2>
           <p className={styles.intro}>
-            Tres frentes que, en casas y negocios chicos, casi siempre terminan
-            mezclándose.
+            Tres frentes que, en casas y negocios, casi siempre terminan mezclándose.
           </p>
         </header>
 
