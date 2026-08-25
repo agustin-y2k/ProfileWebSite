@@ -18,10 +18,6 @@ datos/
 .env.*
 !.env.example
 
-# Sitios anteriores: se conservan en disco como referencia, pero no se
-# versionan ni se publican.
-legacy/
-
 # Sistema
 .DS_Store
 Thumbs.db
