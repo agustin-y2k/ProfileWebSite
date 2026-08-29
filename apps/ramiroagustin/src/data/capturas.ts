@@ -65,7 +65,7 @@ const fichas: readonly Ficha[] = [
     id: "01-mostrador",
     titulo: "El mostrador del día",
     pie: "Lo primero que ve quien atiende: qué hay que entregar ahora, qué equipos están afuera del laboratorio y con cuántos se cuenta.",
-    alt: "Pantalla de inicio del administrador: tarjetas de qué entregar ahora, qué equipos están afuera, cuántos quedan en el laboratorio y las próximas clases con reserva",
+    alt: "Pantalla de inicio del administrador: tarjetas de qué entregar ahora, qué equipos están afuera, cuántos quedan en el laboratorio, la entrega sin reserva y las próximas clases",
     ancho: 2880,
     alto: 3720,
   },
@@ -73,9 +73,9 @@ const fichas: readonly Ficha[] = [
     id: "02-nueva-reserva",
     titulo: "Reservar una clase",
     pie: "El docente elige día, horario y cuántas computadoras necesita, y puede dejar la reserva repetida todas las semanas de una sola vez.",
-    alt: "Formulario de nueva reserva: materia, fecha, hora de inicio y fin, y la lista de computadoras de cada carro para tildar las que se necesitan",
+    alt: "Formulario de nueva reserva: materia, fecha, hora de inicio y fin, la lista de computadoras de cada carro para tildar las que se necesitan y los otros equipos que se prestan, como el proyector",
     ancho: 2880,
-    alto: 2044,
+    alto: 2320,
   },
   {
     id: "03-mis-reservas",
@@ -89,37 +89,37 @@ const fichas: readonly Ficha[] = [
     id: "10-inventario-docente",
     titulo: "Qué hay en cada carro",
     pie: "El estado de cada equipo y el software que tiene instalado, para elegir con qué dar la clase antes de reservar.",
-    alt: "Tabla de las computadoras de un carro con su estado, si están freezadas, el software instalado y las acciones de ver calendario o reportar un problema",
+    alt: "Tabla de las computadoras de un carro con su estado, si están freezadas, el software instalado y las acciones de ver calendario o reportar un problema, y debajo los otros equipos que presta la escuela",
     ancho: 2880,
-    alto: 1800,
+    alto: 2026,
   },
   {
     id: "04-inventario-admin",
     titulo: "El inventario, carro por carro",
-    pie: "Altas, bajas, mantenimiento, licencias e incidencias de cada máquina sobre la misma ficha, sin planillas paralelas.",
-    alt: "Gestión del inventario: alta de carros y equipos, y la ficha de cada computadora con su número de serie, software y acciones de mantenimiento",
+    pie: "Altas, bajas, mantenimiento, licencias e incidencias sobre la misma ficha, sin planillas paralelas. Y no solo de las notebooks: también del proyector y los cargadores que se prestan.",
+    alt: "Gestión del inventario: los equipos que se prestan y no están en ningún carro, y la ficha de cada computadora del carro con su número de serie, el software instalado y las acciones de mantenimiento",
     ancho: 2880,
-    alto: 3932,
-    // El encabezado va seguido de dos formularios vacíos. Bajar el recorte un
-    // quinto de la página lo cambia por la ficha de los equipos, que es lo
-    // que la pantalla realmente muestra.
+    alto: 4904,
+    // El encabezado va seguido del formulario vacío de un carro nuevo. Bajar
+    // el recorte un quinto de la página lo cambia por las fichas de los
+    // equipos, que es lo que la pantalla realmente muestra.
     encuadre: "50% 18%",
   },
   {
     id: "07-licencias",
     titulo: "Licencias antes de que venzan",
-    pie: "Qué software vence en cada equipo y cuántos días quedan. El aviso llega antes del corte, no cuando el programa dejó de abrir.",
-    alt: "Listado de licencias de software por equipo, con la fecha de vencimiento, los días restantes y el aviso de las que ya están por vencer",
+    pie: "Qué software vence en cada equipo y cuántos días quedan. El aviso llega por mail antes del corte, no cuando el programa dejó de abrir.",
+    alt: "Listado de licencias de software por equipo, cada una con su plazo de renovación y cuántos días antes avisa; las que todavía no tienen fecha de vencimiento cargada aparecen marcadas",
     ancho: 2880,
     alto: 1816,
   },
   {
     id: "05-reportes",
     titulo: "Números para justificar una compra",
-    pie: "Horas reservadas por equipo y por docente en el ciclo lectivo, exportables a CSV para adjuntar a un pedido.",
-    alt: "Reportes de uso: tabla de horas reservadas por equipo con barras de porcentaje, horas por docente e incidencias del período",
+    pie: "Horas reservadas por equipo y por docente, el estado del parque y qué se rompe, por ciclo lectivo y exportable a CSV para adjuntar a un pedido.",
+    alt: "Reportes de uso: tabla de horas reservadas por equipo con barras de porcentaje, horas por docente, incidencias del período y el estado del parque de equipos",
     ancho: 2880,
-    alto: 3150,
+    alto: 3224,
   },
   {
     id: "09-reportes-oscuro",
@@ -127,7 +127,7 @@ const fichas: readonly Ficha[] = [
     pie: "El tema sigue al del sistema operativo o se fuerza a mano. Todas las pantallas están hechas para los dos, no solo el inicio.",
     alt: "La misma pantalla de reportes con el tema oscuro activado",
     ancho: 2880,
-    alto: 3150,
+    alto: 3224,
   },
   {
     id: "11-movil",
