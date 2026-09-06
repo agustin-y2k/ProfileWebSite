@@ -75,7 +75,7 @@ const fichas: readonly Ficha[] = [
     pie: "El docente elige día, horario y cuántas computadoras necesita, y puede dejar la reserva repetida todas las semanas de una sola vez.",
     alt: "Formulario de nueva reserva: materia, fecha, hora de inicio y fin, la lista de computadoras de cada carro para tildar las que se necesitan y los otros equipos que se prestan, como el proyector",
     ancho: 2880,
-    alto: 2320,
+    alto: 2352,
   },
   {
     id: "03-mis-reservas",
@@ -91,7 +91,7 @@ const fichas: readonly Ficha[] = [
     pie: "El estado de cada equipo y el software que tiene instalado, para elegir con qué dar la clase antes de reservar.",
     alt: "Tabla de las computadoras de un carro con su estado, si están freezadas, el software instalado y las acciones de ver calendario o reportar un problema, y debajo los otros equipos que presta la escuela",
     ancho: 2880,
-    alto: 2026,
+    alto: 2116,
   },
   {
     id: "04-inventario-admin",
@@ -99,11 +99,19 @@ const fichas: readonly Ficha[] = [
     pie: "Altas, bajas, mantenimiento, licencias e incidencias sobre la misma ficha, sin planillas paralelas. Y no solo de las notebooks: también del proyector y los cargadores que se prestan.",
     alt: "Gestión del inventario: los equipos que se prestan y no están en ningún carro, y la ficha de cada computadora del carro con su número de serie, el software instalado y las acciones de mantenimiento",
     ancho: 2880,
-    alto: 4904,
+    alto: 5320,
     // El encabezado va seguido del formulario vacío de un carro nuevo. Bajar
     // el recorte un quinto de la página lo cambia por las fichas de los
     // equipos, que es lo que la pantalla realmente muestra.
     encuadre: "50% 18%",
+  },
+  {
+    id: "08-academico",
+    titulo: "Cada escuela se organiza distinta",
+    pie: "El ciclo lectivo, los cursos, las materias y quién dicta cada una. La división y la modalidad son opcionales: la primaria y la universidad cargan lo que usan y dejan vacío el resto.",
+    alt: "Pantalla de ciclos, cursos y materias: el formulario para abrir un ciclo lectivo, el ciclo 2026 activo con el alta de un curso por año y división, y las materias de 1°A con los docentes que las dictan",
+    ancho: 2880,
+    alto: 2082,
   },
   {
     id: "07-licencias",

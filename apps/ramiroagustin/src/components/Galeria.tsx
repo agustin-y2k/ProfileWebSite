@@ -259,8 +259,8 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                 onClick={() => setAmpliada(i)}
                 aria-label={`Ampliar: ${captura.titulo}`}
                 // Solo la captura visible entra en el orden de tabulación: con
-                // las nueve dentro, tabular arrastraría el carrusel de punta a
-                // punta antes de dejar seguir leyendo la página.
+                // todas dentro, tabular arrastraría el carrusel de punta a punta
+                // antes de dejar seguir leyendo la página.
                 tabIndex={i === activa ? 0 : -1}
               >
                 <Imagen

@@ -37,6 +37,7 @@ slides=(
   03-mis-reservas
   10-inventario-docente
   04-inventario-admin
+  08-academico
   07-licencias
   05-reportes
   09-reportes-oscuro
@@ -47,11 +48,20 @@ slides=(
 # franjas vacías a los costados.
 tryptich() {
   local input="$1" dest="$2"
+
+  # El último tramo se cuelga del pie de la página en vez de llevar un corte
+  # fijo: la pantalla del teléfono crece cuando se le agrega una acción más al
+  # menú, y con un número escrito a mano el tramo terminaba cortando el pie por
+  # la mitad.
+  local alto
+  alto=$(ffprobe -v error -select_streams v:0 -show_entries stream=height \
+    -of csv=p=0 "$input")
+
   ffmpeg -v error -y -i "$input" -filter_complex "
     color=c=0xF8FAFD:s=4004x2502[bg];
     [0:v]crop=1170:2262:0:0[p1];
     [0:v]crop=1170:2262:0:1650[p2];
-    [0:v]crop=1170:2262:0:4020[p3];
+    [0:v]crop=1170:2262:0:$((alto - 2262))[p3];
     [bg]drawbox=x=122:y=118:w=1174:h=2266:color=0xDDE3EC:t=2,
         drawbox=x=1415:y=118:w=1174:h=2266:color=0xDDE3EC:t=2,
         drawbox=x=2708:y=118:w=1174:h=2266:color=0xDDE3EC:t=2[marco];
