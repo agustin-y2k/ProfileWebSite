@@ -1,4 +1,5 @@
 import { Container, Reveal, Section } from "@sites/ui";
+import { Clip } from "../components/Clip";
 import { Galeria } from "../components/Galeria";
 import { projects } from "../data/projects";
 import styles from "./Projects.module.css";
@@ -78,6 +79,8 @@ export function Projects() {
                       ) : null}
                     </div>
                   </div>
+
+                  {project.clip ? <Clip clip={project.clip} /> : null}
 
                   {project.capturas ? (
                     <Galeria capturas={project.capturas} proyecto={project.name} />
