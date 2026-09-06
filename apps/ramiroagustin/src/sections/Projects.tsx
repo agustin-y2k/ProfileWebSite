@@ -23,10 +23,6 @@ export function Projects() {
             <li key={project.id}>
               <Reveal delay={i * 80}>
                 <article className={styles.card}>
-                  {project.capturas ? (
-                    <Galeria capturas={project.capturas} proyecto={project.name} />
-                  ) : null}
-
                   <div className={styles.body}>
                     <div className={styles.heading}>
                       <h3 className={styles.name}>{project.name}</h3>
@@ -82,6 +78,12 @@ export function Projects() {
                       ) : null}
                     </div>
                   </div>
+
+                  {project.capturas ? (
+                    <div className={styles.galeria}>
+                      <Galeria capturas={project.capturas} proyecto={project.name} />
+                    </div>
+                  ) : null}
                 </article>
               </Reveal>
             </li>

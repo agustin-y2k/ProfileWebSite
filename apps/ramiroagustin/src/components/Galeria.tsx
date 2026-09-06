@@ -6,7 +6,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
-import { useLockBodyScroll, usePrefersReducedMotion } from "@sites/ui";
+import { useLockBodyScroll, useMediaQuery, usePrefersReducedMotion } from "@sites/ui";
 import type { Captura, Juego } from "../data/capturas";
 import styles from "./Galeria.module.css";
 
@@ -14,10 +14,17 @@ import styles from "./Galeria.module.css";
  *  62rem es el viewport menos el gutter y el padding de la tarjeta. */
 const MEDIDAS_TARJETA = "(min-width: 62rem) 1056px, calc(100vw - 6rem)";
 
-/** Debajo de 40rem la tarjeta ya es el viewport menos el gutter, y ahí no
- *  entra legible un recorte de escritorio: va el cerrado. */
-const CORTE_FOCO = "(max-width: 40rem)";
-const MEDIDAS_FOCO = "calc(100vw - 6rem)";
+/**
+ * Debajo de este ancho la galería deja de ser un carrusel: las capturas se
+ * apilan, van de un borde al otro de la pantalla y cada una lleva su pie
+ * debajo. Es también el corte a partir del cual se sirve el recorte cerrado, y
+ * no por casualidad: es el ancho donde el recorte de escritorio deja de leerse
+ * y donde al carrusel ya no le sobra lugar para deslizarse.
+ */
+const CORTE_TELEFONO = "(max-width: 40rem)";
+
+/** Apilada, la captura ocupa el ancho entero de la pantalla. */
+const MEDIDAS_FOCO = "100vw";
 
 /** En la lupa la imagen ocupa casi todo el ancho, con tope en 1200px. */
 const MEDIDAS_LUPA = "(min-width: 78rem) 1200px, 96vw";
@@ -120,6 +127,9 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
   const navegando = useRef(false);
 
   const quieto = usePrefersReducedMotion();
+  /** Apilada, la galería no tiene carrusel que manejar: no hay captura activa
+   *  ni nada que desplazar, están todas a la vista. */
+  const apilado = useMediaQuery(CORTE_TELEFONO);
   useLockBodyScroll(ampliada !== null);
 
   const total = capturas.length;
@@ -147,7 +157,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
   // en el teléfono se llega deslizando, y ahí no hay ningún botón de por medio.
   useEffect(() => {
     const nodo = pista.current;
-    if (!nodo || typeof IntersectionObserver === "undefined") return;
+    if (!nodo || apilado || typeof IntersectionObserver === "undefined") return;
 
     const observador = new IntersectionObserver(
       (entradas) => {
@@ -162,7 +172,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
 
     for (const diapo of nodo.children) observador.observe(diapo);
     return () => observador.disconnect();
-  }, [total]);
+  }, [total, apilado]);
 
   // En escritorio el carrusel no lleva `scroll-snap-type` —ver el porqué en
   // Galeria.module.css—, así que una rodada horizontal puede dejarlo a mitad
@@ -171,7 +181,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
   // captura ya quedó en su lugar.
   useEffect(() => {
     const nodo = pista.current;
-    if (!nodo) return;
+    if (!nodo || apilado) return;
 
     const acomodar = () => {
       // Lo que movió `irA` ya está donde tiene que estar; volver a acomodarlo
@@ -191,7 +201,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
 
     nodo.addEventListener("scrollend", acomodar);
     return () => nodo.removeEventListener("scrollend", acomodar);
-  }, [quieto]);
+  }, [quieto, apilado]);
 
   // Agrandada, la captura es mucho más ancha que la ventana, y el borde
   // izquierdo de una pantalla de sistema es margen vacío. Se arranca en el
@@ -239,9 +249,13 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
     setAmpliada(null);
     setActiva(indice);
     const diapo = pista.current?.children[indice] as HTMLElement | undefined;
-    diapo?.querySelector("button")?.focus({ preventScroll: true });
+    // Apilado es al revés: las capturas están una debajo de la otra, así que
+    // el scroll que arrastra el foco es justamente el que hay que dejar pasar
+    // —si no, cerrar en la novena devuelve a quien mira a la altura de la
+    // tercera, que es donde había abierto la lupa.
+    diapo?.querySelector("button")?.focus({ preventScroll: !apilado });
     irA(indice);
-  }, [irA]);
+  }, [irA, apilado]);
 
   // `close` no burbujea, y React reparte los eventos desde la raíz del árbol:
   // el `onClose` en el JSX nunca llega. Hay que escucharlo en el elemento. Sin
@@ -255,6 +269,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
   }, [alCerrar]);
 
   const teclasPista = (evento: KeyboardEvent) => {
+    if (apilado) return;
     if (evento.key !== "ArrowLeft" && evento.key !== "ArrowRight") return;
     evento.preventDefault();
     irA(
@@ -267,9 +282,8 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
     if (evento.key === "ArrowLeft") moverLupa(-1);
   };
 
-  const actual = capturas[activa];
   const enLupa = ampliada === null ? undefined : capturas[ampliada];
-  if (!actual) return null;
+  if (total === 0) return null;
 
   return (
     <div>
@@ -277,7 +291,11 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
         <ul
           className={styles.pista}
           ref={pista}
-          tabIndex={0}
+          // Un contenedor que scrollea tiene que poder recibir el foco para
+          // recorrerse con el teclado. Apilado ya no scrollea nada: sacarlo
+          // del orden de tabulación evita una parada que no hace nada y un
+          // anillo de foco alrededor de una columna de diez capturas.
+          tabIndex={apilado ? -1 : 0}
           aria-label={`Capturas de ${proyecto}`}
           onKeyDown={teclasPista}
         >
@@ -288,14 +306,15 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                 className={styles.abrir}
                 onClick={() => setAmpliada(i)}
                 aria-label={`Ampliar: ${captura.titulo}`}
-                // Solo la captura visible entra en el orden de tabulación: con
-                // todas dentro, tabular arrastraría el carrusel de punta a punta
-                // antes de dejar seguir leyendo la página.
-                tabIndex={i === activa ? 0 : -1}
+                // En el carrusel solo la captura visible entra en el orden de
+                // tabulación: con todas dentro, tabular arrastraría la tira de
+                // punta a punta antes de dejar seguir leyendo la página.
+                // Apiladas están todas a la vista, y saltear ocho sería raro.
+                tabIndex={apilado || i === activa ? 0 : -1}
               >
                 <Imagen
                   fuentes={[
-                    { juego: captura.foco, medidas: MEDIDAS_FOCO, media: CORTE_FOCO },
+                    { juego: captura.foco, medidas: MEDIDAS_FOCO, media: CORTE_TELEFONO },
                     { juego: captura.detalle, medidas: MEDIDAS_TARJETA },
                   ]}
                   alt={captura.alt}
@@ -314,7 +333,15 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                   </svg>
                   Ver la pantalla entera
                 </span>
+                <span className={styles.contador} aria-hidden="true">
+                  {i + 1} / {total}
+                </span>
               </button>
+
+              <div className={styles.pie}>
+                <p className={styles.pieTitulo}>{captura.titulo}</p>
+                <p className={styles.pieTexto}>{captura.pie}</p>
+              </div>
             </li>
           ))}
         </ul>
@@ -337,10 +364,6 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
         >
           <Chevron hacia="derecha" />
         </button>
-
-        <p className={styles.contador} aria-hidden="true">
-          {activa + 1} / {total}
-        </p>
       </div>
 
       <div className={styles.puntos}>
@@ -354,13 +377,6 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
             aria-current={i === activa || undefined}
           />
         ))}
-      </div>
-
-      {/* El pie cambia al deslizar, así que se anuncia: quien no ve la imagen
-          se entera igual de en qué pantalla está parado. */}
-      <div className={styles.pie} aria-live="polite">
-        <p className={styles.pieTitulo}>{actual.titulo}</p>
-        <p className={styles.pieTexto}>{actual.pie}</p>
       </div>
 
       <dialog

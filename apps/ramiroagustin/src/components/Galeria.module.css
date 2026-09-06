@@ -1,11 +1,13 @@
 /* ── Carrusel ────────────────────────────────────────────────────────────── */
+/* El marco no dibuja nada: es el sistema de referencia de las flechas, que van
+   encima de la captura y no pueden viajar adentro de la tira. El recuadro lo
+   lleva cada captura, porque debajo de ella va su pie y el borde tiene que
+   terminar antes. */
 .marco {
   position: relative;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  /* Para que las flechas puedan medirse contra el ancho del marco; ver `top`
+     en .flecha. */
+  container-type: inline-size;
 }
 
 .pista {
@@ -53,9 +55,14 @@
   display: block;
   width: 100%;
   /* El `padding: 1px 6px` que el navegador le da a todo <button> dejaría la
-     captura despegada del marco por los cuatro lados. */
+     captura despegada del recuadro por los cuatro lados. */
   padding: 0;
   cursor: zoom-in;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .abrir:focus-visible {
@@ -127,7 +134,12 @@
 
 .flecha {
   position: absolute;
-  top: 50%;
+  /* Centrada sobre la captura y no sobre el marco: debajo de la captura va su
+     pie, y un 50 % las bajaría a la altura del texto. La captura es 16:10 y
+     ocupa el ancho del marco, así que su mitad cae a 31,25 % de ese ancho. Va
+     en unidades de contenedor porque un porcentaje en `top` se mide contra el
+     alto, que es justamente lo que acá sobra. */
+  top: 31.25cqw;
   translate: 0 -50%;
   display: grid;
   place-items: center;
@@ -207,8 +219,13 @@
 
 /* ── Pie ─────────────────────────────────────────────────────────────────── */
 
-/* Alto mínimo reservado: sin él, pasar de un pie de dos líneas a uno de
-   cuatro empuja media tarjeta hacia abajo en pleno gesto. */
+/* El pie va adentro de cada diapositiva y viaja con ella: así la frase y la
+   captura que la prueba son una sola cosa, apiladas o no. Antes era un solo
+   pie afuera de la tira que se reescribía al deslizar, y con las capturas
+   apiladas eso no tendría a qué referirse: están todas a la vista.
+
+   Alto mínimo reservado: sin él, pasar de un pie de dos líneas a uno de cuatro
+   cambia el alto de la tira en pleno gesto. */
 .pie {
   display: grid;
   gap: var(--space-1);
@@ -233,6 +250,52 @@
 @media (min-width: 48rem) {
   .pie {
     min-height: 5.5rem;
+  }
+}
+
+/* ── Apilado ─────────────────────────────────────────────────────────────── */
+
+/* En el teléfono el carrusel se apila: la tira pasa a ser una columna y las
+   capturas van de un borde al otro de la pantalla, cada una con su pie debajo.
+
+   Un carrusel ahí adentro agrega un eje que nadie pidió —recorrer una página
+   en un teléfono ya es scrollear— y esconde nueve de las diez capturas detrás
+   de unas flechas que en una pantalla táctil ni siquiera aparecen.
+
+   El corte es el mismo con el que la galería cambia de recorte: ver
+   CORTE_TELEFONO en Galeria.tsx, que tiene que decir esto mismo para que el
+   `media` de cada <source> y este bloque cambien juntos. */
+@media (max-width: 40rem) {
+  .pista {
+    display: grid;
+    gap: var(--space-6);
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  /* A sangre. La tarjeta del proyecto se ensancha hasta la pantalla entera
+     —ver Projects.module.css— y esto cancela su padding: la captura pasa de
+     los 294 px que dejaban el gutter y el recuadro a los 390 del teléfono, un
+     tercio más de ancho. Sin costados ni redondeo, porque ya no hay recuadro
+     del que salirse: la imagen termina donde termina la pantalla. */
+  .abrir {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    border-inline: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* El alto reservado era para que la tira no cambiara de alto al deslizar.
+     Apiladas no hay nada que se mueva: cada pie mide lo que mide. */
+  .pie {
+    min-height: 0;
+  }
+
+  /* Las flechas y los puntos son el carrusel, y acá no hay carrusel. */
+  .flecha,
+  .puntos {
+    display: none;
   }
 }
 
