@@ -6,13 +6,16 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
-import { useLockBodyScroll, useMediaQuery, usePrefersReducedMotion } from "@sites/ui";
+import { useLockBodyScroll } from "@sites/ui";
 import type { Captura, Juego } from "../data/capturas";
 import styles from "./Galeria.module.css";
 
-/** Ancho de render en la tarjeta: el ancho útil del contenedor. Debajo de
- *  62rem es el viewport menos el gutter y el padding de la tarjeta. */
-const MEDIDAS_TARJETA = "(min-width: 62rem) 1056px, calc(100vw - 6rem)";
+/** Ancho de render de la captura. De 62rem para arriba es la columna derecha
+ *  del recorrido: el contenedor menos su gutter, el padding de la tarjeta, la
+ *  columna del texto y el espacio entre las dos, con tope cuando el contenedor
+ *  deja de crecer. Debajo es el ancho útil de la tarjeta. */
+const MEDIDAS_TARJETA =
+  "(min-width: 90rem) 912px, (min-width: 62rem) calc(100vw - 528px), calc(100vw - 6rem)";
 
 /**
  * Debajo de este ancho la galería deja de ser un carrusel: las capturas se
@@ -105,104 +108,32 @@ type GaleriaProps = {
 };
 
 /**
- * Galería de capturas: un carrusel que se desliza y una lupa que muestra la
+ * El recorrido por las capturas del sistema, más una lupa que muestra la
  * pantalla entera.
  *
- * El carrusel es un contenedor que scrollea, no un slider escrito en
- * JavaScript. Así arrastrar en el teléfono es el scroll nativo —con su inercia
- * y su rebote— en vez de una imitación a fuerza de eventos táctiles, y sin JS
- * la galería sigue siendo una tira de imágenes que se puede recorrer. Los
- * botones, los puntos y la lupa son el agregado que sí necesita JavaScript.
+ * El recorrido es una lista y nada más: cada captura con el pie que la
+ * explica, una debajo de la otra. Que en escritorio se vean de a una por
+ * pantalla, con el texto al lado y las dos pegadas mientras se las recorre, lo
+ * resuelve el CSS —ver Galeria.module.css—, así que sin JavaScript la página
+ * se lee igual y no hay nada escondido detrás de un control. Lo único que
+ * necesita JavaScript acá es la lupa.
+ *
+ * Antes esto era un carrusel. Escondía nueve de las diez capturas detrás de
+ * una flecha, y en un teléfono ni siquiera aparecía la flecha.
  */
 export function Galeria({ capturas, proyecto }: GaleriaProps) {
-  const [activa, setActiva] = useState(0);
   const [ampliada, setAmpliada] = useState<number | null>(null);
   const [zoom, setZoom] = useState(false);
 
-  const pista = useRef<HTMLUListElement>(null);
+  const lista = useRef<HTMLUListElement>(null);
   const dialogo = useRef<HTMLDialogElement>(null);
   const cuerpo = useRef<HTMLDivElement>(null);
-  /** Última captura vista en la lupa: al cerrar, el carrusel queda ahí. */
+  /** Última captura vista en la lupa: al cerrar, la página vuelve ahí. */
   const ultima = useRef(0);
-  /** El scroll en curso lo pidió `irA`, no el dedo ni la rueda. */
-  const navegando = useRef(false);
 
-  const quieto = usePrefersReducedMotion();
-  /** Apilada, la galería no tiene carrusel que manejar: no hay captura activa
-   *  ni nada que desplazar, están todas a la vista. */
-  const apilado = useMediaQuery(CORTE_TELEFONO);
   useLockBodyScroll(ampliada !== null);
 
   const total = capturas.length;
-
-  const irA = useCallback(
-    (indice: number) => {
-      const nodo = pista.current;
-      const diapo = nodo?.children[indice] as HTMLElement | undefined;
-      if (!nodo || !diapo) return;
-
-      // Animar ocho capturas de corrido —el salto que hace un punto del otro
-      // extremo— tarda segundos y no se entiende: solo se anima el paso a la
-      // captura de al lado, que es el que hay que poder seguir con la vista.
-      const salto = Math.abs(diapo.offsetLeft - nodo.scrollLeft) > nodo.clientWidth * 1.5;
-      navegando.current = true;
-      nodo.scrollTo({
-        left: diapo.offsetLeft,
-        behavior: quieto || salto ? "auto" : "smooth",
-      });
-    },
-    [quieto],
-  );
-
-  // Cuál es la captura activa lo dice el scroll, no el último botón apretado:
-  // en el teléfono se llega deslizando, y ahí no hay ningún botón de por medio.
-  useEffect(() => {
-    const nodo = pista.current;
-    if (!nodo || apilado || typeof IntersectionObserver === "undefined") return;
-
-    const observador = new IntersectionObserver(
-      (entradas) => {
-        for (const entrada of entradas) {
-          if (!entrada.isIntersecting) continue;
-          const indice = Number((entrada.target as HTMLElement).dataset.indice);
-          if (!Number.isNaN(indice)) setActiva(indice);
-        }
-      },
-      { root: nodo, threshold: 0.6 },
-    );
-
-    for (const diapo of nodo.children) observador.observe(diapo);
-    return () => observador.disconnect();
-  }, [total, apilado]);
-
-  // En escritorio el carrusel no lleva `scroll-snap-type` —ver el porqué en
-  // Galeria.module.css—, así que una rodada horizontal puede dejarlo a mitad
-  // de camino entre dos capturas. Cuando el scroll termina, se acomoda a la
-  // más cercana. Donde el snap del CSS sí está activo esto no hace nada: la
-  // captura ya quedó en su lugar.
-  useEffect(() => {
-    const nodo = pista.current;
-    if (!nodo || apilado) return;
-
-    const acomodar = () => {
-      // Lo que movió `irA` ya está donde tiene que estar; volver a acomodarlo
-      // encadenaría un scroll sobre otro.
-      if (navegando.current) {
-        navegando.current = false;
-        return;
-      }
-
-      const ancho = nodo.clientWidth;
-      if (!ancho) return;
-      const diapo = nodo.children[Math.round(nodo.scrollLeft / ancho)] as
-        HTMLElement | undefined;
-      if (!diapo || Math.abs(nodo.scrollLeft - diapo.offsetLeft) < 1) return;
-      nodo.scrollTo({ left: diapo.offsetLeft, behavior: quieto ? "auto" : "smooth" });
-    };
-
-    nodo.addEventListener("scrollend", acomodar);
-    return () => nodo.removeEventListener("scrollend", acomodar);
-  }, [quieto, apilado]);
 
   // Agrandada, la captura es mucho más ancha que la ventana, y el borde
   // izquierdo de una pantalla de sistema es margen vacío. Se arranca en el
@@ -240,23 +171,17 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
     );
 
   /**
-   * Al cerrar, el carrusel se pone donde quedó la lupa. El foco se mueve a
-   * mano y con `preventScroll`: si se lo dejara al <dialog>, volvería al botón
-   * de la captura desde la que se abrió y el navegador arrastraría el scroll
-   * de vuelta a esa, deshaciendo el recorrido.
+   * Al cerrar, la página queda donde quedó la lupa. El foco se mueve a mano
+   * porque el <dialog> lo devolvería al botón desde el que se abrió: si se
+   * recorrieron cuatro capturas con las flechas, volver a la primera manda a
+   * quien mira a otra altura de la página que la que estaba viendo.
    */
   const alCerrar = useCallback(() => {
     const indice = ultima.current;
     setAmpliada(null);
-    setActiva(indice);
-    const diapo = pista.current?.children[indice] as HTMLElement | undefined;
-    // Apilado es al revés: las capturas están una debajo de la otra, así que
-    // el scroll que arrastra el foco es justamente el que hay que dejar pasar
-    // —si no, cerrar en la novena devuelve a quien mira a la altura de la
-    // tercera, que es donde había abierto la lupa.
-    diapo?.querySelector("button")?.focus({ preventScroll: !apilado });
-    irA(indice);
-  }, [irA, apilado]);
+    const diapo = lista.current?.children[indice] as HTMLElement | undefined;
+    diapo?.querySelector("button")?.focus();
+  }, []);
 
   // `close` no burbujea, y React reparte los eventos desde la raíz del árbol:
   // el `onClose` en el JSX nunca llega. Hay que escucharlo en el elemento. Sin
@@ -269,15 +194,6 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
     return () => nodo.removeEventListener("close", alCerrar);
   }, [alCerrar]);
 
-  const teclasPista = (evento: KeyboardEvent) => {
-    if (apilado) return;
-    if (evento.key !== "ArrowLeft" && evento.key !== "ArrowRight") return;
-    evento.preventDefault();
-    irA(
-      Math.min(total - 1, Math.max(0, activa + (evento.key === "ArrowRight" ? 1 : -1))),
-    );
-  };
-
   const teclasLupa = (evento: KeyboardEvent) => {
     if (evento.key === "ArrowRight") moverLupa(1);
     if (evento.key === "ArrowLeft") moverLupa(-1);
@@ -287,98 +203,49 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
   if (total === 0) return null;
 
   return (
-    <div>
-      <div className={styles.marco}>
-        <ul
-          className={styles.pista}
-          ref={pista}
-          // Un contenedor que scrollea tiene que poder recibir el foco para
-          // recorrerse con el teclado. Apilado ya no scrollea nada: sacarlo
-          // del orden de tabulación evita una parada que no hace nada y un
-          // anillo de foco alrededor de una columna de diez capturas.
-          tabIndex={apilado ? -1 : 0}
-          aria-label={`Capturas de ${proyecto}`}
-          onKeyDown={teclasPista}
-        >
-          {capturas.map((captura, i) => (
-            <li key={captura.id} className={styles.diapo} data-indice={i}>
-              <button
-                type="button"
-                className={styles.abrir}
-                onClick={() => setAmpliada(i)}
-                aria-label={`Ampliar: ${captura.titulo}`}
-                // En el carrusel solo la captura visible entra en el orden de
-                // tabulación: con todas dentro, tabular arrastraría la tira de
-                // punta a punta antes de dejar seguir leyendo la página.
-                // Apiladas están todas a la vista, y saltear ocho sería raro.
-                tabIndex={apilado || i === activa ? 0 : -1}
-              >
-                <Imagen
-                  fuentes={[
-                    { juego: captura.foco, medidas: MEDIDAS_FOCO, media: CORTE_TELEFONO },
-                    { juego: captura.detalle, medidas: MEDIDAS_TARJETA },
-                  ]}
-                  alt={captura.alt}
-                  className={styles.shot}
-                  carga={i === 0 ? "eager" : "lazy"}
-                />
-                <span className={styles.insignia} aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
-                    <path
-                      d="M9 3H3v6M15 3h6v6M15 21h6v-6M9 21H3v-6"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span className={styles.insigniaTexto}>Ver la pantalla entera</span>
-                </span>
-                <span className={styles.contador} aria-hidden="true">
-                  {i + 1} / {total}
-                </span>
-              </button>
-
-              <div className={styles.pie}>
-                <p className={styles.pieTitulo}>{captura.titulo}</p>
-                <p className={styles.pieTexto}>{captura.pie}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        <button
-          type="button"
-          className={`${styles.flecha} ${styles.anterior}`}
-          onClick={() => irA(activa - 1)}
-          disabled={activa === 0}
-          aria-label="Captura anterior"
-        >
-          <Chevron hacia="izquierda" />
-        </button>
-        <button
-          type="button"
-          className={`${styles.flecha} ${styles.siguiente}`}
-          onClick={() => irA(activa + 1)}
-          disabled={activa === total - 1}
-          aria-label="Captura siguiente"
-        >
-          <Chevron hacia="derecha" />
-        </button>
-      </div>
-
-      <div className={styles.puntos}>
+    <>
+      <ul className={styles.pista} ref={lista} aria-label={`Capturas de ${proyecto}`}>
         {capturas.map((captura, i) => (
-          <button
-            key={captura.id}
-            type="button"
-            className={styles.punto}
-            onClick={() => irA(i)}
-            aria-label={`Ver: ${captura.titulo}`}
-            aria-current={i === activa || undefined}
-          />
+          <li key={captura.id} className={styles.diapo}>
+            <button
+              type="button"
+              className={styles.abrir}
+              onClick={() => setAmpliada(i)}
+              aria-label={`Ampliar: ${captura.titulo}`}
+            >
+              <Imagen
+                fuentes={[
+                  { juego: captura.foco, medidas: MEDIDAS_FOCO, media: CORTE_TELEFONO },
+                  { juego: captura.detalle, medidas: MEDIDAS_TARJETA },
+                ]}
+                alt={captura.alt}
+                className={styles.shot}
+                carga={i === 0 ? "eager" : "lazy"}
+              />
+              <span className={styles.insignia} aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+                  <path
+                    d="M9 3H3v6M15 3h6v6M15 21h6v-6M9 21H3v-6"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className={styles.insigniaTexto}>Ver la pantalla entera</span>
+              </span>
+              <span className={styles.contador} aria-hidden="true">
+                {i + 1} / {total}
+              </span>
+            </button>
+
+            <div className={styles.pie}>
+              <p className={styles.pieTitulo}>{captura.titulo}</p>
+              <p className={styles.pieTexto}>{captura.pie}</p>
+            </div>
+          </li>
         ))}
-      </div>
+      </ul>
 
       <dialog
         ref={dialogo}
@@ -467,6 +334,6 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
           </div>
         ) : null}
       </dialog>
-    </div>
+    </>
   );
 }

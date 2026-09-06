@@ -29,17 +29,6 @@
   background: var(--surface);
 }
 
-/* La galería va escrita después de la ficha y sube al tope por CSS. En una
-   pantalla grande es un carrusel de una tarjeta de alto y encabeza bien; en un
-   teléfono son diez capturas apiladas, varias pantallas de scroll, y dejarlas
-   arriba obligaría a recorrerlas enteras antes de leer de qué se trata el
-   proyecto. El documento se escribe en el orden del teléfono porque es ahí
-   donde hay diez botones en juego: el orden en que se tabula y el orden en que
-   se ve coinciden justo donde más se nota. */
-.galeria {
-  order: -1;
-}
-
 /* ── Ficha ───────────────────────────────────────────────────────────────── */
 .body {
   display: grid;
@@ -171,10 +160,6 @@
     margin-inline: calc(50% - 50vw);
     border-inline: none;
     border-radius: 0;
-  }
-
-  .galeria {
-    order: 0;
   }
 }
 

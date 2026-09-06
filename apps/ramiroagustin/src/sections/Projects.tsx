@@ -6,7 +6,7 @@ import styles from "./Projects.module.css";
 export function Projects() {
   return (
     <Section id="proyectos" labelledBy="proyectos-titulo">
-      <Container>
+      <Container width="wide">
         <header className={styles.head}>
           <p className="label">Proyectos</p>
           <h2 id="proyectos-titulo" className={styles.title}>
@@ -80,9 +80,7 @@ export function Projects() {
                   </div>
 
                   {project.capturas ? (
-                    <div className={styles.galeria}>
-                      <Galeria capturas={project.capturas} proyecto={project.name} />
-                    </div>
+                    <Galeria capturas={project.capturas} proyecto={project.name} />
                   ) : null}
                 </article>
               </Reveal>

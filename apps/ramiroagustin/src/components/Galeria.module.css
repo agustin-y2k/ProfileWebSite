@@ -1,53 +1,12 @@
-/* ── Carrusel ────────────────────────────────────────────────────────────── */
-/* El marco no dibuja nada: es el sistema de referencia de las flechas, que van
-   encima de la captura y no pueden viajar adentro de la tira. El recuadro lo
-   lleva cada captura, porque debajo de ella va su pie y el borde tiene que
-   terminar antes. */
-.marco {
-  position: relative;
-  /* Para que las flechas puedan medirse contra el ancho del marco; ver `top`
-     en .flecha. */
-  container-type: inline-size;
-}
+/* ── Recorrido ───────────────────────────────────────────────────────────── */
 
+/* La lista de capturas, y nada más: cada una con el pie que la explica, una
+   debajo de la otra. Lo que cambia entre un teléfono y una pantalla grande es
+   cómo se acomodan esas dos piezas —ver los dos bloques de abajo—, no qué hay
+   en la página. */
 .pista {
-  position: relative;
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  /* Que el gesto no arrastre la página cuando el carrusel ya llegó al final. */
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-
-/* `scroll-snap-type` solo donde se navega con el dedo.
-   Con la rueda del mouse, un contenedor horizontal que además tiene snap se
-   queda con el evento: parado encima de la galería la página deja de bajar y
-   el visitante cree que el sitio se colgó. El dedo no sufre eso —el navegador
-   elige el eje del gesto antes de entregarlo— y ahí el snap es justamente lo
-   que hace que deslizar se sienta bien. En escritorio lo reemplaza el
-   acomodado por `scrollend` de Galeria.tsx. */
-@media (hover: none) {
-  .pista {
-    scroll-snap-type: x mandatory;
-  }
-}
-
-.pista::-webkit-scrollbar {
-  display: none;
-}
-
-/* El foco va por dentro: el contenedor recorta, y un anillo por fuera del
-   marco quedaría escondido detrás del borde. */
-.pista:focus-visible {
-  outline-offset: -4px;
-}
-
-.diapo {
-  flex: 0 0 100%;
-  scroll-snap-align: start;
-  /* Un deslizada larga avanza una captura, no cinco. */
-  scroll-snap-stop: always;
+  display: grid;
+  gap: var(--space-6);
 }
 
 .abrir {
@@ -132,105 +91,16 @@
   pointer-events: none;
 }
 
-.flecha {
-  position: absolute;
-  /* Centrada sobre la captura y no sobre el marco: debajo de la captura va su
-     pie, y un 50 % las bajaría a la altura del texto. La captura es 16:10 y
-     ocupa el ancho del marco, así que su mitad cae a 31,25 % de ese ancho. Va
-     en unidades de contenedor porque un porcentaje en `top` se mide contra el
-     alto, que es justamente lo que acá sobra. */
-  top: 31.25cqw;
-  translate: 0 -50%;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  width: 2.6rem;
-  height: 2.6rem;
-  border-radius: var(--radius-full);
-  border: 1px solid rgb(20 18 16 / 0.12);
-  background: rgb(255 255 255 / 0.88);
-  backdrop-filter: blur(8px);
-  color: #1a1815;
-  box-shadow: 0 2px 10px -4px rgb(20 18 16 / 0.4);
-  transition:
-    background-color var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out),
-    opacity var(--duration-fast) var(--ease-out);
-}
-
-.flecha:hover {
-  background: #fff;
-  border-color: rgb(20 18 16 / 0.28);
-}
-
-/* En las puntas la flecha desaparece en vez de quedar apagada: así se ve de
-   un vistazo dónde empieza y dónde termina la serie. */
-.flecha:disabled {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.anterior {
-  left: var(--space-3);
-}
-
-.siguiente {
-  right: var(--space-3);
-}
-
-/* ── Indicadores ─────────────────────────────────────────────────────────── */
-
-/* Van arriba del pie y no abajo: el pie cambia de alto según el largo del
-   texto, y si los indicadores lo siguieran se moverían de lugar entre una
-   captura y la otra. */
-.puntos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin-top: var(--space-4);
-}
-
-.punto {
-  display: grid;
-  place-items: center;
-  padding: 0;
-  width: 2rem;
-  /* El área táctil, no la barrita: 24px de alto es el mínimo utilizable. */
-  height: 1.5rem;
-}
-
-.punto::before {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 3px;
-  border-radius: var(--radius-full);
-  background: var(--border-strong);
-  transition: background-color var(--duration-fast) var(--ease-out);
-}
-
-.punto:hover::before {
-  background: var(--text-faint);
-}
-
-.punto[aria-current]::before {
-  background: var(--accent);
-}
-
 /* ── Pie ─────────────────────────────────────────────────────────────────── */
 
-/* El pie va adentro de cada diapositiva y viaja con ella: así la frase y la
-   captura que la prueba son una sola cosa, apiladas o no. Antes era un solo
-   pie afuera de la tira que se reescribía al deslizar, y con las capturas
-   apiladas eso no tendría a qué referirse: están todas a la vista.
-
-   Alto mínimo reservado: sin él, pasar de un pie de dos líneas a uno de cuatro
-   cambia el alto de la tira en pleno gesto. */
+/* El pie va adentro de cada captura y viaja con ella: la frase y la pantalla
+   que la prueba son una sola cosa. Antes era un solo pie afuera de la tira que
+   se reescribía al deslizar, y sin carrusel eso no tendría a qué referirse:
+   están todas a la vista. */
 .pie {
   display: grid;
   gap: var(--space-1);
   margin-top: var(--space-3);
-  min-height: 7rem;
 }
 
 .pieTitulo {
@@ -247,32 +117,13 @@
   max-width: 72ch;
 }
 
-@media (min-width: 48rem) {
-  .pie {
-    min-height: 5.5rem;
-  }
-}
+/* ── En el teléfono ──────────────────────────────────────────────────────── */
 
-/* ── Apilado ─────────────────────────────────────────────────────────────── */
-
-/* En el teléfono el carrusel se apila: la tira pasa a ser una columna y las
-   capturas van de un borde al otro de la pantalla, cada una con su pie debajo.
-
-   Un carrusel ahí adentro agrega un eje que nadie pidió —recorrer una página
-   en un teléfono ya es scrollear— y esconde nueve de las diez capturas detrás
-   de unas flechas que en una pantalla táctil ni siquiera aparecen.
-
-   El corte es el mismo con el que la galería cambia de recorte: ver
+/* Las capturas van de un borde al otro de la pantalla, cada una con su pie
+   debajo. El corte es el mismo con el que la galería cambia de recorte: ver
    CORTE_TELEFONO en Galeria.tsx, que tiene que decir esto mismo para que el
    `media` de cada <source> y este bloque cambien juntos. */
 @media (max-width: 40rem) {
-  .pista {
-    display: grid;
-    gap: var(--space-6);
-    overflow: visible;
-    scroll-snap-type: none;
-  }
-
   /* A sangre. La tarjeta del proyecto se ensancha hasta la pantalla entera
      —ver Projects.module.css— y esto cancela su padding: la captura pasa de
      los 294 px que dejaban el gutter y el recuadro a los 390 del teléfono, un
@@ -306,17 +157,49 @@
   .shot {
     aspect-ratio: 4 / 3;
   }
+}
 
-  /* El alto reservado era para que la tira no cambiara de alto al deslizar.
-     Apiladas no hay nada que se mueva: cada pie mide lo que mide. */
-  .pie {
-    min-height: 0;
+/* ── En escritorio ───────────────────────────────────────────────────────── */
+
+/* El recorrido: cada captura ocupa una pantalla con su frase al lado, y las
+   dos quedan pegadas mientras se scrollea el bloque. Así la frase no se
+   despega de la pantalla que la prueba, y las diez se recorren bajando, que es
+   lo que se hace igual.
+
+   Reemplaza al carrusel, donde nueve de las diez estaban escondidas detrás de
+   una flecha. El precio es alto de página, y es a propósito: son diez
+   pantallas de un sistema, y esta es la sección que las tiene que mostrar.
+
+   `align-items: start` es lo que hace posible el `sticky`: un ítem de grilla
+   estirado ocupa todo el alto de la fila y no le queda nada por donde
+   despegarse. */
+@media (min-width: 62rem) {
+  .diapo {
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-7);
+    min-height: 72vh;
   }
 
-  /* Las flechas y los puntos son el carrusel, y acá no hay carrusel. */
-  .flecha,
-  .puntos {
-    display: none;
+  /* En el documento la captura va antes que su pie —en el teléfono se mira
+     primero y se lee después—, así que acá se ubican a mano para que el texto
+     quede a la izquierda. */
+  .pie {
+    grid-area: 1 / 1;
+    margin-top: 0;
+  }
+
+  .abrir {
+    grid-area: 1 / 2;
+  }
+
+  /* El header es pegajoso y tapa lo que quede arriba de todo: el `top` lo
+     descuenta. */
+  .pie,
+  .abrir {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-6));
   }
 }
 
