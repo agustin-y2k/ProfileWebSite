@@ -286,6 +286,27 @@
     box-shadow: none;
   }
 
+  /* La insignia queda en el ícono solo. Con el recorte del teléfono, que
+     enmarca un bloque y no una página entera, la etiqueta se apoyaba justo
+     encima de un título o del nombre de un programa y se los comía. El ícono
+     de expandir alcanza para entender que la captura se abre, y el botón ya
+     dice a dónde lleva por su `aria-label`. */
+  .insignia {
+    padding: 0.45rem;
+  }
+
+  .insigniaTexto {
+    display: none;
+  }
+
+  /* El foco sale de una captura de teléfono, que es una pantalla vertical: un
+     marco 16:10 mostraría menos de un tercio de lo que se ve al entrar a esa
+     pantalla. El recorte ya viene en 4:3 desde ffmpeg; acá se declara el marco
+     que le corresponde. */
+  .shot {
+    aspect-ratio: 4 / 3;
+  }
+
   /* El alto reservado era para que la tira no cambiara de alto al deslizar.
      Apiladas no hay nada que se mueva: cada pie mide lo que mide. */
   .pie {

@@ -3,12 +3,14 @@
 
    Los archivos y sus medidas los genera scripts/capturas.sh desde el repo del
    sistema. De cada pantalla salen tres versiones: la página entera, que es la
-   que abre la lupa, y dos recortes para la tarjeta —uno de escritorio y otro
-   de teléfono—. La página entera dentro de la tarjeta era ilegible: 2880 px de
-   ancho servidos en 1056 dejan el texto del sistema en diez píxeles, y en un
-   teléfono de 390, en tres. Qué se recorta de cada pantalla está escrito en
-   scripts/capturas.sh, al lado del ffmpeg que lo hace; cuál de los dos
-   recortes recibe cada visitante lo decide el `media` de la galería.
+   que abre la lupa, y dos recortes para la tarjeta. El de escritorio sale de
+   la captura de escritorio y el de teléfono, de la del teléfono: no son la
+   misma interfaz —en 390 px las tablas del sistema se vuelven tarjetas y los
+   botones crecen—, y encoger la de escritorio para meterla en la tarjeta
+   dejaba el texto en diez píxeles en una pantalla grande y en tres en un
+   teléfono. Qué se recorta de cada pantalla está escrito en
+   scripts/capturas.sh, al lado del ffmpeg que lo hace; cuál de los dos recibe
+   cada visitante lo decide el `media` de la galería.
 
    Son quince archivos por pantalla —tres versiones, tres formatos, dos
    anchos—, así que se importan con un glob y no con un `import` por archivo.

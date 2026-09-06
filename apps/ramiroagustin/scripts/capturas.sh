@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Genera las capturas de SGRC que muestra la galería de la sección Proyectos.
 #
-# Entrada: el directorio docs/capturas del repo de SGRC (PNG de página
-# completa de un viewport de 1440 px a DPR 2; el del teléfono, de 390 px a
-# DPR 3). Salida: src/assets/capturas y src/data/medidas.json.
+# Entrada: el directorio docs/capturas del repo de SGRC. De cada pantalla hay
+# dos PNG de página completa: el de escritorio, de un viewport de 1440 px a
+# DPR 2, y el del teléfono —`-movil`—, de 390 px a DPR 3. Salida:
+# src/assets/capturas y src/data/medidas.json.
 #
 # Cada pantalla sale en tres versiones, porque una sola no sirve para los tres
 # lugares donde se la mira:
@@ -12,9 +13,12 @@
 #   detalle  → la tarjeta en escritorio. Un recorte de ~2100 px de ancho que,
 #              servido a los 1056 px de la tarjeta, deja el texto del sistema
 #              a tamaño real.
-#   foco     → la tarjeta en el teléfono. Un recorte de 700 a 1200 px: un solo
-#              elemento de la interfaz, porque a 390 px de ancho no entra
-#              legible nada más grande.
+#   foco     → la tarjeta en el teléfono. Una franja de la captura del
+#              teléfono, servida a tamaño real. Sale de esa captura y no de un
+#              recorte de la de escritorio porque no son la misma interfaz: en
+#              390 px las tablas del sistema se vuelven tarjetas y los botones
+#              crecen, y recortar la de escritorio mostraba una tabla cortada
+#              al medio donde el teléfono muestra una tarjeta entera.
 #
 # La página entera metida en la tarjeta era ilegible: 2880 px de ancho en
 # 1056 dejan el texto de 14 px en 10, y en un teléfono de 390 lo dejan en 3.
@@ -62,15 +66,20 @@ slides=(
 )
 
 # ── Qué se recorta de cada pantalla ─────────────────────────────────────────
-# `x:y:ancho:alto` en píxeles del PNG original. Los dos recortes van en 16:10,
-# que es el marco de la tarjeta: así el `object-fit: cover` del CSS no tiene
-# nada que cortar y lo que se ve es exactamente lo que se eligió acá.
+# `x:y:ancho:alto` en píxeles del PNG del que sale cada uno. Cada recorte va en
+# la proporción del marco que lo va a mostrar —16:10 el detalle, 4:3 el foco—,
+# así el `object-fit: cover` del CSS no tiene nada que cortar y lo que se ve es
+# exactamente lo que se eligió acá.
 #
-# El detalle enmarca el bloque que sostiene el pie de la captura; el foco, la
-# pieza más chica que todavía prueba lo mismo. Cuando el recorte es más angosto
-# que la tarjeta la imagen se agranda, y eso es a propósito: en una pantalla
-# con mucho aire —mis reservas, por ejemplo— agrandar es preferible a mostrar
-# el vacío de la página.
+# El detalle enmarca el bloque que sostiene el pie de la captura. Cuando es más
+# angosto que la tarjeta la imagen se agranda, y eso es a propósito: en una
+# pantalla con mucho aire —mis reservas, por ejemplo— agrandar es preferible a
+# mostrar el vacío de la página.
+#
+# El foco es una franja de ancho completo de la captura del teléfono: ahí lo
+# único que hay que elegir es a qué altura empieza. Va más alto que el detalle
+# —4:3 y no 16:10— porque la fuente es una pantalla vertical: una franja 16:10
+# de un teléfono muestra menos de un tercio de lo que se ve al entrar.
 declare -A detalle=(
   [01-mostrador]="320:140:2240:1400"          # el saludo, las cuatro tarjetas y los contadores
   [02-nueva-reserva]="384:380:2112:1320"      # el formulario entero, de la materia a las computadoras
@@ -84,23 +93,24 @@ declare -A detalle=(
 )
 
 declare -A foco=(
-  [01-mostrador]="1460:560:700:437"        # "10 de 11 equipos"
-  [02-nueva-reserva]="704:1030:700:437"    # las computadoras tildadas
-  [03-mis-reservas]="520:400:944:590"      # las dos clases, con sus computadoras
-  [10-inventario-docente]="520:520:900:562" # estado, freezada y software de cada PC
-  [04-inventario-admin]="560:830:980:612"  # la ficha de la notebook suelta
-  [08-academico]="560:1160:900:562"        # las materias de 1°A con sus docentes
-  [07-licencias]="320:460:900:562"         # cuatro licencias sin fecha de vencimiento
-  [05-reportes]="560:1200:840:525"         # las horas reservadas por docente
-  [09-reportes-oscuro]="560:1200:840:525"  # lo mismo, en oscuro
+  [01-mostrador]="0:1900:1170:878"         # el laboratorio ahora y la entrega sin reserva
+  [02-nueva-reserva]="0:1970:1170:878"     # las computadoras del carro, para tildar
+  [03-mis-reservas]="0:850:1170:878"       # la clase del lunes con sus computadoras
+  [10-inventario-docente]="0:725:1170:878" # la ficha de la PC 1 del carro
+  [04-inventario-admin]="0:1800:1170:878"  # la notebook suelta, con todas sus acciones
+  [08-academico]="0:1550:1170:878"         # división y modalidad, las dos opcionales
+  [07-licencias]="0:950:1170:878"          # tres licencias sin fecha de vencimiento
+  [05-reportes]="0:1160:1170:878"          # el uso por equipo, con su total
+  [09-reportes-oscuro]="0:1160:1170:878"   # lo mismo, en oscuro
 )
 
-# El teléfono no es una página ancha: en escritorio entra como tríptico de tres
-# tramos de la misma pantalla, que llena el marco 16:10 en vez de dejar dos
-# franjas vacías a los costados. En un teléfono, en cambio, mostrar un teléfono
-# en tres columnas diminutas no tiene sentido: ahí va una franja de la pantalla
-# de verdad, a tamaño real.
-foco["11-movil"]="0:1640:1170:731"
+# El inicio del docente ya es una captura de teléfono, así que no tiene un
+# `-movil` aparte: su detalle y su foco salen los dos del mismo archivo. En
+# escritorio entra como tríptico de tres tramos, que llena el marco 16:10 en
+# vez de dejar dos franjas vacías a los costados; en un teléfono, mostrar un
+# teléfono en tres columnas diminutas no tendría sentido, y va una franja
+# derecha de la pantalla.
+foco["11-movil"]="0:1620:1170:878"
 
 alto_de() {
   ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0 "$1"
@@ -211,7 +221,10 @@ for slide in "${slides[@]}"; do
   encode_recorte "$src/$slide.png" "$slide-detalle" "${detalle[$slide]}" 1056 nativo
   # El foco lo mira un teléfono: su nativo ya es chico, y la mitad alcanza
   # donde la pantalla no es densa.
-  encode_recorte "$src/$slide.png" "$slide-foco" "${foco[$slide]}" mitad nativo
+  # El foco lo mira un teléfono: su nativo ya es chico —1170 px, que son los
+  # 390 de la pantalla a DPR 3— y la mitad alcanza donde la pantalla no es
+  # densa.
+  encode_recorte "$src/$slide-movil.png" "$slide-foco" "${foco[$slide]}" mitad nativo
   anotar "$slide" "$src/$slide.png"
 done
 

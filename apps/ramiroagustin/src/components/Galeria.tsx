@@ -47,8 +47,9 @@ type ImagenProps = {
 /**
  * La última fuente de la lista es la que sostiene el `<img>` y va sin `media`:
  * es la que responde cuando ninguna otra aplica. Sus medidas son las que
- * reservan el hueco de la imagen, y sirven también para las demás porque todas
- * las versiones de una captura salen en la misma proporción.
+ * reservan el hueco hasta que llega el CSS; de ahí en más manda el
+ * `aspect-ratio` de la hoja de estilos, y tiene que ser así porque el recorte
+ * de teléfono no viene en la misma proporción que el de escritorio.
  */
 function Imagen({ fuentes, alt, className, carga }: ImagenProps) {
   const base = fuentes[fuentes.length - 1];
@@ -331,7 +332,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  Ver la pantalla entera
+                  <span className={styles.insigniaTexto}>Ver la pantalla entera</span>
                 </span>
                 <span className={styles.contador} aria-hidden="true">
                   {i + 1} / {total}
