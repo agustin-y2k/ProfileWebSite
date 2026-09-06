@@ -20,6 +20,10 @@
 # colapsados por defecto en las revisiones.
 pnpm-lock.yaml linguist-generated=true
 
+# Las medidas de las capturas las escribe scripts/capturas.sh: cambian enteras
+# cada vez que se regeneran las imágenes y no hay nada que revisar ahí.
+apps/ramiroagustin/src/data/medidas.json linguist-generated=true
+
 # Nota sobre el desglose de lenguajes de GitHub, medido sobre este commit:
 #
 #   TypeScript   61,4 KB   51,1 %

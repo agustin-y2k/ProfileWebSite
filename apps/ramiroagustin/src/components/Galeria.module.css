@@ -62,14 +62,14 @@
   outline-offset: -4px;
 }
 
-/* Las capturas son de la página entera. La tarjeta muestra la franja de
-   arriba —lo que se ve al entrar a esa pantalla— y la lupa, el resto. */
+/* La tarjeta recibe un recorte que ya viene en 16:10 desde ffmpeg, así que
+   acá el `cover` no tiene nada que cortar: queda de red por si un recorte sale
+   con un píxel de más. La página entera es lo que abre la lupa. */
 .shot {
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
-  object-position: 50% 0;
 }
 
 /* Los tres controles que van encima de la captura llevan color fijo y no

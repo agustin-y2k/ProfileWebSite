@@ -1,0 +1,52 @@
+{
+  "01-mostrador": {
+    "completa": [2880, 3720],
+    "detalle": [2240, 1400],
+    "foco": [700, 437]
+  },
+  "02-nueva-reserva": {
+    "completa": [2880, 2352],
+    "detalle": [2112, 1320],
+    "foco": [700, 437]
+  },
+  "03-mis-reservas": {
+    "completa": [2880, 1800],
+    "detalle": [1840, 1150],
+    "foco": [944, 590]
+  },
+  "10-inventario-docente": {
+    "completa": [2880, 2116],
+    "detalle": [1900, 1187],
+    "foco": [900, 562]
+  },
+  "04-inventario-admin": {
+    "completa": [2880, 5320],
+    "detalle": [1900, 1187],
+    "foco": [980, 612]
+  },
+  "08-academico": {
+    "completa": [2880, 2082],
+    "detalle": [1900, 1187],
+    "foco": [900, 562]
+  },
+  "07-licencias": {
+    "completa": [2880, 1816],
+    "detalle": [2280, 1425],
+    "foco": [900, 562]
+  },
+  "05-reportes": {
+    "completa": [2880, 3224],
+    "detalle": [1900, 1187],
+    "foco": [840, 525]
+  },
+  "09-reportes-oscuro": {
+    "completa": [2880, 3224],
+    "detalle": [1900, 1187],
+    "foco": [840, 525]
+  },
+  "11-movil": {
+    "completa": [4004, 2502],
+    "detalle": [4004, 2502],
+    "foco": [1170, 731]
+  }
+}

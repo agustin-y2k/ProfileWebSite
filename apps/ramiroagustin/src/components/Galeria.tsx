@@ -1,44 +1,74 @@
 import {
+  Fragment,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type KeyboardEvent,
 } from "react";
 import { useLockBodyScroll, usePrefersReducedMotion } from "@sites/ui";
-import type { Captura } from "../data/capturas";
+import type { Captura, Juego } from "../data/capturas";
 import styles from "./Galeria.module.css";
 
 /** Ancho de render en la tarjeta: el ancho útil del contenedor. Debajo de
  *  62rem es el viewport menos el gutter y el padding de la tarjeta. */
 const MEDIDAS_TARJETA = "(min-width: 62rem) 1056px, calc(100vw - 6rem)";
 
+/** Debajo de 40rem la tarjeta ya es el viewport menos el gutter, y ahí no
+ *  entra legible un recorte de escritorio: va el cerrado. */
+const CORTE_FOCO = "(max-width: 40rem)";
+const MEDIDAS_FOCO = "calc(100vw - 6rem)";
+
 /** En la lupa la imagen ocupa casi todo el ancho, con tope en 1200px. */
 const MEDIDAS_LUPA = "(min-width: 78rem) 1200px, 96vw";
 
-type ImagenProps = {
-  captura: Captura;
+type Fuente = {
+  juego: Juego;
   medidas: string;
+  /** Sin `media` la fuente vale para cualquier ancho de ventana. */
+  media?: string;
+};
+
+type ImagenProps = {
+  /** En el orden en que el navegador las prueba: gana la primera que aplique. */
+  fuentes: readonly Fuente[];
+  alt: string;
   className?: string;
-  style?: CSSProperties;
   carga: "eager" | "lazy";
 };
 
-function Imagen({ captura, medidas, className, style, carga }: ImagenProps) {
+/**
+ * La última fuente de la lista es la que sostiene el `<img>` y va sin `media`:
+ * es la que responde cuando ninguna otra aplica. Sus medidas son las que
+ * reservan el hueco de la imagen, y sirven también para las demás porque todas
+ * las versiones de una captura salen en la misma proporción.
+ */
+function Imagen({ fuentes, alt, className, carga }: ImagenProps) {
+  const base = fuentes[fuentes.length - 1];
+  if (!base) return null;
+
   return (
     <picture>
-      <source type="image/avif" srcSet={captura.avif} sizes={medidas} />
-      <source type="image/webp" srcSet={captura.webp} sizes={medidas} />
+      {fuentes.map(({ juego, medidas, media }) => (
+        <Fragment key={media ?? "base"}>
+          <source type="image/avif" media={media} srcSet={juego.avif} sizes={medidas} />
+          <source type="image/webp" media={media} srcSet={juego.webp} sizes={medidas} />
+          {/* El jpg de la base va en el `<img>`, pero el de una fuente con
+              `media` necesita su propia línea: sin ella, el navegador que no
+              entienda ni avif ni webp se llevaría el recorte equivocado. */}
+          {media ? (
+            <source type="image/jpeg" media={media} srcSet={juego.jpg} sizes={medidas} />
+          ) : null}
+        </Fragment>
+      ))}
       <img
-        src={captura.respaldo}
-        srcSet={captura.jpg}
-        sizes={medidas}
-        width={captura.ancho}
-        height={captura.alto}
-        alt={captura.alt}
+        src={base.juego.respaldo}
+        srcSet={base.juego.jpg}
+        sizes={base.medidas}
+        width={base.juego.ancho}
+        height={base.juego.alto}
+        alt={alt}
         className={className}
-        style={style}
         loading={carga}
         decoding="async"
       />
@@ -264,12 +294,12 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                 tabIndex={i === activa ? 0 : -1}
               >
                 <Imagen
-                  captura={captura}
-                  medidas={MEDIDAS_TARJETA}
+                  fuentes={[
+                    { juego: captura.foco, medidas: MEDIDAS_FOCO, media: CORTE_FOCO },
+                    { juego: captura.detalle, medidas: MEDIDAS_TARJETA },
+                  ]}
+                  alt={captura.alt}
                   className={styles.shot}
-                  style={
-                    captura.encuadre ? { objectPosition: captura.encuadre } : undefined
-                  }
                   carga={i === 0 ? "eager" : "lazy"}
                 />
                 <span className={styles.insignia} aria-hidden="true">
@@ -408,8 +438,8 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                 <div className={styles.lupaMarco} onClick={alternarZoom}>
                   <Imagen
                     key={enLupa.id}
-                    captura={enLupa}
-                    medidas={MEDIDAS_LUPA}
+                    fuentes={[{ juego: enLupa.completa, medidas: MEDIDAS_LUPA }]}
+                    alt={enLupa.alt}
                     className={styles.lupaImagen}
                     carga="eager"
                   />
