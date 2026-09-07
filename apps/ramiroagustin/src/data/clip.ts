@@ -14,14 +14,15 @@
 
 import mp4 from "../assets/capturas/reserva-1280.mp4?url";
 import webm from "../assets/capturas/reserva-1280.webm?url";
-import poster from "../assets/capturas/reserva-poster.jpg?url";
+import poster from "../assets/capturas/reserva-poster.webp?url";
 
 export type Clip = {
   /** Pesa la mitad que el mp4, y lo entiende casi todo. Va primero. */
   webm: string;
   /** El que queda para lo que no sepa leer el webm. */
   mp4: string;
-  /** Lo que se ve antes de que arranque. */
+  /** Lo que se ve antes de que arranque. Es lo único del clip que se descarga
+   *  siempre, así que va en webp. */
   poster: string;
   ancho: number;
   alto: number;

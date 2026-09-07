@@ -124,6 +124,11 @@ type GaleriaProps = {
 export function Galeria({ capturas, proyecto }: GaleriaProps) {
   const [ampliada, setAmpliada] = useState<number | null>(null);
   const [zoom, setZoom] = useState(false);
+  /** Si se abrió alguna vez. Antes de eso la lupa no monta nada, así que la
+   *  página entera de una captura —que pesa cuatro veces lo que el recorte— no
+   *  se descarga hasta que alguien la pide. Después queda montada: si se la
+   *  desmontara al cerrar, la animación de salida no tendría qué animar. */
+  const [usada, setUsada] = useState(false);
 
   const lista = useRef<HTMLUListElement>(null);
   const dialogo = useRef<HTMLDialogElement>(null);
@@ -199,7 +204,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
     if (evento.key === "ArrowLeft") moverLupa(-1);
   };
 
-  const enLupa = ampliada === null ? undefined : capturas[ampliada];
+  const enLupa = usada ? capturas[ampliada ?? ultima.current] : undefined;
   if (total === 0) return null;
 
   return (
@@ -210,7 +215,10 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
             <button
               type="button"
               className={styles.abrir}
-              onClick={() => setAmpliada(i)}
+              onClick={() => {
+                setUsada(true);
+                setAmpliada(i);
+              }}
               aria-label={`Ampliar: ${captura.titulo}`}
             >
               <Imagen

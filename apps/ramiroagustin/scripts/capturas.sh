@@ -229,6 +229,13 @@ anotar() {
 # El póster es lo que se ve antes de que arranque: un cuadro del medio, con el
 # formulario completo y dos computadoras ya tildadas. Del final no, que es el
 # resultado y adelantarlo le saca la gracia.
+#
+# Va en webp y no en jpg —el mismo cuadro pesa poco más de la mitad— aunque el
+# atributo `poster` no admita alternativas: es una sola URL y no hay
+# `<picture>` que valga. Webp lo entiende cualquier navegador de los últimos
+# años, y el póster se descarga siempre, incluso cuando el video no: con
+# `preload="none"` es lo único del clip que viaja hasta quien nunca llega a
+# mirarlo.
 clip() {
   local input="$1"
   if [[ ! -f "$input" ]]; then
@@ -247,8 +254,8 @@ clip() {
     -c:v libx264 -crf 23 -preset slow -pix_fmt yuv420p -movflags +faststart \
     "$out/reserva-1280.mp4"
 
-  ffmpeg -v error -y -ss 15 -i "$input" -frames:v 1 -q:v 4 \
-    "$out/reserva-poster.jpg"
+  ffmpeg -v error -y -ss 15 -i "$input" -frames:v 1 \
+    -c:v libwebp -quality 82 -compression_level 6 "$out/reserva-poster.webp"
 }
 
 for slide in "${slides[@]}"; do

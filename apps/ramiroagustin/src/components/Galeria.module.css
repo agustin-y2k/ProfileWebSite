@@ -108,6 +108,9 @@
   font-size: var(--text-base);
   line-height: var(--leading-snug);
   color: var(--text);
+  /* Títulos de dos o tres palabras en una columna angosta: sin esto queda una
+     sola palabra colgando en la segunda línea. */
+  text-wrap: balance;
 }
 
 .pieTexto {
@@ -115,6 +118,7 @@
   line-height: var(--leading-relaxed);
   color: var(--text-muted);
   max-width: 72ch;
+  text-wrap: pretty;
 }
 
 /* ── En el teléfono ──────────────────────────────────────────────────────── */
@@ -204,6 +208,23 @@
 }
 
 /* ── Lupa ────────────────────────────────────────────────────────────────── */
+
+/* La lupa entra y sale con una transición en lugar de aparecer de golpe.
+   Necesita dos cosas que hasta hace poco no existían y que valen la
+   explicación:
+
+   `allow-discrete` en `display` y en `overlay` es lo que la hace posible al
+   salir. Un <dialog> cerrado es `display: none` y sale de la capa superior en
+   el mismo cuadro en que se lo cierra: sin esto la animación de salida no
+   llega a empezar, porque el elemento ya no se dibuja.
+
+   `@starting-style` es de dónde arranca la de entrada. Un elemento que acaba
+   de aparecer no tiene estado anterior del que partir, así que sin esto el
+   navegador no tiene entre qué y qué interpolar y lo pone directo en su estado
+   final.
+
+   Donde no haya soporte, la lupa aparece y desaparece como antes: las reglas
+   que no se entienden se descartan y queda el estado final. */
 .lupa {
   width: 100vw;
   max-width: none;
@@ -215,11 +236,53 @@
   background: transparent;
   color: var(--text);
   overflow: hidden;
+  opacity: 0;
+  scale: 0.98;
+  transition:
+    opacity var(--duration) var(--ease-out),
+    scale var(--duration) var(--ease-out),
+    overlay var(--duration) allow-discrete,
+    display var(--duration) allow-discrete;
+}
+
+.lupa[open] {
+  opacity: 1;
+  scale: 1;
+}
+
+@starting-style {
+  .lupa[open] {
+    opacity: 0;
+    scale: 0.98;
+  }
 }
 
 .lupa::backdrop {
   background: rgb(10 9 8 / 0.86);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  transition:
+    opacity var(--duration) var(--ease-out),
+    overlay var(--duration) allow-discrete,
+    display var(--duration) allow-discrete;
+}
+
+.lupa[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .lupa[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* Quien pidió menos movimiento la recibe como antes: abre y cierra, sin viaje. */
+@media (prefers-reduced-motion: reduce) {
+  .lupa,
+  .lupa::backdrop {
+    transition: none;
+  }
 }
 
 .lupaCaja {
