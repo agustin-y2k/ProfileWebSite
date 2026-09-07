@@ -1,6 +1,23 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    Reset moderno. Solo normaliza; no impone identidad visual.
    La identidad vive en el tema de cada app (theme.css).
+
+   ── Sobre la especificidad ──────────────────────────────────────────────────
+
+   Lo que normaliza va envuelto en `:where()`, que vale cero. Un reset tiene
+   que ser el piso: cualquier regla de una app le gana sin tener que pelear.
+   Sin esto, un selector como `ul[class]` —un tipo más un atributo— pesa más
+   que una clase suelta, así que le ganaba a cualquier clase de CSS Module y el
+   `padding` que esa clase declarara no llegaba nunca. No es teórico: le pasó
+   a la tira de capturas de ramiroagustin, que durante un tiempo arrancó pegada
+   al borde de la pantalla en el teléfono mientras su CSS decía lo contrario.
+   El síntoma es siempre el mismo y es el peor de todos: la regla se escribe,
+   no falla, y no hace nada.
+
+   Lo que NO va envuelto son las dos garantías de accesibilidad de acá abajo:
+   el foco visible y el movimiento reducido. Esas no son un piso del que
+   partir, son un techo que no queremos que nadie pise por accidente, así que
+   conservan su peso. Pisarlas se puede, pero hay que quererlo.
    ────────────────────────────────────────────────────────────────────────── */
 
 *,
@@ -10,7 +27,7 @@
   margin: 0;
 }
 
-html {
+:where(html) {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
@@ -18,60 +35,52 @@ html {
   scroll-padding-top: calc(var(--header-h) + var(--space-6));
 }
 
-body {
+:where(body) {
   min-height: 100svh;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-img,
-picture,
-svg,
-video {
+:where(img, picture, svg, video) {
   display: block;
   max-width: 100%;
 }
 
-input,
-button,
-textarea,
-select {
+:where(input, button, textarea, select) {
   font: inherit;
   color: inherit;
 }
 
-button {
+:where(button) {
   background: none;
   border: none;
   cursor: pointer;
 }
 
-a {
+:where(a) {
   color: inherit;
   text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4 {
+:where(h1, h2, h3, h4) {
   font-weight: inherit;
   text-wrap: balance;
 }
 
-p {
+:where(p) {
   text-wrap: pretty;
 }
 
-ul[class],
-ol[class] {
+:where(ul[class], ol[class]) {
   list-style: none;
   padding: 0;
 }
 
 /* Foco visible y consistente en todo el sistema: requisito de accesibilidad,
-   no un detalle estético. Solo aparece en navegación por teclado. */
+   no un detalle estético. Solo aparece en navegación por teclado.
+
+   Sin `:where()` a propósito: ver la nota de especificidad de arriba. */
 :focus-visible {
   outline: 2px solid var(--focus-ring, currentColor);
   outline-offset: 3px;
@@ -82,6 +91,8 @@ ol[class] {
   outline: none;
 }
 
+/* La otra garantía que conserva su peso: quien pidió menos movimiento tiene
+   que recibirlo aunque una app declare lo contrario más abajo. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
