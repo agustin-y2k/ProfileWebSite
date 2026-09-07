@@ -4,20 +4,15 @@
 
    ── Sobre la especificidad ──────────────────────────────────────────────────
 
-   Lo que normaliza va envuelto en `:where()`, que vale cero. Un reset tiene
-   que ser el piso: cualquier regla de una app le gana sin tener que pelear.
-   Sin esto, un selector como `ul[class]` —un tipo más un atributo— pesa más
-   que una clase suelta, así que le ganaba a cualquier clase de CSS Module y el
-   `padding` que esa clase declarara no llegaba nunca. No es teórico: le pasó
-   a la tira de capturas de ramiroagustin, que durante un tiempo arrancó pegada
-   al borde de la pantalla en el teléfono mientras su CSS decía lo contrario.
-   El síntoma es siempre el mismo y es el peor de todos: la regla se escribe,
-   no falla, y no hace nada.
+   Lo que normaliza va en `:where()`, que vale cero: un reset tiene que ser el
+   piso, no algo contra lo que pelear. Sin esto `ul[class]` —tipo más atributo—
+   pesa más que una clase suelta y le ganaba a cualquier clase de CSS Module,
+   con el peor síntoma que hay: la regla se escribe, no falla y no hace nada.
+   Le pasó a tres lugares del repo sin que nadie lo notara.
 
-   Lo que NO va envuelto son las dos garantías de accesibilidad de acá abajo:
-   el foco visible y el movimiento reducido. Esas no son un piso del que
-   partir, son un techo que no queremos que nadie pise por accidente, así que
-   conservan su peso. Pisarlas se puede, pero hay que quererlo.
+   Las dos garantías de accesibilidad de más abajo —foco visible y movimiento
+   reducido— quedan afuera a propósito: no son un piso sino un techo, y pisarlas
+   tiene que costar.
    ────────────────────────────────────────────────────────────────────────── */
 
 *,

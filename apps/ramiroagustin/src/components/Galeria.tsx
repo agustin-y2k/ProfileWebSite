@@ -34,22 +34,13 @@ const MEDIDAS_FOCO = "calc(100vw - 3rem)";
 const MEDIDAS_LUPA = "(min-width: 78rem) 1200px, 96vw";
 
 /**
- * Agrandada, la figura pasa a medir 1800 px fijos: ver
- * `.lupaCuerpo[data-zoom] .lupaFigura` en Galeria.module.css, y los dos tienen
- * que decir lo mismo.
+ * Agrandada, la figura mide 1800 px fijos: ver `.lupaCuerpo[data-zoom]` en
+ * Galeria.module.css, y los dos tienen que decir lo mismo.
  *
- * Hay que anunciarlo o el zoom no sirve para lo único que existe. El `sizes`
- * es lo que el navegador usa para elegir del `srcSet`, y si sigue diciendo
- * `96vw` —unos 360 px en un teléfono— la elección que hizo al abrir la lupa
- * queda firme: se descargó el archivo de 900 y no hay motivo para cambiarlo,
- * porque el ancho declarado no se movió. Al agrandar, ese archivo de 900 se
- * estira hasta 1800 px de caja, justo en el botón que está para que se lea la
- * letra chica del sistema. Diciendo el ancho de verdad, el navegador pasa al
- * archivo de 1800, que es el más grande que genera scripts/capturas.sh.
- *
- * En una pantalla ancha no cambia nada: ahí `96vw` ya elegía ese mismo
- * archivo. Lo descarga de más solamente quien agranda en un teléfono, que es
- * exactamente quien lo necesita.
+ * Sin esto el `sizes` seguiría diciendo `96vw` —360 px en un teléfono— y el
+ * navegador se quedaría con el archivo chico que eligió al abrir, estirado
+ * hasta llenar la caja, justo en el botón que existe para que se lea la letra
+ * chica.
  */
 const MEDIDAS_LUPA_ZOOM = "1800px";
 

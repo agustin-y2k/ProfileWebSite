@@ -1,12 +1,8 @@
-/* ─────────────────────────────────────────────────────────────────────────────
-   De una lista de archivos a los `srcSet` que sirve la galería.
+/* De una lista de archivos a los `srcSet` que sirve la galería.
 
-   Vive aparte de capturas.ts por una sola razón: acá no hay `import.meta.glob`
-   ni archivos en disco. Entra un objeto de rutas y sale la agrupación, así que
-   se puede probar con nombres inventados —incluidos los que no existen todavía
-   pero van a existir el día que alguien agregue una captura— sin generar
-   quince archivos de imagen para cada caso.
-   ────────────────────────────────────────────────────────────────────────── */
+   Vive aparte de capturas.ts porque acá no hay `import.meta.glob` ni archivos
+   en disco: entra un objeto de rutas y sale la agrupación, así que se puede
+   probar con nombres inventados. */
 
 /** La página entera, el recorte de escritorio y el del teléfono. */
 export type Version = "completa" | "detalle" | "foco";
@@ -25,13 +21,11 @@ export type Analisis = {
  * `01-mostrador-1800.avif` es la página entera; `01-mostrador-foco-450.webp`,
  * un recorte.
  *
- * El id lleva guiones y termina en cualquier cosa, así que el `+?` es lo que
- * evita que se coma la palabra de la versión: sin él, `01-mostrador-foco-450`
- * también encaja leyendo el id como `01-mostrador-foco` y la versión como la
- * página entera. Las dos lecturas son válidas para el motor; la perezosa es la
- * que prueba primero el id más corto y acierta. Hay un test que lo fija,
- * porque el día que alguien saque ese signo de pregunta nada va a explotar:
- * las capturas simplemente se archivan bajo la versión equivocada.
+ * El `+?` evita que el id se coma la palabra de la versión: sin él,
+ * `01-mostrador-foco-450` también encaja leyendo el id como
+ * `01-mostrador-foco`. Las dos lecturas le sirven al motor y la perezosa es la
+ * que acierta. El test lo fija, porque cambiarlo no rompe nada a la vista: las
+ * capturas se archivan bajo la versión equivocada y listo.
  */
 const NOMBRE = /([^/]+?)(?:-(detalle|foco))?-(\d+)\.(avif|webp|jpg)$/;
 
