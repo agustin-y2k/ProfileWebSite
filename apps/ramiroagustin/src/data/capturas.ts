@@ -17,20 +17,21 @@
    ────────────────────────────────────────────────────────────────────────── */
 
 import medidas from "./medidas.json";
-import { agruparArchivos, clave, type Version } from "./agrupar-capturas";
+import {
+  agruparArchivos,
+  lectorDeJuegos,
+  type Juego,
+  type Tabla,
+  type Version,
+} from "./agrupar-capturas";
 
-export type { Version };
+export type { Juego, Version };
 
 const archivos = import.meta.glob<string>("../assets/capturas/*.{avif,webp,jpg}", {
   eager: true,
   query: "?url",
   import: "default",
 });
-
-// Lo único que pasa acá es juntar los archivos que encontró Vite; cómo se leen
-// sus nombres y cómo se agrupan está en agrupar-capturas.ts, que se prueba
-// solo. Ver los tests de ahí al lado.
-const { fuentes, respaldos } = agruparArchivos(archivos);
 
 /** Lo que se escribe a mano de cada captura. El resto sale de los archivos. */
 type Ficha = {
@@ -39,17 +40,6 @@ type Ficha = {
   /** Qué resuelve esa pantalla, en una línea. Es el argumento de venta. */
   pie: string;
   alt: string;
-};
-
-/** Una versión lista para servir: los tres `srcSet` y el tamaño del archivo. */
-export type Juego = {
-  avif: string;
-  webp: string;
-  jpg: string;
-  /** `src` del `img`; el navegador que ignore los `srcSet` recibe este. */
-  respaldo: string;
-  ancho: number;
-  alto: number;
 };
 
 export type Captura = Ficha & Record<Version, Juego>;
@@ -118,29 +108,9 @@ const fichas: readonly Ficha[] = [
 ];
 
 /** Las medidas que generó el script, para no volver a escribirlas a mano. */
-const tabla = medidas as Record<string, Record<Version, number[]> | undefined>;
+const tabla = medidas as Tabla;
 
-function juego(id: string, version: Version): Juego {
-  const fuente = fuentes.get(clave(id, version));
-  const respaldo = respaldos.get(clave(id, version));
-  const [ancho, alto] = tabla[id]?.[version] ?? [];
-
-  if (!fuente || !respaldo || ancho === undefined || alto === undefined) {
-    throw new Error(
-      `Falta la versión "${version}" de la captura "${id}". ` +
-        `Corré scripts/capturas.sh con el docs/capturas del repo de SGRC.`,
-    );
-  }
-
-  return {
-    avif: fuente.avif.join(", "),
-    webp: fuente.webp.join(", "),
-    jpg: fuente.jpg.join(", "),
-    respaldo,
-    ancho,
-    alto,
-  };
-}
+const juego = lectorDeJuegos(agruparArchivos(archivos), tabla);
 
 /**
  * Falla en el build, no en producción: `pnpm build` prerrenderiza esta lista,

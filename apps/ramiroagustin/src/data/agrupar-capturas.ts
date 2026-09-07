@@ -56,6 +56,54 @@ export type Agrupacion = {
 /** La clave con la que se guarda cada versión de cada captura. */
 export const clave = (id: string, version: Version) => `${id}:${version}`;
 
+/** Una versión lista para servir: los tres `srcSet` y el tamaño del archivo. */
+export type Juego = {
+  avif: string;
+  webp: string;
+  jpg: string;
+  /** `src` del `img`; el navegador que ignore los `srcSet` recibe este. */
+  respaldo: string;
+  ancho: number;
+  alto: number;
+};
+
+/** Lo que escribió el script: `[ancho, alto]` por captura y versión. */
+export type Tabla = Record<string, Partial<Record<Version, number[]>> | undefined>;
+
+/**
+ * Junta lo que salió de los archivos con lo que dice la tabla de medidas, y
+ * exige que esté todo.
+ *
+ * Que falte algo no es un caso a contemplar sino un error de quien preparó las
+ * capturas: media versión no se puede servir. Como esto corre al armar la
+ * lista, y `pnpm build` la prerrenderiza, el que se entera es el build y no
+ * quien entra al sitio. El mensaje dice qué falta y qué hay que correr, porque
+ * lo va a leer alguien que quizá no tocó este archivo nunca.
+ */
+export function lectorDeJuegos({ fuentes, respaldos }: Agrupacion, tabla: Tabla) {
+  return (id: string, version: Version): Juego => {
+    const fuente = fuentes.get(clave(id, version));
+    const respaldo = respaldos.get(clave(id, version));
+    const [ancho, alto] = tabla[id]?.[version] ?? [];
+
+    if (!fuente || !respaldo || ancho === undefined || alto === undefined) {
+      throw new Error(
+        `Falta la versión "${version}" de la captura "${id}". ` +
+          `Corré scripts/capturas.sh con el docs/capturas del repo de SGRC.`,
+      );
+    }
+
+    return {
+      avif: fuente.avif.join(", "),
+      webp: fuente.webp.join(", "),
+      jpg: fuente.jpg.join(", "),
+      respaldo,
+      ancho,
+      alto,
+    };
+  };
+}
+
 /** Recibe `{ ruta: url }` y agrupa. Los que no son capturas se ignoran. */
 export function agruparArchivos(archivos: Record<string, string>): Agrupacion {
   const fuentes: Agrupacion["fuentes"] = new Map();
