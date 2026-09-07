@@ -30,6 +30,12 @@ jobs:
       - name: Formato
         run: pnpm exec prettier --check .
 
+      # Antes del build: es la etapa más rápida de las que pueden fallar por
+      # una regresión de lógica, y no tiene sentido compilar dos sitios para
+      # enterarse después.
+      - name: Tests
+        run: pnpm test
+
       - name: Build de los dos sitios
         run: pnpm build
 

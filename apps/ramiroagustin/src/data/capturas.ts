@@ -17,6 +17,9 @@
    ────────────────────────────────────────────────────────────────────────── */
 
 import medidas from "./medidas.json";
+import { agruparArchivos, clave, type Version } from "./agrupar-capturas";
+
+export type { Version };
 
 const archivos = import.meta.glob<string>("../assets/capturas/*.{avif,webp,jpg}", {
   eager: true,
@@ -24,35 +27,10 @@ const archivos = import.meta.glob<string>("../assets/capturas/*.{avif,webp,jpg}"
   import: "default",
 });
 
-/** La página entera, el recorte de escritorio y el del teléfono. */
-export type Version = "completa" | "detalle" | "foco";
-
-type Formato = "avif" | "webp" | "jpg";
-
-/** Un `srcSet` por formato, indexado por `<id>:<versión>`. */
-const fuentes = new Map<string, Record<Formato, string[]>>();
-
-/** La URL del jpg suelta, para el `src` del `img`. Hay un solo ancho en jpg. */
-const respaldos = new Map<string, string>();
-
-for (const [ruta, url] of Object.entries(archivos)) {
-  // `01-mostrador-1800.avif` es la página entera; `01-mostrador-foco-450.webp`,
-  // un recorte. El id lleva guiones y termina en cualquier cosa, así que el
-  // `+?` es lo que evita que se coma la palabra de la versión.
-  const partes = /([^/]+?)(?:-(detalle|foco))?-(\d+)\.(avif|webp|jpg)$/.exec(ruta);
-  const id = partes?.[1];
-  const version = (partes?.[2] ?? "completa") as Version;
-  const ancho = partes?.[3];
-  const formato = partes?.[4] as Formato | undefined;
-  if (!id || !ancho || !formato) continue;
-
-  const clave = `${id}:${version}`;
-  const juego = fuentes.get(clave) ?? { avif: [], webp: [], jpg: [] };
-  juego[formato].push(`${url} ${ancho}w`);
-  fuentes.set(clave, juego);
-
-  if (formato === "jpg") respaldos.set(clave, url);
-}
+// Lo único que pasa acá es juntar los archivos que encontró Vite; cómo se leen
+// sus nombres y cómo se agrupan está en agrupar-capturas.ts, que se prueba
+// solo. Ver los tests de ahí al lado.
+const { fuentes, respaldos } = agruparArchivos(archivos);
 
 /** Lo que se escribe a mano de cada captura. El resto sale de los archivos. */
 type Ficha = {
@@ -143,8 +121,8 @@ const fichas: readonly Ficha[] = [
 const tabla = medidas as Record<string, Record<Version, number[]> | undefined>;
 
 function juego(id: string, version: Version): Juego {
-  const fuente = fuentes.get(`${id}:${version}`);
-  const respaldo = respaldos.get(`${id}:${version}`);
+  const fuente = fuentes.get(clave(id, version));
+  const respaldo = respaldos.get(clave(id, version));
   const [ancho, alto] = tabla[id]?.[version] ?? [];
 
   if (!fuente || !respaldo || ancho === undefined || alto === undefined) {
