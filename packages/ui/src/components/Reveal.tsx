@@ -39,7 +39,14 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
           observer.disconnect();
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+      // El umbral va en cero y la entrada la decide el `rootMargin`. Un umbral
+      // expresado como fracción del elemento es una trampa para los altos: el
+      // máximo que puede alcanzar es ventana/elemento, así que cualquiera más
+      // alto que unas ocho ventanas no llega nunca a 0,12 y se queda invisible
+      // para siempre. Le pasó a la tarjeta de un proyecto cuando creció a
+      // 7500 px —el techo era 0,108— y no hay nada en pantalla que lo delate:
+      // simplemente no aparece.
+      { threshold: 0, rootMargin: "0px 0px -40px 0px" },
     );
 
     observer.observe(node);
