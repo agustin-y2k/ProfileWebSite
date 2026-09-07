@@ -526,6 +526,9 @@
    El margen pasa a cero. Un bloque más ancho que su contenedor con márgenes
    `auto` se centra igual, con márgenes negativos, y entonces el borde
    izquierdo queda fuera del alcance del scroll. */
+/* Estos 1800 px están también en MEDIDAS_LUPA_ZOOM, en Galeria.tsx, que es lo
+   que le avisa al navegador que la imagen creció para que baje el archivo
+   grande. Los dos tienen que decir lo mismo. */
 .lupaCuerpo[data-zoom] .lupaFigura {
   width: 1800px;
   max-width: none;
