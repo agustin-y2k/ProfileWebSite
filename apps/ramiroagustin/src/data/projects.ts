@@ -1,5 +1,4 @@
 import { capturas, type Captura } from "./capturas";
-import { clipDeReserva, type Clip } from "./clip";
 
 export type Project = {
   id: string;
@@ -12,10 +11,8 @@ export type Project = {
   repo?: string;
   /** Solo para lo que todavía no está terminado; ausente significa publicado. */
   status?: string;
-  /** Las pantallas que muestra el recorrido. Sin esto, la ficha va sin imágenes. */
+  /** Las pantallas que muestra la galería. Sin esto, la ficha va sin imágenes. */
   capturas?: readonly Captura[];
-  /** La grabación del sistema andando, arriba del recorrido. */
-  clip?: Clip;
 };
 
 export const projects: readonly Project[] = [
@@ -32,7 +29,6 @@ export const projects: readonly Project[] = [
     ],
     stack: ["Go", "PostgreSQL", "React 19", "TypeScript", "Docker", "Cloudflare Tunnel"],
     repo: "https://github.com/agustin-y2k/sgrc",
-    clip: clipDeReserva,
     capturas,
   },
 ];

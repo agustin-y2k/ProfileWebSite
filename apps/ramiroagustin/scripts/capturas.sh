@@ -28,12 +28,7 @@
 # los dos —no vale la pena un srcSet completo en el formato que casi nadie
 # recibe.
 #
-# Del mismo directorio sale también el clip del flujo de reserva —reserva.webm,
-# que graba docs/guias/generar/grabar-reserva.mjs—, y acá se lo recorta, se lo
-# acelera y se lo pasa a los dos formatos que hacen falta.
-#
-# Requiere ffmpeg con libaom-av1, libwebp, libvpx-vp9 y libx264. No requiere
-# Node.
+# Requiere ffmpeg con libaom-av1 y libwebp. No requiere Node.
 set -euo pipefail
 
 src="${1:-}"
@@ -53,7 +48,7 @@ mkdir -p "$out"
 # archivo del ancho viejo quedaría suelto y el glob de capturas.ts lo metería
 # igual en el srcSet, ofreciéndole al navegador un archivo con las medidas de
 # otro recorte.
-rm -f "$out"/*.avif "$out"/*.webp "$out"/*.jpg "$out"/*.webm "$out"/*.mp4
+rm -f "$out"/*.avif "$out"/*.webp "$out"/*.jpg
 
 # Las que entran a la galería, en el orden en que se muestran. El resto de
 # docs/capturas queda afuera a propósito: el login y la pantalla de entregas
@@ -216,48 +211,6 @@ anotar() {
   }")
 }
 
-# ── El clip del flujo de reserva ────────────────────────────────────────────
-# Playwright graba a paso real y el video arranca con el navegador cargando la
-# página: se corta ese arranque en blanco y se lo acelera un poco, que es lo
-# que hace cualquier demo grabada. Quedan quince segundos, que es lo que puede
-# durar una vuelta del bucle sin cansar.
-#
-# Van dos formatos porque no hay uno que sirva en todos lados: VP9 en webm pesa
-# la mitad, y el h264 en mp4 lo entiende cualquier cosa. El <video> los ofrece
-# en ese orden y el navegador se queda con el primero que sabe leer.
-#
-# El póster es lo que se ve antes de que arranque: un cuadro del medio, con el
-# formulario completo y dos computadoras ya tildadas. Del final no, que es el
-# resultado y adelantarlo le saca la gracia.
-#
-# Va en webp y no en jpg —el mismo cuadro pesa poco más de la mitad— aunque el
-# atributo `poster` no admita alternativas: es una sola URL y no hay
-# `<picture>` que valga. Webp lo entiende cualquier navegador de los últimos
-# años, y el póster se descarga siempre, incluso cuando el video no: con
-# `preload="none"` es lo único del clip que viaja hasta quien nunca llega a
-# mirarlo.
-clip() {
-  local input="$1"
-  if [[ ! -f "$input" ]]; then
-    echo "→ sin reserva.webm: el clip queda como estaba"
-    return
-  fi
-
-  echo "→ reserva (clip)"
-  local paso="setpts=PTS/1.45"
-
-  ffmpeg -v error -y -ss 0.7 -i "$input" -vf "$paso" -an \
-    -c:v libvpx-vp9 -crf 30 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 \
-    -pix_fmt yuv420p "$out/reserva-1280.webm"
-
-  ffmpeg -v error -y -ss 0.7 -i "$input" -vf "$paso" -an \
-    -c:v libx264 -crf 23 -preset slow -pix_fmt yuv420p -movflags +faststart \
-    "$out/reserva-1280.mp4"
-
-  ffmpeg -v error -y -ss 15 -i "$input" -frames:v 1 \
-    -c:v libwebp -quality 82 -compression_level 6 "$out/reserva-poster.webp"
-}
-
 for slide in "${slides[@]}"; do
   echo "→ $slide"
   encode "$src/$slide.png" "$slide" 1200 900 1800
@@ -284,8 +237,6 @@ encode "$tmp/11-movil.png" "11-movil-detalle" 1056 1056 2002
 encode_recorte "$src/11-movil.png" "11-movil-foco" "${foco["11-movil"]}" mitad nativo
 detalle["11-movil"]="0:0:4004:2502"
 anotar "11-movil" "$tmp/11-movil.png"
-
-clip "$src/reserva.webm"
 
 {
   echo "{"

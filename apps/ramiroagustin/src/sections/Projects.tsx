@@ -1,5 +1,4 @@
 import { Container, Reveal, Section } from "@sites/ui";
-import { Clip } from "../components/Clip";
 import { Galeria } from "../components/Galeria";
 import { projects } from "../data/projects";
 import styles from "./Projects.module.css";
@@ -7,7 +6,7 @@ import styles from "./Projects.module.css";
 export function Projects() {
   return (
     <Section id="proyectos" labelledBy="proyectos-titulo">
-      <Container width="wide">
+      <Container>
         <header className={styles.head}>
           <p className="label">Proyectos</p>
           <h2 id="proyectos-titulo" className={styles.title}>
@@ -79,8 +78,6 @@ export function Projects() {
                       ) : null}
                     </div>
                   </div>
-
-                  {project.clip ? <Clip clip={project.clip} /> : null}
 
                   {project.capturas ? (
                     <Galeria capturas={project.capturas} proyecto={project.name} />

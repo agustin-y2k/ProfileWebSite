@@ -1,12 +1,72 @@
-/* ── Recorrido ───────────────────────────────────────────────────────────── */
+/* ── El deslizador ───────────────────────────────────────────────────────── */
 
-/* La lista de capturas, y nada más: cada una con el pie que la explica, una
-   debajo de la otra. Lo que cambia entre un teléfono y una pantalla grande es
-   cómo se acomodan esas dos piezas —ver los dos bloques de abajo—, no qué hay
-   en la página. */
+/* Una tira que se desliza: el contenedor scrollea y el navegador pone el gesto,
+   la inercia y el rebote. No hay slider escrito en JavaScript, y por eso sin
+   JavaScript la tira se recorre igual.
+
+   De cada diapositiva se ve el 86 % del ancho útil; el resto es el asomo de la
+   siguiente, que es lo que avisa que hay más sin necesidad de un cartel. Ese
+   número está una sola vez, acá, y de él salen tres cosas: el ancho de cada
+   diapositiva, la altura de las flechas y el `sizes` que decide qué archivo
+   baja el navegador —ese último a mano, en Galeria.tsx—.
+
+   El marco es un contenedor de consulta para que las flechas puedan medirse
+   contra su ancho: van centradas sobre la captura, no sobre la tira, porque
+   debajo de la captura va su pie, y la captura es 16:10. */
+.galeria {
+  display: grid;
+  /* Deja que la barra de progreso, que está afuera de la tira, pueda seguir su
+     scroll. Sin esto el nombre de la línea de tiempo no se ve desde acá. */
+  timeline-scope: --tira;
+}
+
+.marco {
+  --diapo: 86;
+  position: relative;
+  container-type: inline-size;
+}
+
 .pista {
   display: grid;
-  gap: var(--space-6);
+  grid-auto-flow: column;
+  grid-auto-columns: calc(var(--diapo) * 1cqw);
+  gap: var(--space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Que el gesto no arrastre la página cuando la tira ya llegó al final. */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  scroll-timeline: --tira inline;
+}
+
+.pista::-webkit-scrollbar {
+  display: none;
+}
+
+/* La tira recibe el foco para poder recorrerse con las flechas del teclado,
+   que es como el navegador mueve cualquier contenedor que scrollea. */
+.pista:focus-visible {
+  outline-offset: 4px;
+}
+
+/* `scroll-snap-type` solo donde se navega con el dedo.
+   Con la rueda del mouse, un contenedor horizontal que además tiene snap se
+   queda con el evento: parado encima de la galería la página deja de bajar y
+   el visitante cree que el sitio se colgó. El dedo no sufre eso —el navegador
+   elige el eje del gesto antes de entregarlo— y ahí el snap es justamente lo
+   que hace que deslizar se sienta bien. En escritorio no hace falta: las
+   flechas corren exactamente una diapositiva, así que la tira queda alineada
+   sola. */
+@media (hover: none) {
+  .pista {
+    scroll-snap-type: x mandatory;
+  }
+
+  .diapo {
+    scroll-snap-align: start;
+    /* Un deslizada larga avanza una captura, no cinco. */
+    scroll-snap-stop: always;
+  }
 }
 
 .abrir {
@@ -28,19 +88,20 @@
   outline-offset: -4px;
 }
 
-/* La tarjeta recibe un recorte que ya viene en 16:10 desde ffmpeg, así que
-   acá el `cover` no tiene nada que cortar: queda de red por si un recorte sale
-   con un píxel de más. La página entera es lo que abre la lupa. */
 .shot {
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 10;
+  /* El recorte ya viene en 16:10 desde ffmpeg, así que acá el `cover` no tiene
+     nada que cortar: queda de red por si un recorte sale con un píxel de más. */
   object-fit: cover;
 }
 
-/* Los tres controles que van encima de la captura llevan color fijo y no
-   tokens del tema: se apoyan sobre la imagen, no sobre la página, y hay una
-   captura del sistema en oscuro entre las claras. */
+/* ── Los controles sobre la captura ──────────────────────────────────────── */
+
+/* Los tres llevan color fijo y no tokens del tema: se apoyan sobre la imagen,
+   no sobre la página, y hay una captura del sistema en oscuro entre las
+   claras. */
 .insignia {
   position: absolute;
   top: var(--space-3);
@@ -91,12 +152,57 @@
   pointer-events: none;
 }
 
+.flecha {
+  position: absolute;
+  /* Centrada sobre la captura y no sobre el marco: debajo de la captura va su
+     pie, y un 50 % las bajaría a la altura del texto. La diapositiva mide
+     `--diapo` por ciento del ancho del marco y la captura es 16:10, así que su
+     mitad cae a la mitad de eso por diez dieciseisavos. */
+  top: calc(var(--diapo) * 1cqw * 10 / 16 / 2);
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgb(20 18 16 / 0.12);
+  background: rgb(255 255 255 / 0.88);
+  backdrop-filter: blur(8px);
+  color: #1a1815;
+  box-shadow: 0 2px 10px -4px rgb(20 18 16 / 0.4);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+
+.flecha:hover {
+  background: #fff;
+  border-color: rgb(20 18 16 / 0.28);
+}
+
+/* En las puntas la flecha desaparece en vez de quedar apagada: así se ve de un
+   vistazo dónde empieza y dónde termina la serie. */
+.flecha:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.anterior {
+  left: var(--space-3);
+}
+
+.siguiente {
+  right: var(--space-3);
+}
+
 /* ── Pie ─────────────────────────────────────────────────────────────────── */
 
-/* El pie va adentro de cada captura y viaja con ella: la frase y la pantalla
-   que la prueba son una sola cosa. Antes era un solo pie afuera de la tira que
-   se reescribía al deslizar, y sin carrusel eso no tendría a qué referirse:
-   están todas a la vista. */
+/* El pie va adentro de cada diapositiva y viaja con ella: la frase y la
+   pantalla que la prueba son una sola cosa. Como todas las diapositivas están
+   en la misma fila de la grilla, la tira mide lo que el pie más largo y no
+   cambia de alto al deslizar. */
 .pie {
   display: grid;
   gap: var(--space-1);
@@ -108,8 +214,6 @@
   font-size: var(--text-base);
   line-height: var(--leading-snug);
   color: var(--text);
-  /* Títulos de dos o tres palabras en una columna angosta: sin esto queda una
-     sola palabra colgando en la segunda línea. */
   text-wrap: balance;
 }
 
@@ -117,28 +221,72 @@
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
   color: var(--text-muted);
-  max-width: 72ch;
   text-wrap: pretty;
+}
+
+/* ── Dónde va la tira ────────────────────────────────────────────────────── */
+
+/* Una barra fina que sigue el scroll, movida por el propio scroll con una
+   línea de tiempo de CSS. No hay JavaScript detrás: ni un `scroll` que
+   escuchar ni un ancho que calcular.
+
+   Donde las líneas de tiempo no existen no se muestra nada, y no se pierde
+   gran cosa: cada captura lleva encima su número —3 / 10— que dice lo mismo. */
+.progreso {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .progreso {
+    display: block;
+    height: 3px;
+    margin-top: var(--space-4);
+    border-radius: var(--radius-full);
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  .progreso::before {
+    content: "";
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+    transform-origin: left center;
+    animation: avanzar linear both;
+    animation-timeline: --tira;
+  }
+
+  @keyframes avanzar {
+    from {
+      scale: 0.02 1;
+    }
+    to {
+      scale: 1 1;
+    }
+  }
 }
 
 /* ── En el teléfono ──────────────────────────────────────────────────────── */
 
-/* Las capturas van de un borde al otro de la pantalla, cada una con su pie
-   debajo. El corte es el mismo con el que la galería cambia de recorte: ver
-   CORTE_TELEFONO en Galeria.tsx, que tiene que decir esto mismo para que el
-   `media` de cada <source> y este bloque cambien juntos. */
+/* La tarjeta del proyecto se ensancha hasta los bordes de la pantalla —ver
+   Projects.module.css— y esto cancela su padding: la diapositiva pasa a
+   medirse contra los 390 px del teléfono en vez de contra los 294 que dejaban
+   el gutter y el recuadro. El corte es el mismo con el que la galería cambia
+   de recorte: ver CORTE_TELEFONO en Galeria.tsx. */
 @media (max-width: 40rem) {
-  /* A sangre. La tarjeta del proyecto se ensancha hasta la pantalla entera
-     —ver Projects.module.css— y esto cancela su padding: la captura pasa de
-     los 294 px que dejaban el gutter y el recuadro a los 390 del teléfono, un
-     tercio más de ancho. Sin costados ni redondeo, porque ya no hay recuadro
-     del que salirse: la imagen termina donde termina la pantalla. */
-  .abrir {
+  .marco {
     width: 100vw;
     margin-inline: calc(50% - 50vw);
-    border-inline: none;
-    border-radius: 0;
-    box-shadow: none;
+  }
+
+  /* La tira ocupa la pantalla entera y el respiro lo pone su propio padding,
+     que en un contenedor que scrollea viaja con el contenido. `scroll-padding`
+     es el que hace que al frenar la diapositiva quede con ese mismo respiro a
+     la izquierda y no pegada al borde. */
+  .pista {
+    padding-inline: var(--space-5);
+    scroll-padding-inline: var(--space-5);
   }
 
   /* La insignia queda en el ícono solo. Con el recorte del teléfono, que
@@ -156,54 +304,15 @@
 
   /* El foco sale de una captura de teléfono, que es una pantalla vertical: un
      marco 16:10 mostraría menos de un tercio de lo que se ve al entrar a esa
-     pantalla. El recorte ya viene en 4:3 desde ffmpeg; acá se declara el marco
-     que le corresponde. */
+     pantalla. El recorte ya viene en 4:3 desde ffmpeg. */
   .shot {
     aspect-ratio: 4 / 3;
   }
-}
 
-/* ── En escritorio ───────────────────────────────────────────────────────── */
-
-/* El recorrido: cada captura ocupa una pantalla con su frase al lado, y las
-   dos quedan pegadas mientras se scrollea el bloque. Así la frase no se
-   despega de la pantalla que la prueba, y las diez se recorren bajando, que es
-   lo que se hace igual.
-
-   Reemplaza al carrusel, donde nueve de las diez estaban escondidas detrás de
-   una flecha. El precio es alto de página, y es a propósito: son diez
-   pantallas de un sistema, y esta es la sección que las tiene que mostrar.
-
-   `align-items: start` es lo que hace posible el `sticky`: un ítem de grilla
-   estirado ocupa todo el alto de la fila y no le queda nada por donde
-   despegarse. */
-@media (min-width: 62rem) {
-  .diapo {
-    display: grid;
-    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
-    align-items: start;
-    gap: var(--space-7);
-    min-height: 72vh;
-  }
-
-  /* En el documento la captura va antes que su pie —en el teléfono se mira
-     primero y se lee después—, así que acá se ubican a mano para que el texto
-     quede a la izquierda. */
-  .pie {
-    grid-area: 1 / 1;
-    margin-top: 0;
-  }
-
-  .abrir {
-    grid-area: 1 / 2;
-  }
-
-  /* El header es pegajoso y tapa lo que quede arriba de todo: el `top` lo
-     descuenta. */
-  .pie,
-  .abrir {
-    position: sticky;
-    top: calc(var(--header-h) + var(--space-6));
+  /* En una pantalla táctil se desliza con el dedo, y las flechas taparían
+     captura para no agregar nada. */
+  .flecha {
+    display: none;
   }
 }
 

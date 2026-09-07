@@ -5,29 +5,28 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type UIEvent,
 } from "react";
-import { useLockBodyScroll } from "@sites/ui";
+import { useLockBodyScroll, usePrefersReducedMotion } from "@sites/ui";
 import type { Captura, Juego } from "../data/capturas";
 import styles from "./Galeria.module.css";
 
-/** Ancho de render de la captura. De 62rem para arriba es la columna derecha
- *  del recorrido: el contenedor menos su gutter, el padding de la tarjeta, la
- *  columna del texto y el espacio entre las dos, con tope cuando el contenedor
- *  deja de crecer. Debajo es el ancho útil de la tarjeta. */
-const MEDIDAS_TARJETA =
-  "(min-width: 90rem) 912px, (min-width: 62rem) calc(100vw - 528px), calc(100vw - 6rem)";
+/** Ancho de render de la captura: el de una diapositiva, que es el 86 % del
+ *  ancho útil de la tarjeta —el resto es el asomo de la siguiente—. Ver
+ *  `--diapo` en Galeria.module.css, que es de donde sale ese número. */
+const MEDIDAS_TARJETA = "(min-width: 62rem) 908px, calc((100vw - 6rem) * 0.86)";
 
 /**
- * Debajo de este ancho la galería deja de ser un carrusel: las capturas se
- * apilan, van de un borde al otro de la pantalla y cada una lleva su pie
- * debajo. Es también el corte a partir del cual se sirve el recorte cerrado, y
- * no por casualidad: es el ancho donde el recorte de escritorio deja de leerse
- * y donde al carrusel ya no le sobra lugar para deslizarse.
+ * Debajo de este ancho se sirve el recorte cerrado, el que sale de las
+ * capturas hechas en un teléfono: el de escritorio, servido en 390 px, deja el
+ * texto del sistema en tres píxeles. Es el mismo corte con el que la tira
+ * cambia de forma en Galeria.module.css, y los dos tienen que decir lo mismo.
  */
 const CORTE_TELEFONO = "(max-width: 40rem)";
 
-/** Apilada, la captura ocupa el ancho entero de la pantalla. */
-const MEDIDAS_FOCO = "100vw";
+/** En el teléfono la tarjeta va de borde a borde, así que la diapositiva es el
+ *  86 % de la pantalla. */
+const MEDIDAS_FOCO = "calc(100vw * 0.86)";
 
 /** En la lupa la imagen ocupa casi todo el ancho, con tope en 1200px. */
 const MEDIDAS_LUPA = "(min-width: 78rem) 1200px, 96vw";
@@ -108,18 +107,19 @@ type GaleriaProps = {
 };
 
 /**
- * El recorrido por las capturas del sistema, más una lupa que muestra la
- * pantalla entera.
+ * Las capturas del sistema en una tira que se desliza, más una lupa que
+ * muestra la pantalla entera.
  *
- * El recorrido es una lista y nada más: cada captura con el pie que la
- * explica, una debajo de la otra. Que en escritorio se vean de a una por
- * pantalla, con el texto al lado y las dos pegadas mientras se las recorre, lo
- * resuelve el CSS —ver Galeria.module.css—, así que sin JavaScript la página
- * se lee igual y no hay nada escondido detrás de un control. Lo único que
- * necesita JavaScript acá es la lupa.
+ * La tira es un contenedor que scrollea, no un slider escrito en JavaScript.
+ * El gesto del dedo es el scroll nativo —con su inercia y su rebote— en vez de
+ * una imitación a fuerza de eventos táctiles, el teclado la recorre sola
+ * porque un contenedor que scrollea recibe el foco, y sin JavaScript sigue
+ * siendo una tira de capturas que se puede recorrer.
  *
- * Antes esto era un carrusel. Escondía nueve de las diez capturas detrás de
- * una flecha, y en un teléfono ni siquiera aparecía la flecha.
+ * Lo único que se agrega desde acá son las dos flechas, para quien tiene mouse
+ * y no rueda horizontal, y la lupa. Las flechas no llevan estado de "cuál es
+ * la activa": corren la tira un paso, que es lo que mide una diapositiva con
+ * su separación, y el navegador la frena sola en las puntas.
  */
 export function Galeria({ capturas, proyecto }: GaleriaProps) {
   const [ampliada, setAmpliada] = useState<number | null>(null);
@@ -130,15 +130,48 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
    *  desmontara al cerrar, la animación de salida no tendría qué animar. */
   const [usada, setUsada] = useState(false);
 
+  /** Si la tira llegó a una punta, para apagar la flecha que ya no lleva a
+   *  ningún lado. Es todo lo que hay que saber del scroll. */
+  const [puntas, setPuntas] = useState({ inicio: true, fin: false });
+
   const lista = useRef<HTMLUListElement>(null);
   const dialogo = useRef<HTMLDialogElement>(null);
   const cuerpo = useRef<HTMLDivElement>(null);
   /** Última captura vista en la lupa: al cerrar, la página vuelve ahí. */
   const ultima = useRef(0);
 
+  const quieto = usePrefersReducedMotion();
   useLockBodyScroll(ampliada !== null);
 
   const total = capturas.length;
+
+  const alScrollear = (evento: UIEvent<HTMLUListElement>) => {
+    const nodo = evento.currentTarget;
+    // Un margen de holgura: el scroll no siempre cae en el píxel exacto, y sin
+    // esto la flecha del final queda encendida sin nada que mostrar.
+    const inicio = nodo.scrollLeft < 8;
+    const fin = nodo.scrollLeft > nodo.scrollWidth - nodo.clientWidth - 8;
+    // Devolver el mismo objeto cuando nada cambió evita renderizar de nuevo en
+    // cada cuadro del scroll.
+    setPuntas((antes) =>
+      antes.inicio === inicio && antes.fin === fin ? antes : { inicio, fin },
+    );
+  };
+
+  /**
+   * Corre la tira una diapositiva. El paso se mide en el DOM —la distancia
+   * entre el borde de una y el de la siguiente— y no se escribe a mano: así
+   * incluye la separación y sigue siendo correcto cuando el CSS cambia el
+   * ancho de la diapositiva en otro tamaño de pantalla.
+   */
+  const deslizar = (signo: 1 | -1) => {
+    const nodo = lista.current;
+    const primera = nodo?.children[0] as HTMLElement | undefined;
+    const segunda = nodo?.children[1] as HTMLElement | undefined;
+    if (!nodo || !primera) return;
+    const paso = segunda ? segunda.offsetLeft - primera.offsetLeft : nodo.clientWidth;
+    nodo.scrollBy({ left: signo * paso, behavior: quieto ? "auto" : "smooth" });
+  };
 
   // Agrandada, la captura es mucho más ancha que la ventana, y el borde
   // izquierdo de una pantalla de sistema es margen vacío. Se arranca en el
@@ -208,52 +241,84 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
   if (total === 0) return null;
 
   return (
-    <>
-      <ul className={styles.pista} ref={lista} aria-label={`Capturas de ${proyecto}`}>
-        {capturas.map((captura, i) => (
-          <li key={captura.id} className={styles.diapo}>
-            <button
-              type="button"
-              className={styles.abrir}
-              onClick={() => {
-                setUsada(true);
-                setAmpliada(i);
-              }}
-              aria-label={`Ampliar: ${captura.titulo}`}
-            >
-              <Imagen
-                fuentes={[
-                  { juego: captura.foco, medidas: MEDIDAS_FOCO, media: CORTE_TELEFONO },
-                  { juego: captura.detalle, medidas: MEDIDAS_TARJETA },
-                ]}
-                alt={captura.alt}
-                className={styles.shot}
-                carga={i === 0 ? "eager" : "lazy"}
-              />
-              <span className={styles.insignia} aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
-                  <path
-                    d="M9 3H3v6M15 3h6v6M15 21h6v-6M9 21H3v-6"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span className={styles.insigniaTexto}>Ver la pantalla entera</span>
-              </span>
-              <span className={styles.contador} aria-hidden="true">
-                {i + 1} / {total}
-              </span>
-            </button>
+    <div className={styles.galeria}>
+      <div className={styles.marco}>
+        <ul
+          className={styles.pista}
+          ref={lista}
+          tabIndex={0}
+          aria-label={`Capturas de ${proyecto}`}
+          onScroll={alScrollear}
+        >
+          {capturas.map((captura, i) => (
+            <li key={captura.id} className={styles.diapo}>
+              <button
+                type="button"
+                className={styles.abrir}
+                onClick={() => {
+                  setUsada(true);
+                  setAmpliada(i);
+                }}
+                aria-label={`Ampliar: ${captura.titulo}`}
+              >
+                <Imagen
+                  fuentes={[
+                    { juego: captura.foco, medidas: MEDIDAS_FOCO, media: CORTE_TELEFONO },
+                    { juego: captura.detalle, medidas: MEDIDAS_TARJETA },
+                  ]}
+                  alt={captura.alt}
+                  className={styles.shot}
+                  carga={i === 0 ? "eager" : "lazy"}
+                />
+                <span className={styles.insignia} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+                    <path
+                      d="M9 3H3v6M15 3h6v6M15 21h6v-6M9 21H3v-6"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span className={styles.insigniaTexto}>Ver la pantalla entera</span>
+                </span>
+                <span className={styles.contador} aria-hidden="true">
+                  {i + 1} / {total}
+                </span>
+              </button>
 
-            <div className={styles.pie}>
-              <p className={styles.pieTitulo}>{captura.titulo}</p>
-              <p className={styles.pieTexto}>{captura.pie}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+              <div className={styles.pie}>
+                <p className={styles.pieTitulo}>{captura.titulo}</p>
+                <p className={styles.pieTexto}>{captura.pie}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <button
+          type="button"
+          className={`${styles.flecha} ${styles.anterior}`}
+          onClick={() => deslizar(-1)}
+          disabled={puntas.inicio}
+          aria-label="Captura anterior"
+        >
+          <Chevron hacia="izquierda" />
+        </button>
+        <button
+          type="button"
+          className={`${styles.flecha} ${styles.siguiente}`}
+          onClick={() => deslizar(1)}
+          disabled={puntas.fin}
+          aria-label="Captura siguiente"
+        >
+          <Chevron hacia="derecha" />
+        </button>
+      </div>
+
+      {/* Dónde va la tira. La mueve el propio scroll con una línea de tiempo de
+          CSS, sin JavaScript; donde eso no existe, no se muestra. Ver
+          Galeria.module.css. */}
+      <div className={styles.progreso} aria-hidden="true" />
 
       <dialog
         ref={dialogo}
@@ -342,6 +407,6 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
           </div>
         ) : null}
       </dialog>
-    </>
+    </div>
   );
 }
