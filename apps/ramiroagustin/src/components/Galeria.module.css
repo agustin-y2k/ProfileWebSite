@@ -4,11 +4,12 @@
    la inercia y el rebote. No hay slider escrito en JavaScript, y por eso sin
    JavaScript la tira se recorre igual.
 
-   De cada diapositiva se ve el 86 % del ancho útil; el resto es el asomo de la
-   siguiente, que es lo que avisa que hay más sin necesidad de un cartel. Ese
-   número está una sola vez, acá, y de él salen tres cosas: el ancho de cada
-   diapositiva, la altura de las flechas y el `sizes` que decide qué archivo
-   baja el navegador —ese último a mano, en Galeria.tsx—.
+   Cada diapositiva ocupa el ancho útil entero: se ve una captura y nada de la
+   siguiente. Que hay más lo dicen el número que va sobre la imagen —3 / 10—,
+   la barra de progreso y las flechas. Ese ancho está una sola vez, acá, y de
+   él salen tres cosas: el ancho de cada diapositiva, la altura de las flechas
+   y el `sizes` que decide qué archivo baja el navegador —ese último a mano, en
+   Galeria.tsx—.
 
    El marco es un contenedor de consulta para que las flechas puedan medirse
    contra su ancho: van centradas sobre la captura, no sobre la tira, porque
@@ -21,7 +22,20 @@
 }
 
 .marco {
-  --diapo: 86;
+  /* Lo que separa una diapositiva de la siguiente. En el teléfono es además el
+     respiro contra el borde de la pantalla, y por eso los dos salen de acá: el
+     hueco entre diapositivas tiene que ser al menos tan ancho como el respiro,
+     porque es él el que se come lo que quedaría a la vista del otro lado. Con
+     los dos iguales, la siguiente arranca justo afuera de la pantalla. */
+  --separacion: var(--space-5);
+  /* Cuánto se mete la tira hacia adentro de sus bordes. En una pantalla ancha
+     la diapositiva llega a las dos puntas del marco; en el teléfono, donde la
+     tira va a sangre, deja este respiro. */
+  --respiro: 0px;
+  /* El ancho de una diapositiva: el marco entero menos ese respiro. `1cqw` se
+     mide contra el marco, así que esta cuenta solo vale usada desde adentro
+     —la pista y las flechas—, que es donde se la usa. */
+  --ancho-diapo: calc(100cqw - var(--respiro) * 2);
   position: relative;
   container-type: inline-size;
 }
@@ -29,8 +43,15 @@
 .pista {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc(var(--diapo) * 1cqw);
-  gap: var(--space-4);
+  grid-auto-columns: var(--ancho-diapo);
+  gap: var(--separacion);
+  /* El respiro va como padding de la tira y no como margen de la diapositiva:
+     en un contenedor que scrollea el padding viaja con el contenido, así que
+     también queda del lado de la última —un margen en la diapositiva se pierde
+     justo ahí, que es donde más se nota—. `scroll-padding` es el que hace que
+     al frenar, la diapositiva pare con ese mismo respiro y no pegada al borde. */
+  padding-inline: var(--respiro);
+  scroll-padding-inline: var(--respiro);
   overflow-x: auto;
   overflow-y: hidden;
   /* Que el gesto no arrastre la página cuando la tira ya llegó al final. */
@@ -155,10 +176,10 @@
 .flecha {
   position: absolute;
   /* Centrada sobre la captura y no sobre el marco: debajo de la captura va su
-     pie, y un 50 % las bajaría a la altura del texto. La diapositiva mide
-     `--diapo` por ciento del ancho del marco y la captura es 16:10, así que su
-     mitad cae a la mitad de eso por diez dieciseisavos. */
-  top: calc(var(--diapo) * 1cqw * 10 / 16 / 2);
+     pie, y un 50 % las bajaría a la altura del texto. La captura mide lo que la
+     diapositiva y es 16:10, así que su mitad cae a la mitad de ese ancho por
+     diez dieciseisavos. */
+  top: calc(var(--ancho-diapo) * 10 / 16 / 2);
   translate: 0 -50%;
   display: grid;
   place-items: center;
@@ -270,23 +291,19 @@
 /* ── En el teléfono ──────────────────────────────────────────────────────── */
 
 /* La tarjeta del proyecto se ensancha hasta los bordes de la pantalla —ver
-   Projects.module.css— y esto cancela su padding: la diapositiva pasa a
-   medirse contra los 390 px del teléfono en vez de contra los 294 que dejaban
-   el gutter y el recuadro. El corte es el mismo con el que la galería cambia
-   de recorte: ver CORTE_TELEFONO en Galeria.tsx. */
+   Projects.module.css— y esto cancela su padding: la tira pasa a medirse
+   contra los 390 px del teléfono en vez de contra los 294 que dejaban el
+   gutter y el recuadro. El corte es el mismo con el que la galería cambia de
+   recorte: ver CORTE_TELEFONO en Galeria.tsx. */
 @media (max-width: 40rem) {
   .marco {
-    width: 100vw;
-    margin-inline: calc(50% - 50vw);
-  }
-
-  /* La tira ocupa la pantalla entera y el respiro lo pone su propio padding,
-     que en un contenedor que scrollea viaja con el contenido. `scroll-padding`
-     es el que hace que al frenar la diapositiva quede con ese mismo respiro a
-     la izquierda y no pegada al borde. */
-  .pista {
-    padding-inline: var(--space-5);
-    scroll-padding-inline: var(--space-5);
+    /* El padding de la tarjeta, hacia afuera. Es lo único que separa al marco
+       del borde de la pantalla, porque la tarjeta ya llega hasta ahí. Con un
+       margen negativo y no con `100vw`, por lo mismo que explica
+       Projects.module.css: `100vw` cuenta la barra de scroll. */
+    margin-inline: calc(-1 * var(--space-5));
+    /* A sangre, pero sin que la captura toque el borde. */
+    --respiro: var(--separacion);
   }
 
   /* La insignia queda en el ícono solo. Con el recorte del teléfono, que

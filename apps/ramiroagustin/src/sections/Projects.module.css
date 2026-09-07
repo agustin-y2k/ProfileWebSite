@@ -153,11 +153,17 @@
 /* En el teléfono la tarjeta se ensancha hasta los bordes de la pantalla y
    pierde los costados del recuadro: es lo que le permite a la galería llevar
    las capturas a sangre sin que la imagen le cruce el borde a la tarjeta. El
-   padding queda, así que lo que se ensancha es la caja y no el texto. */
+   padding queda, así que lo que se ensancha es la caja y no el texto.
+
+   Se ensancha con márgenes negativos y no con `100vw`. Son el gutter del
+   contenedor —lo único que la separa del borde en esta pantalla, porque acá el
+   `max-width` no llega a aplicar—, así que la caja termina exactamente en el
+   borde. `100vw` no: mide la ventana con la barra de scroll adentro, y donde
+   la barra ocupa lugar —un navegador de escritorio angosto— la tarjeta se
+   pasaba unos píxeles y la página se iba de costado. */
 @media (max-width: 40rem) {
   .card {
-    width: 100vw;
-    margin-inline: calc(50% - 50vw);
+    margin-inline: calc(-1 * var(--gutter));
     border-inline: none;
     border-radius: 0;
   }

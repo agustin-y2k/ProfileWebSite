@@ -11,10 +11,11 @@ import { useLockBodyScroll, usePrefersReducedMotion } from "@sites/ui";
 import type { Captura, Juego } from "../data/capturas";
 import styles from "./Galeria.module.css";
 
-/** Ancho de render de la captura: el de una diapositiva, que es el 86 % del
- *  ancho útil de la tarjeta —el resto es el asomo de la siguiente—. Ver
- *  `--diapo` en Galeria.module.css, que es de donde sale ese número. */
-const MEDIDAS_TARJETA = "(min-width: 62rem) 908px, calc((100vw - 6rem) * 0.86)";
+/** Ancho de render de la captura: el de una diapositiva, que ocupa el ancho
+ *  útil entero de la tarjeta. Ver `--ancho-diapo` en Galeria.module.css. Los
+ *  1056 px son el tope: el ancho de la tarjeta con el contenedor en su máximo,
+ *  y el ancho en el que scripts/capturas.sh saca el recorte de escritorio. */
+const MEDIDAS_TARJETA = "(min-width: 62rem) 1056px, calc(100vw - 6rem)";
 
 /**
  * Debajo de este ancho se sirve el recorte cerrado, el que sale de las
@@ -24,9 +25,10 @@ const MEDIDAS_TARJETA = "(min-width: 62rem) 908px, calc((100vw - 6rem) * 0.86)";
  */
 const CORTE_TELEFONO = "(max-width: 40rem)";
 
-/** En el teléfono la tarjeta va de borde a borde, así que la diapositiva es el
- *  86 % de la pantalla. */
-const MEDIDAS_FOCO = "calc(100vw * 0.86)";
+/** En el teléfono la tarjeta va de borde a borde, así que la diapositiva es la
+ *  pantalla menos el respiro que la tira deja a cada lado: `--separacion`, que
+ *  son los 1.5rem de `--space-5`. */
+const MEDIDAS_FOCO = "calc(100vw - 3rem)";
 
 /** En la lupa la imagen ocupa casi todo el ancho, con tope en 1200px. */
 const MEDIDAS_LUPA = "(min-width: 78rem) 1200px, 96vw";
