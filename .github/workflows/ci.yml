@@ -1,8 +1,12 @@
 name: CI
 
+# `develop` es la rama de trabajo, así que también se verifica al empujar: una
+# regresión conviene verla al hacer push y no días después, al abrir el PR con
+# veinte commits encima. `bytefix` es el canal comercial del taller y sale de
+# acá, así que el costo de enterarse tarde no es solo incomodidad.
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
 
 jobs:
