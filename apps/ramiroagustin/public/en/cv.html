@@ -1,49 +1,55 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ramiro Agustín Pintos — CV</title>
     <meta
       name="description"
-      content="Currículum de Ramiro Agustín Pintos, programador en San Rafael, Mendoza."
+      content="Résumé of Ramiro Agustín Pintos, software developer in San Rafael, Argentina."
     />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
 
-    <!-- Este CV no se indexa: lo comparte quien lo recibe, no un buscador. -->
+    <!-- This CV is not indexed: whoever receives it shares it, not a crawler. -->
     <meta name="robots" content="noindex" />
 
-    <!-- El diseño vive en /cv.css, compartido con la versión en inglés
-         (/en/cv). Ver el comentario que encabeza ese archivo. -->
+    <!--
+      La versión inglesa del CV. Es un documento aparte y no una traducción
+      generada, por el mismo motivo por el que el CV no pasa por React: un
+      currículum se edita a mano y se lee entero antes de mandarlo.
+
+      Lo único que comparte con /cv es el diseño (/cv.css). Si se agrega una
+      sección allá, va acá también — no hay build que avise, así que la regla
+      es abrir los dos archivos juntos.
+
+      Los nombres propios no se traducen: la escuela, el título secundario y
+      la universidad se dejan en español con la aclaración al lado, porque son
+      lo que dice el diploma y lo que alguien podría llegar a verificar.
+    -->
     <link rel="stylesheet" href="/cv.css" />
   </head>
 
   <body>
     <div class="barra">
-      <a class="volver" href="/">← Volver al sitio</a>
-      <button type="button" id="imprimir">Descargar en PDF</button>
+      <a class="volver" href="/en/">← Back to the site</a>
+      <button type="button" id="imprimir">Download as PDF</button>
     </div>
 
     <main class="hoja">
-      <!--
-        El CV usa el nombre completo. El sitio se marca como «Ramiro Agustín»,
-        que es la forma corta; el apellido aparece acá y en el structured data
-        del sitio, para que una búsqueda por «Ramiro Pintos» también llegue.
-      -->
       <header class="cabecera">
         <img class="retrato" src="/img/retrato.jpg" alt="" width="98" height="98" />
         <div>
           <h1 class="nombre">Ramiro Agustín Pintos</h1>
-          <p class="rol">Programador · Estudiante de Ingeniería en Informática</p>
+          <p class="rol">Software developer · Computer Engineering student</p>
           <p class="ubicacion">San Rafael, Mendoza, Argentina</p>
         </div>
       </header>
 
       <div class="cuerpo">
-        <!-- ── Lateral ────────────────────────────────────────────────── -->
+        <!-- ── Sidebar ────────────────────────────────────────────────── -->
         <aside>
           <section class="bloque">
-            <h2 class="titulo">Contacto</h2>
+            <h2 class="titulo">Contact</h2>
             <ul class="contacto">
               <li><a href="mailto:agustin.y2k@gmail.com">agustin.y2k@gmail.com</a></li>
               <li><a href="tel:+5492604316731">+54 9 260 431-6731</a></li>
@@ -53,10 +59,10 @@
           </section>
 
           <section class="bloque">
-            <h2 class="titulo">Habilidades</h2>
+            <h2 class="titulo">Skills</h2>
 
             <div class="grupo">
-              <p class="grupo-nombre">Lenguajes</p>
+              <p class="grupo-nombre">Languages</p>
               <ul class="etiquetas">
                 <li>Python</li>
                 <li>Go</li>
@@ -77,7 +83,7 @@
             </div>
 
             <div class="grupo">
-              <p class="grupo-nombre">Bases de datos</p>
+              <p class="grupo-nombre">Databases</p>
               <ul class="etiquetas">
                 <li>MySQL</li>
                 <li>MongoDB</li>
@@ -85,7 +91,7 @@
             </div>
 
             <div class="grupo">
-              <p class="grupo-nombre">Datos</p>
+              <p class="grupo-nombre">Data</p>
               <ul class="etiquetas">
                 <li>Pandas</li>
                 <li>NumPy</li>
@@ -94,77 +100,77 @@
             </div>
 
             <div class="grupo">
-              <p class="grupo-nombre">Infraestructura</p>
+              <p class="grupo-nombre">Infrastructure</p>
               <ul class="etiquetas">
                 <li>Docker</li>
                 <li>nginx</li>
                 <li>Linux</li>
                 <li>Cloudflare Tunnel</li>
                 <li>Git</li>
-                <li>Redes</li>
+                <li>Networking</li>
               </ul>
             </div>
           </section>
 
           <section class="bloque">
-            <h2 class="titulo">Idiomas</h2>
+            <h2 class="titulo">Languages</h2>
             <div class="grupo">
-              <p class="grupo-nombre">Español — nativo</p>
-              <p class="grupo-nombre" style="font-weight: 400">Inglés — intermedio</p>
+              <p class="grupo-nombre">Spanish — native</p>
+              <p class="grupo-nombre" style="font-weight: 400">English — intermediate</p>
             </div>
           </section>
         </aside>
 
-        <!-- ── Principal ──────────────────────────────────────────────── -->
+        <!-- ── Main column ────────────────────────────────────────────── -->
         <div>
           <section class="bloque">
-            <h2 class="titulo">Perfil</h2>
+            <h2 class="titulo">Profile</h2>
             <p class="perfil">
-              Programador con foco en backend y sistemas. Trabajo con Python, Go, Java y
-              TypeScript, y administro mi propia infraestructura: dos sitios en producción
-              sobre una Raspberry Pi con Docker, nginx y Cloudflare Tunnel. Estudiante de
-              Ingeniería en Informática y técnico en reparación de computadoras desde
-              2017, lo que me da criterio para resolver problemas desde el hardware hasta
-              el código.
+              Software developer focused on backend and systems work. I work with Python,
+              Go, Java and TypeScript, and I run my own infrastructure: two production
+              sites on a Raspberry Pi with Docker, nginx and Cloudflare Tunnel. Computer
+              Engineering student and computer repair technician since 2017, which gives
+              me the judgement to work a problem from the hardware up to the code.
             </p>
           </section>
 
           <section class="bloque">
-            <h2 class="titulo">Experiencia</h2>
+            <h2 class="titulo">Experience</h2>
 
             <article class="entrada">
-              <p class="entrada-titulo">Auxiliar de informática</p>
+              <p class="entrada-titulo">IT assistant</p>
               <p class="entrada-meta">
-                Escuela 4-107 «Ejército Argentino», Tunuyán, Mendoza · 2025 — Presente
+                Escuela 4-107 «Ejército Argentino» (state secondary school), Tunuyán,
+                Mendoza · 2025 — Present
               </p>
               <ul class="vinetas">
-                <li>
-                  Soporte técnico y mantenimiento del parque informático de la escuela.
-                </li>
+                <li>Technical support and upkeep of the school's computer equipment.</li>
               </ul>
             </article>
 
             <article class="entrada">
-              <p class="entrada-titulo">Técnico en reparación de computadoras</p>
-              <p class="entrada-meta">ByteFix — autónomo, San Rafael · 2017 — Presente</p>
+              <p class="entrada-titulo">Computer repair technician</p>
+              <p class="entrada-meta">
+                ByteFix — self-employed, San Rafael · 2017 — Present
+              </p>
               <ul class="vinetas">
                 <li>
-                  Diagnóstico y reparación de hardware, incluida microsoldadura y
-                  reparación a nivel de placa.
+                  Hardware diagnosis and repair, including microsoldering and board-level
+                  work.
                 </li>
-                <li>Recuperación de datos, upgrades e instalación de sistemas.</li>
-                <li>Configuración de redes y servidores para comercios y empresas.</li>
+                <li>Data recovery, upgrades and operating system installs.</li>
+                <li>Network and server setup for shops and businesses.</li>
               </ul>
             </article>
           </section>
 
           <section class="bloque">
-            <h2 class="titulo">Proyectos</h2>
+            <h2 class="titulo">Projects</h2>
 
             <article class="entrada">
               <p class="entrada-titulo">SGRC</p>
               <p class="entrada-meta">
-                Sistema de gestión y reserva de computadoras educativas
+                Management and booking system for school computer equipment
               </p>
               <p class="stack">Go · React</p>
             </article>
@@ -172,16 +178,16 @@
             <article class="entrada">
               <p class="entrada-titulo">Indicator Insight</p>
               <p class="entrada-meta">
-                Aplicación multiplataforma para análisis técnico financiero
+                Cross-platform app for technical analysis of financial markets
               </p>
               <p class="stack">Python · Dart</p>
             </article>
 
             <article class="entrada">
-              <p class="entrada-titulo">ramiroagustin.online y bytefix.shop</p>
+              <p class="entrada-titulo">ramiroagustin.online and bytefix.shop</p>
               <p class="entrada-meta">
-                Dos sitios en producción en un monorepo, prerenderizados a HTML estático y
-                desplegados en una Raspberry Pi detrás de Cloudflare Tunnel
+                Two production sites in one monorepo, prerendered to static HTML and
+                deployed on a Raspberry Pi behind Cloudflare Tunnel
               </p>
               <p class="stack">React · TypeScript · Vite · Docker · nginx</p>
               <a class="enlace-repo" href="https://github.com/agustin-y2k/ProfileWebSite"
@@ -191,16 +197,16 @@
           </section>
 
           <section class="bloque">
-            <h2 class="titulo">Formación</h2>
+            <h2 class="titulo">Education</h2>
 
             <article class="entrada">
-              <p class="entrada-titulo">Ingeniería en Informática</p>
-              <p class="entrada-meta">Universidad de Mendoza · En curso</p>
+              <p class="entrada-titulo">Computer Engineering</p>
+              <p class="entrada-meta">Universidad de Mendoza · In progress</p>
             </article>
 
             <article class="entrada">
               <p class="entrada-titulo">
-                Técnico mecánico con orientación en producción de bienes y servicios
+                Technical secondary diploma in mechanics, goods and services production
               </p>
               <p class="entrada-meta">
                 Escuela Técnica 4-113 «Ing. Jorge Barraquero» · 2012

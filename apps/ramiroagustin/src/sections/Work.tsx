@@ -1,18 +1,24 @@
 import { Container, Reveal, Section } from "@sites/ui";
+import { useIdioma } from "../i18n/contexto";
 import { services } from "../data/services";
 import styles from "./Work.module.css";
 
 export function Work() {
+  const { t } = useIdioma();
+
   return (
     <Section id="trabajo" labelledBy="trabajo-titulo" tone="alt">
       <Container>
         <header className={styles.head}>
-          <p className="label">Servicios</p>
+          <p className="label">{t({ es: "Servicios", en: "Services" })}</p>
           <h2 id="trabajo-titulo" className={styles.title}>
-            En qué puedo ayudarte
+            {t({ es: "En qué puedo ayudarte", en: "How I can help" })}
           </h2>
           <p className={styles.intro}>
-            Tres frentes que, en casas y negocios, casi siempre terminan mezclándose.
+            {t({
+              es: "Tres frentes que, en casas y negocios, casi siempre terminan mezclándose.",
+              en: "Three fronts that, in homes and small businesses, almost always end up tangled together.",
+            })}
           </p>
         </header>
 
@@ -25,12 +31,12 @@ export function Work() {
                     {service.index}
                   </span>
                   <div className={styles.body}>
-                    <h3 className={styles.itemTitle}>{service.title}</h3>
-                    <p className={styles.itemText}>{service.description}</p>
+                    <h3 className={styles.itemTitle}>{t(service.title)}</h3>
+                    <p className={styles.itemText}>{t(service.description)}</p>
                     <ul className={styles.tags}>
                       {service.detail.map((tag) => (
-                        <li key={tag} className={styles.tag}>
-                          {tag}
+                        <li key={t(tag)} className={styles.tag}>
+                          {t(tag)}
                         </li>
                       ))}
                     </ul>

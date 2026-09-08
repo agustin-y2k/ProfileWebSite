@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useLockBodyScroll, usePrefersReducedMotion } from "@sites/ui";
 import type { Captura, Juego } from "../data/capturas";
+import { useIdioma } from "../i18n/contexto";
 import styles from "./Galeria.module.css";
 
 /** Ancho de render de la captura: el de una diapositiva, que ocupa el ancho
@@ -135,6 +136,7 @@ type GaleriaProps = {
  * su separación, y el navegador la frena sola en las puntas.
  */
 export function Galeria({ capturas, proyecto }: GaleriaProps) {
+  const { t } = useIdioma();
   const [ampliada, setAmpliada] = useState<number | null>(null);
   const [zoom, setZoom] = useState(false);
   /** Si se abrió alguna vez. Antes de eso la lupa no monta nada, así que la
@@ -260,7 +262,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
           className={styles.pista}
           ref={lista}
           tabIndex={0}
-          aria-label={`Capturas de ${proyecto}`}
+          aria-label={t({ es: `Capturas de ${proyecto}`, en: `${proyecto} screenshots` })}
           onScroll={alScrollear}
         >
           {capturas.map((captura, i) => (
@@ -272,14 +274,17 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                   setUsada(true);
                   setAmpliada(i);
                 }}
-                aria-label={`Ampliar: ${captura.titulo}`}
+                aria-label={t({
+                  es: `Ampliar: ${t(captura.titulo)}`,
+                  en: `Enlarge: ${t(captura.titulo)}`,
+                })}
               >
                 <Imagen
                   fuentes={[
                     { juego: captura.foco, medidas: MEDIDAS_FOCO, media: CORTE_TELEFONO },
                     { juego: captura.detalle, medidas: MEDIDAS_TARJETA },
                   ]}
-                  alt={captura.alt}
+                  alt={t(captura.alt)}
                   className={styles.shot}
                   carga={i === 0 ? "eager" : "lazy"}
                 />
@@ -293,7 +298,9 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <span className={styles.insigniaTexto}>Ver la pantalla entera</span>
+                  <span className={styles.insigniaTexto}>
+                    {t({ es: "Ver la pantalla entera", en: "See the whole screen" })}
+                  </span>
                 </span>
                 <span className={styles.contador} aria-hidden="true">
                   {i + 1} / {total}
@@ -301,8 +308,8 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
               </button>
 
               <div className={styles.pie}>
-                <p className={styles.pieTitulo}>{captura.titulo}</p>
-                <p className={styles.pieTexto}>{captura.pie}</p>
+                <p className={styles.pieTitulo}>{t(captura.titulo)}</p>
+                <p className={styles.pieTexto}>{t(captura.pie)}</p>
               </div>
             </li>
           ))}
@@ -313,7 +320,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
           className={`${styles.flecha} ${styles.anterior}`}
           onClick={() => deslizar(-1)}
           disabled={puntas.inicio}
-          aria-label="Captura anterior"
+          aria-label={t({ es: "Captura anterior", en: "Previous screenshot" })}
         >
           <Chevron hacia="izquierda" />
         </button>
@@ -322,7 +329,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
           className={`${styles.flecha} ${styles.siguiente}`}
           onClick={() => deslizar(1)}
           disabled={puntas.fin}
-          aria-label="Captura siguiente"
+          aria-label={t({ es: "Captura siguiente", en: "Next screenshot" })}
         >
           <Chevron hacia="derecha" />
         </button>
@@ -336,14 +343,17 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
       <dialog
         ref={dialogo}
         className={styles.lupa}
-        aria-label={`Capturas de ${proyecto} ampliadas`}
+        aria-label={t({
+          es: `Capturas de ${proyecto} ampliadas`,
+          en: `${proyecto} screenshots, enlarged`,
+        })}
         onKeyDown={teclasLupa}
       >
         {enLupa ? (
           <div className={styles.lupaCaja}>
             <div className={styles.barra}>
               <div className={styles.barraTitulo}>
-                <p className={styles.barraNombre}>{enLupa.titulo}</p>
+                <p className={styles.barraNombre}>{t(enLupa.titulo)}</p>
                 <span className={styles.barraContador}>
                   {(ampliada ?? 0) + 1} / {total}
                 </span>
@@ -356,14 +366,16 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                   onClick={alternarZoom}
                   aria-pressed={zoom}
                 >
-                  {zoom ? "Achicar" : "Agrandar"}
+                  {zoom
+                    ? t({ es: "Achicar", en: "Zoom out" })
+                    : t({ es: "Agrandar", en: "Zoom in" })}
                 </button>
                 <button
                   type="button"
                   className={styles.control}
                   onClick={() => moverLupa(-1)}
                   disabled={ampliada === 0}
-                  aria-label="Captura anterior"
+                  aria-label={t({ es: "Captura anterior", en: "Previous screenshot" })}
                 >
                   <Chevron hacia="izquierda" />
                 </button>
@@ -372,7 +384,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                   className={styles.control}
                   onClick={() => moverLupa(1)}
                   disabled={ampliada === total - 1}
-                  aria-label="Captura siguiente"
+                  aria-label={t({ es: "Captura siguiente", en: "Next screenshot" })}
                 >
                   <Chevron hacia="derecha" />
                 </button>
@@ -380,7 +392,7 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                   type="button"
                   className={styles.control}
                   onClick={() => dialogo.current?.close()}
-                  aria-label="Cerrar"
+                  aria-label={t({ es: "Cerrar", en: "Close" })}
                 >
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
                     <path
@@ -414,12 +426,12 @@ export function Galeria({ capturas, proyecto }: GaleriaProps) {
                         medidas: zoom ? MEDIDAS_LUPA_ZOOM : MEDIDAS_LUPA,
                       },
                     ]}
-                    alt={enLupa.alt}
+                    alt={t(enLupa.alt)}
                     className={styles.lupaImagen}
                     carga="eager"
                   />
                 </div>
-                <figcaption className={styles.lupaPie}>{enLupa.pie}</figcaption>
+                <figcaption className={styles.lupaPie}>{t(enLupa.pie)}</figcaption>
               </figure>
             </div>
           </div>

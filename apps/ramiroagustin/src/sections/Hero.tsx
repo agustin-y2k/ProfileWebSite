@@ -1,4 +1,5 @@
 import { Button, Container } from "@sites/ui";
+import { Prosa, useIdioma } from "../i18n/contexto";
 import { site } from "../data/site";
 import avif320 from "../assets/profile-320.avif";
 import avif640 from "../assets/profile-640.avif";
@@ -12,47 +13,62 @@ import styles from "./Hero.module.css";
 const IMAGE_SIZES = "(min-width: 62rem) 400px, min(100vw - 3rem, 320px)";
 
 const ficha = [
-  { key: "Ubicación", value: site.location },
-  { key: "Foco", value: "Hardware · Software · Redes" },
-  { key: "Proyecto", value: "ByteFix" },
+  { key: { es: "Ubicación", en: "Based in" }, value: site.location },
+  {
+    key: { es: "Foco", en: "Focus" },
+    value: { es: "Hardware · Software · Redes", en: "Hardware · Software · Networks" },
+  },
+  { key: { es: "Proyecto", en: "Venture" }, value: "ByteFix" },
 ];
 
 export function Hero() {
+  const { t } = useIdioma();
+
   return (
     <section className={styles.hero} id="top">
       <Container className={styles.layout}>
         <div className={styles.copy}>
-          <p className="label">{site.role}</p>
+          <p className="label">{t(site.role)}</p>
 
-          <h1 className={styles.title}>
-            Hola, soy <span className={styles.name}>Ramiro Agustín</span>.
-          </h1>
+          <Prosa
+            as="h1"
+            className={styles.title}
+            frase={{
+              es: `Hola, soy <span class="${styles.name}">Ramiro Agustín</span>.`,
+              en: `Hi, I'm <span class="${styles.name}">Ramiro Agustín</span>.`,
+            }}
+          />
 
-          <p className={styles.subtitle}>
-            Equipos que funcionan, código con criterio y redes que se sostienen en el día
-            a día.
-          </p>
+          <Prosa
+            className={styles.subtitle}
+            frase={{
+              es: "Equipos que funcionan, código con criterio y redes que se sostienen en el día a día.",
+              en: "Machines that work, code written with judgement, and networks that hold up day after day.",
+            }}
+          />
 
-          <p className={styles.lead}>
-            Paso el día traduciendo problemas técnicos en soluciones concretas: a veces
-            hace falta abrir el gabinete, a veces escribir un script, a veces revisar el
-            router. Me gusta que cada cosa quede en su lugar.
-          </p>
+          <Prosa
+            className={styles.lead}
+            frase={{
+              es: "Paso el día traduciendo problemas técnicos en soluciones concretas: a veces hace falta abrir el gabinete, a veces escribir un script, a veces revisar el router. Me gusta que cada cosa quede en su lugar.",
+              en: "I spend my days turning technical problems into concrete fixes: sometimes that means opening the case, sometimes writing a script, sometimes going through the router. I like leaving things where they belong.",
+            }}
+          />
 
           <div className={styles.actions}>
             <Button href="#contacto" size="lg">
-              Escribime
+              {t({ es: "Escríbeme", en: "Get in touch" })}
             </Button>
             <Button href="#trabajo" variant="soft" size="lg">
-              Ver lo que hago
+              {t({ es: "Ver lo que hago", en: "See what I do" })}
             </Button>
           </div>
 
           <dl className={styles.ficha}>
             {ficha.map((item) => (
-              <div key={item.key} className={styles.fichaRow}>
-                <dt className="label">{item.key}</dt>
-                <dd className={styles.fichaValue}>{item.value}</dd>
+              <div key={item.key.es} className={styles.fichaRow}>
+                <dt className="label">{t(item.key)}</dt>
+                <dd className={styles.fichaValue}>{t(item.value)}</dd>
               </div>
             ))}
           </dl>
@@ -80,7 +96,10 @@ export function Hero() {
                 sizes={IMAGE_SIZES}
                 width={640}
                 height={640}
-                alt="Retrato de Ramiro Agustín"
+                alt={t({
+                  es: "Retrato de Ramiro Agustín",
+                  en: "Portrait of Ramiro Agustín",
+                })}
                 className={styles.photo}
                 /* Es la imagen LCP: prioridad alta y sin lazy loading. */
                 fetchPriority="high"

@@ -5,6 +5,7 @@ import { Work } from "./sections/Work";
 import { ByteFixBand } from "./sections/ByteFixBand";
 import { About } from "./sections/About";
 import { Projects } from "./sections/Projects";
+import { AlgoritmosBand } from "./sections/AlgoritmosBand";
 import { Contact } from "./sections/Contact";
 import { Footer } from "./sections/Footer";
 
@@ -19,6 +20,7 @@ export function App() {
         <ByteFixBand />
         <About />
         <Projects />
+        <AlgoritmosBand />
         <Contact />
       </main>
       <Footer />

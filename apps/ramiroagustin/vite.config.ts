@@ -1,5 +1,24 @@
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+
+const raiz = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Las páginas del sitio. Cada una es un index.html propio, no una ruta de un
+ * router: el sitio se sirve como estáticos desde nginx y se prerenderiza en el
+ * build, así que una página de verdad es un archivo de verdad.
+ *
+ * La ganancia principal no es el SEO —eso ya lo daba el prerender— sino que
+ * cada página arrastra solo su propio JavaScript. La portada no puede engordar
+ * por algo que se agregue en /algoritmos/, porque ni siquiera está en su grafo
+ * de módulos.
+ */
+const PAGINAS = {
+  inicio: resolve(raiz, "index.html"),
+  algoritmos: resolve(raiz, "algoritmos/index.html"),
+};
 
 /**
  * Inyecta el script de analítica solo si está configurado.
@@ -54,9 +73,16 @@ export default defineConfig(({ isSsrBuild }) => ({
 
   build: {
     target: "es2020",
-    cssCodeSplit: false, // una sola landing: un solo CSS evita un request extra
+    // Partido desde que hay más de una página: con un CSS único, la portada
+    // cargaría también el del visualizador de algoritmos, que es justo lo que
+    // separar en páginas existe para evitar. Sigue siendo un request por
+    // página, solo que ahora cada una pide el suyo.
+    cssCodeSplit: true,
     reportCompressedSize: false,
     rollupOptions: {
+      // El build de SSR recibe su entrada por línea de comandos
+      // (`vite build --ssr src/entry-server.tsx`), así que no lleva input acá.
+      input: isSsrBuild ? undefined : PAGINAS,
       output: isSsrBuild
         ? // El bundle de SSR lo importa scripts/prerender.mjs por ruta fija,
           // así que no lleva hash: es un artefacto temporal del build.

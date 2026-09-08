@@ -1,0 +1,602 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Tokens propios del visualizador.
+
+   Van acá y no en theme.css porque no son identidad del sitio: son la
+   codificación de un estado de ejecución, y solo esta pieza los usa. El resto
+   de los colores sí sale del tema.
+
+   Se redefinen para los tres estados de tema igual que theme.css: sin
+   elección, `oscuro` elegido, y `claro` elegido pisando un sistema oscuro.
+   ───────────────────────────────────────────────────────────────────────── */
+.visualizador {
+  --t-libre: #ffffff;
+  --t-pasto: #cfdcb4;
+  --t-barro: #cdb389;
+  --t-muro: #3a342c;
+
+  /* Frío = pendiente, cálido = resuelto. */
+  --e-cola: #1c6b62;
+  --e-cola-fondo: rgb(28 107 98 / 0.16);
+  --e-cerrado-fondo: rgb(154 60 9 / 0.13);
+
+  /* Al terminar hay más de 170 celdas resueltas: a plena intensidad son una
+     pared de dígitos, y el que importa es el del camino. */
+  --num-cerrado: #a89f92;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="claro"])) .visualizador {
+    --t-libre: #201d1a;
+    --t-pasto: #3c5233;
+    --t-barro: #5c4529;
+    --t-muro: #9b9084;
+    --e-cola: #63c9b8;
+    --e-cola-fondo: rgb(99 201 184 / 0.2);
+    --e-cerrado-fondo: rgb(239 139 76 / 0.18);
+    --num-cerrado: #6b6357;
+  }
+}
+
+:global(:root[data-theme="oscuro"]) .visualizador {
+  --t-libre: #201d1a;
+  --t-pasto: #3c5233;
+  --t-barro: #5c4529;
+  --t-muro: #9b9084;
+  --e-cola: #63c9b8;
+  --e-cola-fondo: rgb(99 201 184 / 0.2);
+  --e-cerrado-fondo: rgb(239 139 76 / 0.18);
+  --num-cerrado: #6b6357;
+}
+
+/* ── Selectores ─────────────────────────────────────────────────────────── */
+.filaSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.etiquetaSelector {
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 500;
+  margin-right: var(--space-1);
+}
+
+/* Ancho fijo desde que hay cuatro filas de selector: sin esto, cada fila
+   arranca en una columna distinta según lo largo que sea el nombre de su
+   categoría, y el bloque entero se lee como cuatro listas sueltas. */
+@media (min-width: 48rem) {
+  .etiquetaSelector {
+    min-width: 10.5rem;
+  }
+}
+
+.opcion {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.opcion:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.opcion[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.tesis {
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 2.4vw, 1.1875rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+  border-left: 3px solid var(--accent);
+  padding-left: var(--space-3);
+  min-height: 3rem;
+}
+
+.tesis em {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Composición ────────────────────────────────────────────────────────── */
+.taller {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 64rem) {
+  .taller {
+    grid-template-columns: minmax(0, 1.35fr) minmax(20rem, 1fr);
+    align-items: start;
+  }
+
+  .taller.ancho {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* ── Grilla ─────────────────────────────────────────────────────────────── */
+.marco {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem);
+  box-shadow: var(--shadow-sm);
+}
+
+.grilla {
+  display: grid;
+  gap: 2px;
+}
+
+.celda {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--t-libre);
+  display: grid;
+  place-items: center;
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.celda[data-terreno="pasto"] {
+  background: var(--t-pasto);
+}
+
+.celda[data-terreno="barro"] {
+  background: var(--t-barro);
+}
+
+.celda[data-terreno="muro"] {
+  background: var(--t-muro);
+  color: transparent;
+}
+
+.celda[data-estado="cola"] {
+  background-image: linear-gradient(var(--e-cola-fondo), var(--e-cola-fondo));
+  box-shadow: inset 0 0 0 1.5px var(--e-cola);
+  color: var(--e-cola);
+}
+
+.celda[data-estado="cerrado"] {
+  background-image: linear-gradient(var(--e-cerrado-fondo), var(--e-cerrado-fondo));
+  color: var(--num-cerrado);
+}
+
+.celda[data-estado="actual"] {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  color: var(--accent-contrast);
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--accent);
+  z-index: 2;
+}
+
+.celda[data-estado="camino"] {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  color: var(--accent-contrast);
+  font-weight: 700;
+}
+
+/* El instante en que una celda queda clavada para siempre. Es la idea que
+   hace correcto al algoritmo, y sin esto solo se afirmaba en el texto. */
+@keyframes sellar {
+  0% {
+    box-shadow: inset 0 0 0 0 var(--accent);
+  }
+  35% {
+    box-shadow: inset 0 0 0 3px var(--accent);
+  }
+  100% {
+    box-shadow: inset 0 0 0 0 var(--accent);
+  }
+}
+
+.sello {
+  animation: sellar 0.5s ease-out;
+}
+
+.celda[data-hito]::after {
+  content: attr(data-hito);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+}
+
+.celda[data-hito="D"]::after {
+  border-style: dashed;
+}
+
+/* Los números no entran en celdas de teléfono. Se ocultan por tamaño de
+   celda, no por dispositivo: si la pantalla da, aparecen. */
+@media (max-width: 40rem) {
+  .celda {
+    font-size: 0;
+  }
+}
+
+/* ── Comparación ────────────────────────────────────────────────────────── */
+.comparar {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 56rem) {
+  .comparar {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.lado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ladoCabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.ladoNombre {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.ladoContador {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
+}
+
+.ladoContador span {
+  color: var(--text-faint);
+}
+
+/* ── Leyenda, narración, resultado ──────────────────────────────────────── */
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.leyenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.chip {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 3px;
+  flex: none;
+}
+
+.chipCola {
+  background: var(--e-cola-fondo);
+  box-shadow: inset 0 0 0 1.5px var(--e-cola);
+}
+
+.chipCerrado {
+  background: var(--e-cerrado-fondo);
+}
+
+.chipActual {
+  background: var(--accent);
+}
+
+.narracion {
+  background: var(--bg-tint);
+  border-radius: 6px;
+  padding: var(--space-3) var(--space-4);
+  min-height: 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.narracionTitulo {
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.narracionTexto {
+  font-size: 0.9375rem;
+  text-wrap: pretty;
+}
+
+.narracionTexto b {
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.narracionTexto code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--surface-sunken);
+  padding: 0.05em 0.35em;
+  border-radius: 3px;
+}
+
+.resultado {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9375rem;
+  text-wrap: pretty;
+}
+
+.resultado b {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
+  font-size: 1.0625em;
+}
+
+/* ── Controles ──────────────────────────────────────────────────────────── */
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.selector {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 0.875rem;
+}
+
+.selector span {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+
+.selector select {
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.lineaTiempo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.lineaTiempo input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+  min-width: 0;
+}
+
+.pasoNum {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Panel de código y pendientes ───────────────────────────────────────── */
+.pestanas {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 64rem) {
+  .pestanas {
+    display: none;
+  }
+}
+
+.pestana {
+  padding: 0.55rem 0.9rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.pestana[aria-selected="true"] {
+  color: var(--accent-text);
+  border-bottom-color: var(--accent);
+}
+
+@media (max-width: 63.999rem) {
+  .seccionPanel.ocultaEnMovil {
+    display: none;
+  }
+}
+
+.panelTitulo {
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 500;
+  margin-bottom: var(--space-2);
+}
+
+@media (max-width: 63.999rem) {
+  .panelTitulo {
+    display: none;
+  }
+}
+
+.codigo {
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+  padding: var(--space-3) 0;
+  counter-reset: linea;
+}
+
+.codigo ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.codigo li {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  white-space: pre;
+  color: var(--text-muted);
+  border-left: 2px solid transparent;
+}
+
+.codigo li::before {
+  counter-increment: linea;
+  content: counter(linea);
+  color: var(--text-faint);
+  opacity: 0.55;
+  text-align: right;
+  width: 1.4rem;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.codigo li.activa {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.colaVacia {
+  font-size: 0.875rem;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: var(--space-2) 0;
+}
+
+.colaLista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.colaItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 0.35rem 0.6rem;
+  border-radius: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.colaItem.minimo {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.colaDist {
+  min-width: 6.5rem;
+}
+
+.colaNodo {
+  color: var(--text-muted);
+}
+
+.colaItem.minimo .colaNodo {
+  color: var(--accent-text);
+}
+
+.colaSale {
+  margin-left: auto;
+  color: var(--accent-text);
+}
+
+.colaResto {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  padding: 0.35rem 0.6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celda,
+  .opcion {
+    transition: none;
+  }
+
+  .sello {
+    animation: none;
+  }
+}

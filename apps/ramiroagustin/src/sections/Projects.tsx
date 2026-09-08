@@ -1,20 +1,25 @@
 import { Container, Reveal, Section } from "@sites/ui";
+import { useIdioma } from "../i18n/contexto";
 import { Galeria } from "../components/Galeria";
 import { projects } from "../data/projects";
 import styles from "./Projects.module.css";
 
 export function Projects() {
+  const { t } = useIdioma();
+
   return (
     <Section id="proyectos" labelledBy="proyectos-titulo">
       <Container>
         <header className={styles.head}>
-          <p className="label">Proyectos</p>
+          <p className="label">{t({ es: "Proyectos", en: "Projects" })}</p>
           <h2 id="proyectos-titulo" className={styles.title}>
-            Lo que construí
+            {t({ es: "Lo que construí", en: "What I've built" })}
           </h2>
           <p className={styles.intro}>
-            Software propio, con el código a la vista. No prototipos: sistemas que
-            resuelven un problema concreto de alguien.
+            {t({
+              es: "Software propio, con el código a la vista. No prototipos: sistemas que resuelven un problema concreto de alguien.",
+              en: "My own software, with the source in the open. Not prototypes: systems that solve a concrete problem for someone.",
+            })}
           </p>
         </header>
 
@@ -26,24 +31,30 @@ export function Projects() {
                   <div className={styles.body}>
                     <div className={styles.heading}>
                       <h3 className={styles.name}>{project.name}</h3>
-                      <p className={styles.tagline}>{project.tagline}</p>
+                      <p className={styles.tagline}>{t(project.tagline)}</p>
                       {project.status ? (
-                        <span className={styles.status}>{project.status}</span>
+                        <span className={styles.status}>{t(project.status)}</span>
                       ) : null}
                     </div>
 
-                    <p className={styles.desc}>{project.description}</p>
+                    <p className={styles.desc}>{t(project.description)}</p>
 
                     <ul className={styles.highlights}>
                       {project.highlights.map((point) => (
-                        <li key={point} className={styles.highlight}>
-                          {point}
+                        <li key={t(point)} className={styles.highlight}>
+                          {t(point)}
                         </li>
                       ))}
                     </ul>
 
                     <div className={styles.foot}>
-                      <ul className={styles.tags} aria-label={`Stack de ${project.name}`}>
+                      <ul
+                        className={styles.tags}
+                        aria-label={t({
+                          es: `Stack de ${project.name}`,
+                          en: `${project.name} tech stack`,
+                        })}
+                      >
                         {project.stack.map((tech) => (
                           <li key={tech} className={styles.tag}>
                             {tech}
@@ -73,7 +84,10 @@ export function Projects() {
                               strokeLinejoin="round"
                             />
                           </svg>
-                          Ver el código en GitHub
+                          {t({
+                            es: "Ver el código en GitHub",
+                            en: "View the code on GitHub",
+                          })}
                         </a>
                       ) : null}
                     </div>

@@ -1,0 +1,432 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Tokens de los cuatro dibujantes.
+
+   Mismo criterio que los del visualizador de caminos: codifican un estado de
+   ejecución, no la identidad del sitio, así que viven acá. Se redefinen para
+   los tres estados de tema —sin elección, `oscuro` elegido, y `claro` elegido
+   pisando un sistema oscuro— igual que theme.css.
+
+   Los seis colores de grupo son categóricos: no hay orden entre ellos, así
+   que se eligieron por tono y no por intensidad. El primero coincide a
+   propósito con el verde de «pendiente» del otro visualizador.
+   ───────────────────────────────────────────────────────────────────────── */
+.lienzo {
+  --d-frio: #1c6b62;
+  --d-frio-fondo: rgb(28 107 98 / 0.14);
+  --d-apagado: #a89f92;
+
+  --g0: #1c6b62;
+  --g1: #b4541c;
+  --g2: #4a4b9c;
+  --g3: #7a7513;
+  --g4: #a03060;
+  --g5: #2b6ea8;
+
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="claro"])) .lienzo {
+    --d-frio: #63c9b8;
+    --d-frio-fondo: rgb(99 201 184 / 0.18);
+    --d-apagado: #6b6357;
+    --g0: #63c9b8;
+    --g1: #ef8b4c;
+    --g2: #9a9bf0;
+    --g3: #cfc44a;
+    --g4: #ef8fb8;
+    --g5: #7bbcef;
+  }
+}
+
+:global(:root[data-theme="oscuro"]) .lienzo {
+  --d-frio: #63c9b8;
+  --d-frio-fondo: rgb(99 201 184 / 0.18);
+  --d-apagado: #6b6357;
+  --g0: #63c9b8;
+  --g1: #ef8b4c;
+  --g2: #9a9bf0;
+  --g3: #cfc44a;
+  --g4: #ef8fb8;
+  --g5: #7bbcef;
+}
+
+/* ── Aristas ────────────────────────────────────────────────────────────── */
+.trazo {
+  fill: none;
+  stroke: var(--border-strong);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  transition:
+    stroke 0.2s ease,
+    stroke-width 0.2s ease;
+}
+
+.flecha {
+  fill: var(--border-strong);
+  transition: fill 0.2s ease;
+}
+
+.arista[data-estado="arbol"] .trazo {
+  stroke: var(--accent);
+  stroke-width: 1.4;
+}
+
+.arista[data-estado="arbol"] .flecha {
+  fill: var(--accent);
+}
+
+.arista[data-estado="mirando"] .trazo {
+  stroke: var(--d-frio);
+  stroke-width: 1.6;
+}
+
+.arista[data-estado="mirando"] .flecha {
+  fill: var(--d-frio);
+}
+
+/* Un puerto bloqueado no es un cable que no está: es un cable que está y no
+   se usa. Por eso se dibuja, cortado, en vez de desaparecer. */
+.arista[data-estado="apagada"] .trazo {
+  stroke: var(--d-apagado);
+  stroke-width: 0.7;
+  stroke-dasharray: 1.6 1.6;
+}
+
+.arista[data-estado="apagada"] .flecha {
+  fill: var(--d-apagado);
+}
+
+.arista[data-estado="tenue"] .trazo {
+  stroke: var(--border);
+  stroke-dasharray: 0.9 1.8;
+}
+
+.arista[data-estado="tenue"] .flecha {
+  fill: var(--border);
+}
+
+.peso {
+  fill: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 2.5px;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 1.1px;
+  stroke-linejoin: round;
+}
+
+.arista[data-estado="apagada"] .peso,
+.arista[data-estado="tenue"] .peso {
+  fill: var(--d-apagado);
+}
+
+/* ── Nodos ──────────────────────────────────────────────────────────────── */
+.disco {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 0.7;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+
+.nodo circle,
+.nodo rect,
+.nodo polygon,
+.nodo text {
+  transition:
+    cx 0.25s ease,
+    cy 0.25s ease,
+    x 0.25s ease,
+    y 0.25s ease;
+}
+
+.nodo[data-estado="activo"] .disco {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.nodo[data-estado="activo"] .dentro {
+  fill: var(--accent-contrast);
+}
+
+.nodo[data-estado="destacado"] .disco {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 1.4;
+}
+
+.nodo[data-estado="cerrado"] .disco {
+  fill: var(--bg-tint);
+  stroke: var(--accent);
+}
+
+.nodo[data-estado="pendiente"] .disco {
+  fill: var(--d-frio-fondo);
+  stroke: var(--d-frio);
+}
+
+.nodo[data-estado="descartado"] .disco {
+  fill: var(--surface);
+  stroke: var(--d-apagado);
+  stroke-dasharray: 1.4 1.4;
+}
+
+.dentro {
+  fill: var(--text);
+  font-family: var(--font-sans);
+  font-size: 3.4px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.nodo[data-estado="descartado"] .dentro {
+  fill: var(--d-apagado);
+}
+
+.nombre {
+  fill: var(--text);
+  font-family: var(--font-sans);
+  font-size: 3px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.etiqueta {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 2.7px;
+  text-anchor: middle;
+}
+
+.nodo[data-estado="descartado"] .etiqueta {
+  fill: var(--d-apagado);
+}
+
+.nodo[data-estado="destacado"] .etiqueta,
+.nodo[data-estado="activo"] .etiqueta {
+  fill: var(--accent-text);
+  font-weight: 700;
+}
+
+/* ── Plano ──────────────────────────────────────────────────────────────── */
+.ejes path {
+  fill: none;
+  stroke: var(--border-strong);
+  stroke-width: 0.5;
+}
+
+.ejeTexto {
+  fill: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 3px;
+  text-anchor: middle;
+}
+
+.curva {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.curva[data-tenue] {
+  stroke: var(--border-strong);
+  stroke-width: 0.6;
+}
+
+.curva[data-punteada] {
+  stroke-dasharray: 2 1.6;
+}
+
+.curva[data-grupo="0"] {
+  stroke: var(--g0);
+  stroke-width: 2.4;
+}
+.curva[data-grupo="1"] {
+  stroke: var(--g1);
+  stroke-width: 2.4;
+}
+.curva[data-grupo="2"] {
+  stroke: var(--g2);
+  stroke-width: 2.4;
+}
+.curva[data-grupo="3"] {
+  stroke: var(--g3);
+  stroke-width: 2.4;
+}
+.curva[data-grupo="4"] {
+  stroke: var(--g4);
+  stroke-width: 2.4;
+}
+.curva[data-grupo="5"] {
+  stroke: var(--g5);
+  stroke-width: 2.4;
+}
+
+.marca circle,
+.marca rect {
+  fill: var(--text-faint);
+  transition:
+    cx 0.3s ease,
+    cy 0.3s ease,
+    fill 0.2s ease;
+}
+
+.marca[data-grupo="0"] circle,
+.marca[data-grupo="0"] rect,
+.marca[data-grupo="0"] .cruz {
+  fill: var(--g0);
+  stroke: var(--g0);
+}
+.marca[data-grupo="1"] circle,
+.marca[data-grupo="1"] rect,
+.marca[data-grupo="1"] .cruz {
+  fill: var(--g1);
+  stroke: var(--g1);
+}
+.marca[data-grupo="2"] circle,
+.marca[data-grupo="2"] rect,
+.marca[data-grupo="2"] .cruz {
+  fill: var(--g2);
+  stroke: var(--g2);
+}
+.marca[data-grupo="3"] circle,
+.marca[data-grupo="3"] rect,
+.marca[data-grupo="3"] .cruz {
+  fill: var(--g3);
+  stroke: var(--g3);
+}
+.marca[data-grupo="4"] circle,
+.marca[data-grupo="4"] rect,
+.marca[data-grupo="4"] .cruz {
+  fill: var(--g4);
+  stroke: var(--g4);
+}
+.marca[data-grupo="5"] circle,
+.marca[data-grupo="5"] rect,
+.marca[data-grupo="5"] .cruz {
+  fill: var(--g5);
+  stroke: var(--g5);
+}
+
+.marca[data-forma="bolita"] circle {
+  stroke: var(--surface);
+  stroke-width: 1;
+}
+
+.marca[data-estado="activo"] circle {
+  stroke: var(--accent);
+  stroke-width: 1.4;
+}
+
+.marca[data-estado="destacado"] circle {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 1 1;
+}
+
+.marca[data-estado="descartado"] circle {
+  opacity: 0.32;
+}
+
+/* El centroide tiene que leerse como «no es un dato, es un cálculo»: por eso
+   es una cruz sobre un halo, y no un punto más grande. */
+.halo {
+  fill: var(--surface);
+  fill-opacity: 0.75;
+  stroke-width: 0.8;
+}
+
+.cruz {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+/* ── Arreglo ────────────────────────────────────────────────────────────── */
+.arreglo {
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+}
+
+.celdas {
+  display: flex;
+  gap: 2px;
+  min-width: max-content;
+}
+
+.columna {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 0;
+  min-width: 1.55rem;
+}
+
+.celdaArreglo {
+  display: grid;
+  place-items: center;
+  height: 2.4rem;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.celdaArreglo[data-estado="fuera"] {
+  opacity: 0.3;
+  background: var(--surface-sunken);
+  border-style: dashed;
+}
+
+.celdaArreglo[data-estado="medio"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 700;
+}
+
+.celdaArreglo[data-estado="hallada"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.puntero {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--accent-text);
+  min-height: 1rem;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trazo,
+  .disco,
+  .nodo circle,
+  .nodo rect,
+  .nodo polygon,
+  .nodo text,
+  .marca circle,
+  .marca rect,
+  .celdaArreglo {
+    transition: none;
+  }
+}

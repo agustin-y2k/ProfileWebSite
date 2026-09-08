@@ -1,0 +1,189 @@
+.pagina {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cabecera propia y no la de la portada: aquella navega entre secciones de una
+   sola página con scroll-spy, y acá no hay secciones a las que saltar. */
+.cabecera {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.cabeceraInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--header-h);
+}
+
+/* El selector de idioma y el de tema, juntos a la derecha de la cabecera. */
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.volver:hover {
+  color: var(--accent-text);
+}
+
+.hero {
+  padding-block: var(--space-8) var(--space-6);
+}
+
+.titulo {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 6vw, 3.25rem);
+  line-height: 1.1;
+  text-wrap: balance;
+  margin-block: 0.3em 0;
+}
+
+.bajada {
+  max-width: 62ch;
+  color: var(--text-muted);
+  font-size: clamp(1rem, 2.2vw, 1.125rem);
+  margin-top: var(--space-4);
+}
+
+.bajada strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.bloque {
+  padding-block: var(--space-8);
+}
+
+.tituloSeccion {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  margin-bottom: var(--space-2);
+}
+
+.introSeccion {
+  color: var(--text-muted);
+  max-width: 60ch;
+  margin-bottom: var(--space-6);
+}
+
+/* ── Catálogo ───────────────────────────────────────────────────────────── */
+.categorias {
+  display: grid;
+  gap: var(--space-6);
+}
+
+@media (min-width: 52rem) {
+  .categorias {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6) var(--space-5);
+  }
+}
+
+.categoria {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.categoriaNombre {
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+.categoriaIntro {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.entradas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+
+.entrada {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.entradaCabecera {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.entradaNombre {
+  font-weight: 500;
+}
+
+.entradaQue {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.marca {
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.marcaListo {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}
+
+/* Cruza de categoría. Va en itálica y apagado porque es una nota al pie de la
+   entrada, no una segunda descripción. */
+.entradaTambien {
+  font-size: 0.8125rem;
+  color: var(--text-faint);
+  font-style: italic;
+  text-wrap: pretty;
+}
+
+/* ── Dónde se usa ───────────────────────────────────────────────────────── */
+.usos {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (min-width: 52rem) {
+  .usos {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5) var(--space-6);
+  }
+}
+
+.uso h3 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.uso p {
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}

@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { Container, useLockBodyScroll, useScrolled, useScrollSpy } from "@sites/ui";
+import { useIdioma } from "../i18n/contexto";
+import { CV } from "../i18n/meta";
 import { navItems, sectionIds, site } from "../data/site";
+import { SelectorIdioma } from "./SelectorIdioma";
 import { ThemeToggle } from "./ThemeToggle";
 import styles from "./Header.module.css";
 
 export function Header() {
+  const { idioma, t } = useIdioma();
   const [open, setOpen] = useState(false);
   const scrolled = useScrolled(16);
   const active = useScrollSpy(sectionIds);
@@ -36,7 +40,7 @@ export function Header() {
           </span>
         </a>
 
-        <nav className={styles.nav} aria-label="Principal">
+        <nav className={styles.nav} aria-label={t({ es: "Principal", en: "Main" })}>
           {navItems.map((item) => (
             <a
               key={item.id}
@@ -44,10 +48,10 @@ export function Header() {
               className={styles.navLink}
               aria-current={active === item.id ? "true" : undefined}
             >
-              {item.label}
+              {t(item.label)}
             </a>
           ))}
-          <a className={styles.navCv} href="/cv">
+          <a className={styles.navCv} href={CV[idioma]}>
             CV
           </a>
           <a
@@ -71,13 +75,18 @@ export function Header() {
         </nav>
 
         <div className={styles.actions}>
+          <SelectorIdioma pagina="inicio" />
           <ThemeToggle />
           <button
             type="button"
             className={styles.menuButton}
             aria-expanded={open}
             aria-controls="menu-movil"
-            aria-label={open ? "Cerrar menú" : "Abrir menú"}
+            aria-label={
+              open
+                ? t({ es: "Cerrar menú", en: "Close menu" })
+                : t({ es: "Abrir menú", en: "Open menu" })
+            }
             onClick={() => setOpen((value) => !value)}
           >
             <span
@@ -109,10 +118,14 @@ export function Header() {
               className={styles.drawerLink}
               onClick={() => setOpen(false)}
             >
-              {item.label}
+              {t(item.label)}
             </a>
           ))}
-          <a className={styles.drawerLink} href="/cv" onClick={() => setOpen(false)}>
+          <a
+            className={styles.drawerLink}
+            href={CV[idioma]}
+            onClick={() => setOpen(false)}
+          >
             CV
           </a>
           <a

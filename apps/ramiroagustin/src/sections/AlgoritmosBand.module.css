@@ -1,0 +1,54 @@
+/* Misma anatomía que ByteFixBand —marca, texto, acción— pero con el acento
+   cálido del sitio en vez de una identidad ajena: esto es de acá adentro. */
+.band {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-tint);
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  flex: none;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.text {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  margin-bottom: var(--space-1);
+}
+
+.desc {
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.desc strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.cta {
+  flex: none;
+}
+
+@media (max-width: 34rem) {
+  .cta {
+    width: 100%;
+  }
+}

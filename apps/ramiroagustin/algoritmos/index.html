@@ -4,9 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Título, descripción, canónica, hreflang, Open Graph y JSON-LD: los
-         inyecta scripts/prerender.mjs, una vez por idioma, desde la tabla de
-         src/i18n/meta.ts. Ver el comentario de ese archivo. -->
+    <!-- Ver el comentario equivalente en index.html: este bloque lo arma
+         scripts/prerender.mjs desde src/i18n/meta.ts, un idioma por archivo. -->
     <!--meta-->
     <meta name="author" content="Ramiro Agustín Pintos" />
 
@@ -16,12 +15,10 @@
     <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#12110f" media="(prefers-color-scheme: dark)" />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="article" />
     <meta property="og:image" content="https://ramiroagustin.online/favicon.png" />
     <meta name="twitter:card" content="summary" />
 
-    <!-- Las dos fuentes que aparecen en el primer viewport. El resto de los
-         pesos carga bajo demanda con font-display: swap. -->
     <link
       rel="preload"
       href="/fonts/dm-sans-latin-400-normal.woff2"
@@ -38,9 +35,9 @@
     />
 
     <script>
-      /* Corre antes del primer paint para evitar el flash de tema claro en
-         quien eligió oscuro. Es la única razón por la que este script es
-         inline y bloqueante: diferirlo reintroduce el parpadeo. */
+      /* Idéntico al de la portada, y duplicado a propósito: tiene que correr
+         antes del primer paint, así que no puede venir de un módulo. Si se
+         toca uno, hay que tocar el otro. */
       (function () {
         document.documentElement.classList.add("js");
         try {
@@ -55,7 +52,7 @@
     </script>
   </head>
   <body>
-    <div id="root" data-pagina="inicio" data-idioma="es"><!--app-html--></div>
-    <script type="module" src="/src/entry-client.tsx"></script>
+    <div id="root" data-pagina="algoritmos" data-idioma="es"><!--app-html--></div>
+    <script type="module" src="/src/entry-algoritmos.tsx"></script>
   </body>
 </html>

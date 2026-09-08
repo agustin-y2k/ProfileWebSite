@@ -1,10 +1,11 @@
 import { Container, Section } from "@sites/ui";
+import { useIdioma } from "../i18n/contexto";
 import { site } from "../data/site";
 import styles from "./Contact.module.css";
 
 const channels = [
   {
-    label: "Correo",
+    label: { es: "Correo", en: "Email" },
     value: site.email,
     href: `mailto:${site.email}`,
     icon: (
@@ -18,7 +19,7 @@ const channels = [
     ),
   },
   {
-    label: "GitHub",
+    label: "GitHub", // el nombre propio no se traduce
     value: "agustin-y2k",
     href: site.github,
     external: true,
@@ -33,7 +34,7 @@ const channels = [
     ),
   },
   {
-    label: "Teléfono",
+    label: { es: "Teléfono", en: "Phone" },
     value: site.phone.display,
     href: site.phone.href,
     icon: (
@@ -48,23 +49,27 @@ const channels = [
 ];
 
 export function Contact() {
+  const { t } = useIdioma();
+
   return (
     <Section id="contacto" labelledBy="contacto-titulo" tone="alt">
       <Container>
         <header className={styles.head}>
-          <p className="label">Contacto</p>
+          <p className="label">{t({ es: "Contacto", en: "Contact" })}</p>
           <h2 id="contacto-titulo" className={styles.title}>
-            Contame qué necesitás
+            {t({ es: "Cuéntame qué necesitas", en: "Tell me what you need" })}
           </h2>
           <p className={styles.intro}>
-            Escribime qué pasa con tu equipo, tu red o tu idea de software y te respondo
-            con algo concreto: qué se puede hacer, cómo y cuánto.
+            {t({
+              es: "Escríbeme qué pasa con tu equipo, tu red o tu idea de software y te respondo con algo concreto: qué se puede hacer, cómo y cuánto.",
+              en: "Write to me about your machine, your network or your software idea and I'll come back with something concrete: what can be done, how, and what it costs.",
+            })}
           </p>
         </header>
 
         <ul className={styles.grid}>
           {channels.map((channel) => (
-            <li key={channel.label}>
+            <li key={t(channel.label)}>
               <a
                 className={styles.card}
                 href={channel.href}
@@ -77,7 +82,7 @@ export function Contact() {
                     {channel.icon}
                   </svg>
                 </span>
-                <span className={styles.cardLabel}>{channel.label}</span>
+                <span className={styles.cardLabel}>{t(channel.label)}</span>
                 <span className={styles.cardValue}>{channel.value}</span>
               </a>
             </li>
