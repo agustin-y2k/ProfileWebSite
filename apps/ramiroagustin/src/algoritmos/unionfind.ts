@@ -10,11 +10,10 @@ import type {
 /**
  * Union-Find, la estructura que contesta «¿estos dos ya están conectados?».
  *
- * Es la que usa Kruskal para armar un árbol de expansión mínima sin cerrar
- * bucles, y la misma pregunta que se hace un switch antes de reenviar. También
- * es el ejemplo más limpio que existe de dos optimizaciones chiquitas que
+ * Es el ejemplo más limpio que existe de dos optimizaciones chiquitas que
  * cambian la complejidad de la estructura entera: unión por tamaño y
- * compresión de caminos.
+ * compresión de caminos. Cada una es una línea, y las dos se ven en pantalla
+ * como lo que son — árboles que dejan de crecer para abajo.
  *
  * Los tres escenarios corren las mismas operaciones con reglas distintas, así
  * que la diferencia de profundidad que se ve en pantalla es enteramente de las
@@ -234,8 +233,8 @@ export function correrUnionFind(escenario: string): PasoEscena[] {
     if (ra === rb) {
       activo = null;
       paso(11, {
-        es: `<b>unir(${op.a}, ${op.b})</b>: los dos ya tienen la misma raíz, <b>${ra}</b>. No hay nada que hacer. <em>Si esto fueran cables, ese sería el que cierra el bucle</em> — y es exactamente así como Kruskal decide no ponerlo.`,
-        en: `<b>union(${op.a}, ${op.b})</b>: both already share the same root, <b>${ra}</b>. There is nothing to do. <em>If these were cables, that would be the one closing the loop</em> — and this is exactly how Kruskal decides not to lay it.`,
+        es: `<b>unir(${op.a}, ${op.b})</b>: los dos ya tienen la misma raíz, <b>${ra}</b>, así que no hay nada que hacer. <em>Y ese «nada que hacer» es la respuesta útil</em>: pedir una unión que ya estaba hecha es, exactamente, haber encontrado un ciclo — sin recorrer nada y sin buscarlo.`,
+        en: `<b>union(${op.a}, ${op.b})</b>: both already share the same root, <b>${ra}</b>, so there is nothing to do. <em>And that «nothing to do» is the useful answer</em>: asking for a union that already holds is, precisely, having found a cycle — without walking anything and without looking for it.`,
       });
       continue;
     }

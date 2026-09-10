@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ALGORITMOS, type Definicion } from "../algoritmos/definiciones";
-import { armar, ESCENARIOS as TABLEROS } from "../algoritmos/escenarios";
+import { armar, TABLEROS } from "../algoritmos/escenarios";
 import type { Escena, ItemPanel, PasoEscena } from "../algoritmos/escena";
 import type { Paso } from "../algoritmos/motor";
 import { IDIOMAS, type Frase } from "./idioma";
@@ -68,7 +68,9 @@ const corridas = (): [string, (Frase | undefined)[]][] =>
     a.escenarios.map((e): [string, (Frase | undefined)[]] => [
       `${a.id} / ${e.id}`,
       a.familia === "grilla"
-        ? a.correr(armar(TABLEROS.find((t) => t.id === e.id)!)).flatMap(deUnPasoDeGrilla)
+        ? a
+            .correr(armar(TABLEROS.find((t) => t.id === e.id)!), e.id)
+            .flatMap(deUnPasoDeGrilla)
         : a.correr(e.id).flatMap(deUnPaso),
     ]),
   );
@@ -89,7 +91,6 @@ describe("Ninguna frase se queda en español", () => {
         a.nombre,
         a.panel,
         a.tesis,
-        a.tambien,
         a.indice?.nombre,
         a.indice?.que,
         ...a.escenarios.map((e) => e.nombre),

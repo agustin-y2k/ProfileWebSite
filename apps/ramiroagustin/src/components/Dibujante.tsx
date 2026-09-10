@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import type {
   Escena,
   EscenaArreglo,
@@ -213,16 +214,58 @@ function Plano({ escena, etiqueta }: { escena: EscenaPlano; etiqueta: string }) 
 // ── Arreglo ────────────────────────────────────────────────────────────────
 function Arreglo({ escena, etiqueta }: { escena: EscenaArreglo; etiqueta: string }) {
   const { t } = useIdioma();
+  const caja = useRef<HTMLDivElement>(null);
   const punteros = new Map<number, string[]>();
   for (const p of escena.punteros) {
     punteros.set(p.indice, [...(punteros.get(p.indice) ?? []), t(p.nombre)]);
   }
 
+  /**
+   * La celda que el algoritmo está mirando. En un arreglo de treinta y dos
+   * valores no entra ni un tercio en la pantalla de un teléfono, y sin esto la
+   * búsqueda binaria salta al índice 15 y después al 23 —o sea, fuera de la
+   * vista— mientras en pantalla no se mueve nada. Se ven las siete primeras
+   * celdas quietas y el veredicto contando pasos que nadie vio dar.
+   *
+   * En un monitor no hace nada: si el arreglo entra entero no hay adónde
+   * desplazarse, y `scrollTo` sobre un contenedor sin sobrante es un no-op.
+   */
+  const foco = escena.celdas.findIndex(
+    (c) => c.estado === "medio" || c.estado === "hallada",
+  );
+
+  useEffect(() => {
+    const cont = caja.current;
+    if (!cont || foco < 0) return;
+
+    const col = cont.querySelectorAll<HTMLElement>("[data-columna]")[foco];
+    if (!col) return;
+
+    // Coordenada de la celda dentro del contenido, no de la página: offsetLeft
+    // se mide contra el offsetParent, que acá no es el contenedor que scrollea.
+    const marco = cont.getBoundingClientRect();
+    const celda = col.getBoundingClientRect();
+    const izquierda = celda.left - marco.left + cont.scrollLeft;
+    const derecha = izquierda + celda.width;
+
+    // Si ya se ve, no se toca. Recentrar en cada paso haría temblar el arreglo
+    // entero cuando el rango es chico y el medio se mueve de a una celda.
+    if (izquierda >= cont.scrollLeft && derecha <= cont.scrollLeft + cont.clientWidth) {
+      return;
+    }
+
+    // Asignación directa, y sin `scroll-behavior: smooth` en el contenedor: el
+    // desplazamiento suave se ignora en varios contextos y ahí no scrollea
+    // nada, ni por scrollTo({behavior}) ni por asignación. Instantáneo llega
+    // siempre — y para seguir un puntero que salta, además es lo que se quiere.
+    cont.scrollLeft = Math.max(0, izquierda + celda.width / 2 - cont.clientWidth / 2);
+  }, [foco]);
+
   return (
-    <div className={styles.arreglo} role="img" aria-label={etiqueta}>
+    <div className={styles.arreglo} role="img" aria-label={etiqueta} ref={caja}>
       <div className={styles.celdas}>
         {escena.celdas.map((c, i) => (
-          <div key={i} className={styles.columna}>
+          <div key={i} className={styles.columna} data-columna={i}>
             <div className={styles.celdaArreglo} data-estado={c.estado ?? "rango"}>
               {c.valor}
             </div>

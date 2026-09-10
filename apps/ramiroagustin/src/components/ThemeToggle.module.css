@@ -63,3 +63,12 @@
     transform: rotate(70deg) scale(0.6);
   }
 }
+
+/* 2.5rem son 40px, cuatro por debajo del mínimo táctil recomendado. En un
+   monitor da igual —hay puntero— pero en un teléfono se falla el toque. */
+@media (max-width: 48rem) {
+  .toggle {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}

@@ -1,20 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@sites/ui";
 import {
-  ALGORITMOS,
   CATEGORIAS,
   deCategoria,
   porId,
   type Definicion,
   type Escenario,
 } from "../algoritmos/definiciones";
-import { armar, ESCENARIOS } from "../algoritmos/escenarios";
+import { armar, TABLEROS } from "../algoritmos/escenarios";
 import type { ItemPanel, PasoEscena } from "../algoritmos/escena";
 import { useIdioma } from "../i18n/contexto";
 import {
   COLS,
-  correrAEstrella,
-  correrDijkstra,
+  costoOptimo,
   DESTINO,
   nombre,
   ORIGEN,
@@ -24,7 +22,31 @@ import {
 import { Dibujante } from "./Dibujante";
 import styles from "./Visualizador.module.css";
 
-const COMPARAR = "comparar";
+type Ritmo = "lenta" | "normal" | "rapida";
+
+/**
+ * Cuánto dura cada paso.
+ *
+ * No es un número fijo, y no puede serlo: las corridas van de 9 pasos —hashing
+ * consistente— a 547 —A* sobre «Sin salida»—. Con un retardo único, o el corto
+ * pasa volando antes de que se pueda leer una sola línea, o el largo se hace
+ * eterno. Con 60 ms parejos, hashing terminaba en medio segundo.
+ *
+ * Así que lo que se elige es <b>cuánto dura la corrida entera</b>, y el retardo
+ * por paso sale de dividir. Los topes existen para los dos extremos: sin el de
+ * arriba, una corrida de nueve pasos daría ocho segundos por paso; sin el de
+ * abajo, una de quinientos parpadearía.
+ */
+const RITMOS: Record<Ritmo, { corrida: number; min: number; max: number }> = {
+  lenta: { corrida: 75_000, min: 110, max: 2000 },
+  normal: { corrida: 30_000, min: 55, max: 1000 },
+  rapida: { corrida: 9_000, min: 12, max: 320 },
+};
+
+const retardo = (ritmo: Ritmo, pasos: number) => {
+  const r = RITMOS[ritmo];
+  return Math.min(r.max, Math.max(r.min, Math.round(r.corrida / Math.max(pasos, 1))));
+};
 
 /**
  * Estado del tablero en un paso dado.
@@ -35,7 +57,7 @@ const COMPARAR = "comparar";
  * milisegundo. Además es lo que permite arrastrar la barra de tiempo hacia
  * atrás sin re-ejecutar el algoritmo.
  *
- * Los otros nueve algoritmos no necesitan esto: sus escenas ya son fotos
+ * Los otros diez algoritmos no necesitan esto: sus escenas ya son fotos
  * completas, porque un grafo de seis nodos entra entero en cada paso.
  */
 type Acumulado = {
@@ -125,57 +147,45 @@ function Grilla({
 export function Visualizador() {
   const { idioma, t } = useIdioma();
   const [algoritmoId, setAlgoritmoId] = useState("dijkstra");
-  const [escenarioId, setEscenarioId] = useState("rodeo");
+  const [escenarioId, setEscenarioId] = useState("spf");
   const [indice, setIndice] = useState(0);
   const [animar, setAnimar] = useState(false);
   const [reproduciendo, setReproduciendo] = useState(false);
-  const [velocidad, setVelocidad] = useState(60);
+  const [ritmo, setRitmo] = useState<Ritmo>("normal");
   const [pestana, setPestana] = useState<"codigo" | "cola">("codigo");
   const montado = useRef(false);
 
-  const comparando = algoritmoId === COMPARAR;
-  const def: Definicion | null = comparando ? null : porId(algoritmoId);
-  const deGrilla = comparando || def!.familia === "grilla";
+  const def: Definicion = porId(algoritmoId);
+  const deGrilla = def.familia === "grilla";
 
   // El escenario elegido puede no existir para el algoritmo nuevo —los
-  // tableros son de los cuatro de la grilla y nada más—, así que se cae al
+  // tableros son de los tres de la grilla y nada más—, así que se cae al
   // primero en vez de guardarse un estado inválido o forzar un efecto.
-  const escenarios: Escenario[] = comparando ? tablerosComoEscenarios() : def!.escenarios;
+  const escenarios: Escenario[] = def.escenarios;
   const escenario = escenarios.find((e) => e.id === escenarioId) ?? escenarios[0]!;
 
   const terreno = useMemo(
     () =>
       deGrilla
-        ? armar(ESCENARIOS.find((e) => e.id === escenario.id) ?? ESCENARIOS[0]!)
+        ? armar(TABLEROS.find((e) => e.id === escenario.id) ?? TABLEROS[0]!)
         : null,
     [deGrilla, escenario.id],
   );
 
-  const pasos = useMemo<Paso[] | null>(() => {
-    if (!terreno) return null;
-    if (comparando) return correrDijkstra(terreno);
-    return def!.familia === "grilla" ? def!.correr(terreno) : null;
-  }, [comparando, def, terreno]);
-
-  const pasosB = useMemo(
-    () => (comparando && terreno ? correrAEstrella(terreno) : null),
-    [comparando, terreno],
+  const pasos = useMemo<Paso[] | null>(
+    () =>
+      terreno && def.familia === "grilla" ? def.correr(terreno, escenario.id) : null,
+    [def, terreno, escenario.id],
   );
 
   const escenas = useMemo<PasoEscena[] | null>(
-    () => (def && def.familia === "escena" ? def.correr(escenario.id) : null),
+    () => (def.familia === "escena" ? def.correr(escenario.id) : null),
     [def, escenario.id],
   );
 
-  const total = comparando
-    ? Math.max(pasos!.length, pasosB!.length)
-    : (pasos?.length ?? escenas!.length);
+  const total = pasos?.length ?? escenas!.length;
 
   const estado = useMemo(() => (pasos ? acumular(pasos, indice) : null), [pasos, indice]);
-  const estadoB = useMemo(
-    () => (pasosB ? acumular(pasosB, indice) : null),
-    [pasosB, indice],
-  );
   const cuadro = escenas
     ? escenas[Math.min(Math.max(indice, 0), escenas.length - 1)]!
     : null;
@@ -214,12 +224,15 @@ export function Visualizador() {
       setReproduciendo(false);
       return;
     }
-    const id = setTimeout(() => {
-      setIndice((n) => n + 1);
-      setAnimar(true);
-    }, velocidad);
+    const id = setTimeout(
+      () => {
+        setIndice((n) => n + 1);
+        setAnimar(true);
+      },
+      retardo(ritmo, total),
+    );
     return () => clearTimeout(id);
-  }, [reproduciendo, indice, velocidad, total]);
+  }, [reproduciendo, indice, ritmo, total]);
 
   const resumen = estado?.paso.resumen;
   const sellando = animar ? (estado?.paso.cerrar ?? null) : null;
@@ -240,37 +253,21 @@ export function Visualizador() {
           aria-label={t(categoria.nombre)}
         >
           <span className={styles.etiquetaSelector}>{t(categoria.nombre)}</span>
-          {deCategoria(categoria.id).map((a) => (
-            <button
-              key={a.id}
-              type="button"
-              className={styles.opcion}
-              aria-pressed={algoritmoId === a.id}
-              onClick={() => setAlgoritmoId(a.id)}
-            >
-              {t(a.nombre)}
-            </button>
-          ))}
+          <div className={styles.opciones}>
+            {deCategoria(categoria.id).map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                className={styles.opcion}
+                aria-pressed={algoritmoId === a.id}
+                onClick={() => setAlgoritmoId(a.id)}
+              >
+                {t(a.nombre)}
+              </button>
+            ))}
+          </div>
         </div>
       ))}
-
-      <div
-        className={styles.filaSelector}
-        role="group"
-        aria-label={t({ es: "Comparar", en: "Compare" })}
-      >
-        <span className={styles.etiquetaSelector}>
-          {t({ es: "Lado a lado", en: "Side by side" })}
-        </span>
-        <button
-          type="button"
-          className={styles.opcion}
-          aria-pressed={comparando}
-          onClick={() => setAlgoritmoId(COMPARAR)}
-        >
-          Dijkstra vs A*
-        </button>
-      </div>
 
       <div
         className={styles.filaSelector}
@@ -280,104 +277,49 @@ export function Visualizador() {
         <span className={styles.etiquetaSelector}>
           {t({ es: "Escenario", en: "Scenario" })}
         </span>
-        {escenarios.map((e) => (
-          <button
-            key={e.id}
-            type="button"
-            className={styles.opcion}
-            aria-pressed={escenario.id === e.id}
-            onClick={() => setEscenarioId(e.id)}
-          >
-            {t(e.nombre)}
-          </button>
-        ))}
+        <div className={styles.opciones}>
+          {escenarios.map((e) => (
+            <button
+              key={e.id}
+              type="button"
+              className={styles.opcion}
+              aria-pressed={escenario.id === e.id}
+              onClick={() => setEscenarioId(e.id)}
+            >
+              {t(e.nombre)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* El HTML de las tesis y las narraciones es literal nuestro, escrito en
           definiciones.ts y en los motores. No hay entrada de usuario en el camino. */}
-      <p
-        className={styles.tesis}
-        dangerouslySetInnerHTML={{
-          __html: comparando
-            ? t({
-                es: "El mismo tablero y los dos algoritmos, paso a paso. <em>La diferencia no está en el camino que encuentran —es el mismo, y los dos son óptimos— sino en cuánto tablero tienen que abrir para estar seguros.</em>",
-                en: "The same board and both algorithms, step by step. <em>The difference is not in the path they find —it is the same path, and both are optimal— but in how much of the board they have to open to be sure.</em>",
-              })
-            : t(def!.tesis),
-        }}
-      />
+      <p className={styles.tesis} dangerouslySetInnerHTML={{ __html: t(def.tesis) }} />
 
-      <div className={comparando ? `${styles.taller} ${styles.ancho}` : styles.taller}>
+      <div className={styles.taller}>
         <div className={styles.columna}>
-          {comparando ? (
-            <div className={styles.comparar}>
-              <div className={styles.lado}>
-                <div className={styles.ladoCabecera}>
-                  <span className={styles.ladoNombre}>Dijkstra</span>
-                  <span className={styles.ladoContador}>
-                    {estado!.paso.cerrados}{" "}
-                    <span>{t({ es: "celdas abiertas", en: "cells opened" })}</span>
-                  </span>
-                </div>
-                <div className={styles.marco}>
-                  <Grilla
-                    terreno={terreno!}
-                    estado={estado!}
-                    sellando={sellando}
-                    marca={indice}
-                    etiqueta={t({
-                      es: "Recorrido de Dijkstra",
-                      en: "Dijkstra\u2019s traversal",
-                    })}
-                  />
-                </div>
-              </div>
-              <div className={styles.lado}>
-                <div className={styles.ladoCabecera}>
-                  <span className={styles.ladoNombre}>A*</span>
-                  <span className={styles.ladoContador}>
-                    {estadoB!.paso.cerrados}{" "}
-                    <span>{t({ es: "celdas abiertas", en: "cells opened" })}</span>
-                  </span>
-                </div>
-                <div className={styles.marco}>
-                  <Grilla
-                    terreno={terreno!}
-                    estado={estadoB!}
-                    sellando={animar ? estadoB!.paso.cerrar : null}
-                    marca={indice}
-                    etiqueta={t({
-                      es: "Recorrido de A estrella",
-                      en: "A-star traversal",
-                    })}
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className={styles.marco}>
-              {cuadro ? (
-                <Dibujante
-                  escena={cuadro.escena}
-                  etiqueta={t({
-                    es: `${t(def!.nombre)} paso a paso`,
-                    en: `${t(def!.nombre)} step by step`,
-                  })}
-                />
-              ) : (
-                <Grilla
-                  terreno={terreno!}
-                  estado={estado!}
-                  sellando={sellando}
-                  marca={indice}
-                  etiqueta={t({
-                    es: `Recorrido de ${t(def!.nombre)}`,
-                    en: `${t(def!.nombre)} traversal`,
-                  })}
-                />
-              )}
-            </div>
-          )}
+          <div className={styles.marco}>
+            {cuadro ? (
+              <Dibujante
+                escena={cuadro.escena}
+                etiqueta={t({
+                  es: `${t(def.nombre)} paso a paso`,
+                  en: `${t(def.nombre)} step by step`,
+                })}
+              />
+            ) : (
+              <Grilla
+                terreno={terreno!}
+                estado={estado!}
+                sellando={sellando}
+                marca={indice}
+                etiqueta={t({
+                  es: `Recorrido de ${t(def.nombre)}`,
+                  en: `${t(def.nombre)} traversal`,
+                })}
+              />
+            )}
+          </div>
 
           {deGrilla && (
             <div className={styles.leyenda}>
@@ -399,36 +341,24 @@ export function Visualizador() {
             </div>
           )}
 
-          {!comparando && (
-            <div className={styles.narracion}>
-              <p className={styles.narracionTitulo}>
-                {t({ es: "Qué está pasando", en: "What is happening" })}
-              </p>
-              <p
-                className={styles.narracionTexto}
-                dangerouslySetInnerHTML={{ __html: t(narracion) }}
-              />
-            </div>
-          )}
-
-          {comparando ? (
-            <ResultadoComparado
-              a={pasos![pasos!.length - 1]!.resumen!}
-              b={pasosB![pasosB!.length - 1]!.resumen!}
-              listo={indice >= total - 1}
+          <div className={styles.narracion}>
+            <p className={styles.narracionTitulo}>
+              {t({ es: "Qué está pasando", en: "What is happening" })}
+            </p>
+            <p
+              className={styles.narracionTexto}
+              dangerouslySetInnerHTML={{ __html: t(narracion) }}
             />
-          ) : cuadro ? (
-            cuadro.veredicto && (
-              <p
-                className={styles.resultado}
-                dangerouslySetInnerHTML={{ __html: t(cuadro.veredicto) }}
-              />
-            )
-          ) : (
-            resumen && (
-              <Resultado resumen={resumen} algoritmoId={algoritmoId} terreno={terreno!} />
-            )
-          )}
+          </div>
+
+          {cuadro
+            ? cuadro.veredicto && (
+                <p
+                  className={styles.resultado}
+                  dangerouslySetInnerHTML={{ __html: t(cuadro.veredicto) }}
+                />
+              )
+            : resumen && <Resultado resumen={resumen} terreno={terreno!} />}
 
           <div className={styles.controles}>
             <Button
@@ -461,13 +391,10 @@ export function Visualizador() {
             </Button>
             <label className={styles.selector}>
               <span>{t({ es: "Velocidad", en: "Speed" })}</span>
-              <select
-                value={velocidad}
-                onChange={(e) => setVelocidad(Number(e.target.value))}
-              >
-                <option value={240}>{t({ es: "Lenta", en: "Slow" })}</option>
-                <option value={60}>{t({ es: "Normal", en: "Normal" })}</option>
-                <option value={8}>{t({ es: "Rápida", en: "Fast" })}</option>
+              <select value={ritmo} onChange={(e) => setRitmo(e.target.value as Ritmo)}>
+                <option value="lenta">{t({ es: "Lenta", en: "Slow" })}</option>
+                <option value="normal">{t({ es: "Normal", en: "Normal" })}</option>
+                <option value="rapida">{t({ es: "Rápida", en: "Fast" })}</option>
               </select>
             </label>
           </div>
@@ -487,73 +414,66 @@ export function Visualizador() {
           </div>
         </div>
 
-        {!comparando && (
-          <div className={styles.columna}>
-            <div className={styles.pestanas} role="tablist">
-              <button
-                type="button"
-                role="tab"
-                className={styles.pestana}
-                aria-selected={pestana === "codigo"}
-                onClick={() => setPestana("codigo")}
-              >
-                {t({ es: "Código", en: "Code" })}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                className={styles.pestana}
-                aria-selected={pestana === "cola"}
-                onClick={() => setPestana("cola")}
-              >
-                {t({ es: "Estado", en: "State" })}
-              </button>
-            </div>
-
-            <section
-              className={
-                pestana === "codigo"
-                  ? styles.seccionPanel
-                  : `${styles.seccionPanel} ${styles.ocultaEnMovil}`
-              }
+        <div className={styles.columna}>
+          <div className={styles.pestanas} role="tablist">
+            <button
+              type="button"
+              role="tab"
+              className={styles.pestana}
+              aria-selected={pestana === "codigo"}
+              onClick={() => setPestana("codigo")}
             >
-              <p className={styles.panelTitulo}>
-                {t({
-                  es: "La línea que se está ejecutando",
-                  en: "The line being executed",
-                })}
-              </p>
-              <div className={styles.codigo}>
-                <ol>
-                  {def!.codigo[idioma].map((l, i) => (
-                    <li key={i} className={linea === i + 1 ? styles.activa : undefined}>
-                      {l}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </section>
-
-            <section
-              className={
-                pestana === "cola"
-                  ? styles.seccionPanel
-                  : `${styles.seccionPanel} ${styles.ocultaEnMovil}`
-              }
+              {t({ es: "Código", en: "Code" })}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              className={styles.pestana}
+              aria-selected={pestana === "cola"}
+              onClick={() => setPestana("cola")}
             >
-              <p className={styles.panelTitulo}>{t(def!.panel)}</p>
-              <Panel items={items} />
-            </section>
+              {t({ es: "Estado", en: "State" })}
+            </button>
           </div>
-        )}
+
+          <section
+            className={
+              pestana === "codigo"
+                ? styles.seccionPanel
+                : `${styles.seccionPanel} ${styles.ocultaEnMovil}`
+            }
+          >
+            <p className={styles.panelTitulo}>
+              {t({
+                es: "La línea que se está ejecutando",
+                en: "The line being executed",
+              })}
+            </p>
+            <div className={styles.codigo}>
+              <ol>
+                {def.codigo[idioma].map((l, i) => (
+                  <li key={i} className={linea === i + 1 ? styles.activa : undefined}>
+                    {l}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+
+          <section
+            className={
+              pestana === "cola"
+                ? styles.seccionPanel
+                : `${styles.seccionPanel} ${styles.ocultaEnMovil}`
+            }
+          >
+            <p className={styles.panelTitulo}>{t(def.panel)}</p>
+            <Panel items={items} />
+          </section>
+        </div>
       </div>
     </div>
   );
-}
-
-/** Los escenarios del comparador son los tableros, igual que los de la grilla. */
-function tablerosComoEscenarios(): Escenario[] {
-  return ALGORITMOS.find((a) => a.id === "dijkstra")!.escenarios;
 }
 
 function Panel({ items }: { items: ItemPanel[] }) {
@@ -599,23 +519,24 @@ function Panel({ items }: { items: ItemPanel[] }) {
 
 function Resultado({
   resumen,
-  algoritmoId,
   terreno,
 }: {
   resumen: NonNullable<Paso["resumen"]>;
-  algoritmoId: string;
   terreno: Terreno[];
 }) {
   const { t } = useIdioma();
 
   // Para los que no garantizan el óptimo, el dato que importa es cuánto se
-  // pasaron; para A*, cuánto tablero se ahorró. Los dos se miden contra
-  // Dijkstra sobre el mismo terreno, así que hay que correrlo.
-  const referencia = useMemo(() => {
-    if (algoritmoId === "dijkstra") return null;
-    const pasos = correrDijkstra(terreno);
-    return pasos[pasos.length - 1]!.resumen!;
-  }, [algoritmoId, terreno]);
+  // pasaron. El mínimo es una propiedad del tablero, no de otro algoritmo:
+  // se calcula callado sobre el mismo terreno.
+  const optimo = useMemo(() => costoOptimo(terreno), [terreno]);
+
+  // Un laberinto no tiene qué pesar: hablar de «costo» ahí sería inventar una
+  // unidad que el tablero no usa, y el barro siempre daría cero.
+  const laberinto = useMemo(
+    () => terreno.every((c) => c === "libre" || c === "muro"),
+    [terreno],
+  );
 
   if (resumen.costo === null) {
     return (
@@ -631,7 +552,33 @@ function Resultado({
     );
   }
 
-  const exceso = referencia?.costo != null ? resumen.costo - referencia.costo : 0;
+  const exceso = optimo !== null ? resumen.costo - optimo : 0;
+
+  if (laberinto) {
+    return (
+      <p
+        className={styles.resultado}
+        dangerouslySetInnerHTML={{
+          __html:
+            t({
+              es: `Camino de <b>${resumen.largo}</b> casillas · abrió <b>${resumen.expandidas}</b> para encontrarlo`,
+              en: `A path of <b>${resumen.largo}</b> squares · opened <b>${resumen.expandidas}</b> to find it`,
+            }) +
+            t(
+              exceso > 0
+                ? {
+                    es: `. El más corto tenía <b>${optimo! + 1}</b>: se pasó por <b>${exceso}</b>.`,
+                    en: `. The shortest one had <b>${optimo! + 1}</b>: it overshot by <b>${exceso}</b>.`,
+                  }
+                : {
+                    es: `, y es el más corto que existe.`,
+                    en: `, and it is the shortest one there is.`,
+                  },
+            ),
+        }}
+      />
+    );
+  }
 
   const barro = (n: number) => ({
     es:
@@ -644,20 +591,13 @@ function Resultado({
         : `, stepping in mud ${n} ${n === 1 ? "time" : "times"}.`,
   });
 
-  const demas = [
+  const demas =
     exceso > 0
       ? {
-          es: ` El óptimo era <b>${referencia!.costo}</b>: se pasó por <b>${exceso}</b>.`,
-          en: ` The optimum was <b>${referencia!.costo}</b>: it overshot by <b>${exceso}</b>.`,
+          es: ` El camino más barato del tablero costaba <b>${optimo}</b>: se pasó por <b>${exceso}</b>.`,
+          en: ` The cheapest path on this board cost <b>${optimo}</b>: it overshot by <b>${exceso}</b>.`,
         }
-      : { es: "", en: "" },
-    algoritmoId === "astar" && referencia
-      ? {
-          es: ` Dijkstra abrió <b>${referencia.expandidas}</b> para el mismo camino.`,
-          en: ` Dijkstra opened <b>${referencia.expandidas}</b> for the same path.`,
-        }
-      : { es: "", en: "" },
-  ];
+      : { es: "", en: "" };
 
   return (
     <p
@@ -669,49 +609,7 @@ function Resultado({
             en: `Cost <b>${resumen.costo}</b> · a path of <b>${resumen.largo}</b> cells · opened <b>${resumen.expandidas}</b> to find it`,
           }) +
           t(barro(resumen.barro)) +
-          demas.map((d) => t(d)).join(""),
-      }}
-    />
-  );
-}
-
-function ResultadoComparado({
-  a,
-  b,
-  listo,
-}: {
-  a: NonNullable<Paso["resumen"]>;
-  b: NonNullable<Paso["resumen"]>;
-  listo: boolean;
-}) {
-  const { t } = useIdioma();
-
-  if (!listo) return null;
-
-  if (a.costo === null) {
-    return (
-      <p
-        className={styles.resultado}
-        dangerouslySetInnerHTML={{
-          __html: t({
-            es: `Ninguno de los dos llega: no hay camino. Los dos tuvieron que abrir el mapa entero para saberlo — <b>${a.expandidas}</b> celdas cada uno. La corazonada no ayuda cuando la respuesta es «no existe».`,
-            en: `Neither of them arrives: there is no path. Both had to open the entire map to know that — <b>${a.expandidas}</b> cells each. A hunch is no help when the answer is «it does not exist».`,
-          }),
-        }}
-      />
-    );
-  }
-
-  const ahorro = Math.round((1 - b.expandidas / a.expandidas) * 100);
-
-  return (
-    <p
-      className={styles.resultado}
-      dangerouslySetInnerHTML={{
-        __html: t({
-          es: `Mismo camino y mismo costo <b>${a.costo}</b>. Dijkstra abrió <b>${a.expandidas}</b> celdas; A*, <b>${b.expandidas}</b>: un <b>${ahorro}%</b> menos de tablero para llegar a la misma respuesta.`,
-          en: `Same path and same cost <b>${a.costo}</b>. Dijkstra opened <b>${a.expandidas}</b> cells; A*, <b>${b.expandidas}</b>: <b>${ahorro}%</b> less board to reach the very same answer.`,
-        }),
+          t(demas),
       }}
     />
   );

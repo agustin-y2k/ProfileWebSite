@@ -11,6 +11,20 @@
    propósito con el verde de «pendiente» del otro visualizador.
    ───────────────────────────────────────────────────────────────────────── */
 .lienzo {
+  /*
+   * El cuerpo de la tipografía va en unidades del viewBox, así que escala con
+   * el dibujo: lo que en un monitor mide 15px, en un teléfono mide 7 y deja de
+   * leerse. No hay forma de fijarlo en píxeles dentro de un SVG que escala, así
+   * que la salida es agrandar la letra RESPECTO del dibujo cuando la escena se
+   * dibuja chica. Por eso son variables: se mueven las cinco de una.
+   */
+  --t-peso: 2.5px;
+  --t-dentro: 3.4px;
+  --t-nombre: 3px;
+  --t-etiqueta: 2.7px;
+  --t-eje: 3px;
+  --t-halo: 1.1px;
+
   --d-frio: #1c6b62;
   --d-frio-fondo: rgb(28 107 98 / 0.14);
   --d-apagado: #a89f92;
@@ -112,11 +126,11 @@
 .peso {
   fill: var(--text-faint);
   font-family: var(--font-mono);
-  font-size: 2.5px;
+  font-size: var(--t-peso);
   text-anchor: middle;
   paint-order: stroke;
   stroke: var(--surface);
-  stroke-width: 1.1px;
+  stroke-width: var(--t-halo);
   stroke-linejoin: round;
 }
 
@@ -180,7 +194,7 @@
 .dentro {
   fill: var(--text);
   font-family: var(--font-sans);
-  font-size: 3.4px;
+  font-size: var(--t-dentro);
   font-weight: 700;
   text-anchor: middle;
 }
@@ -192,7 +206,7 @@
 .nombre {
   fill: var(--text);
   font-family: var(--font-sans);
-  font-size: 3px;
+  font-size: var(--t-nombre);
   font-weight: 600;
   text-anchor: middle;
 }
@@ -200,7 +214,7 @@
 .etiqueta {
   fill: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 2.7px;
+  font-size: var(--t-etiqueta);
   text-anchor: middle;
 }
 
@@ -224,7 +238,7 @@
 .ejeTexto {
   fill: var(--text-faint);
   font-family: var(--font-sans);
-  font-size: 3px;
+  font-size: var(--t-eje);
   text-anchor: middle;
 }
 
@@ -428,5 +442,21 @@
   .marca rect,
   .celdaArreglo {
     transition: none;
+  }
+}
+
+/*
+ * Teléfono: la escena se dibuja a unos 330px de ancho sobre un viewBox de 114
+ * unidades, así que cada unidad son menos de tres píxeles. Con los cuerpos de
+ * escritorio, los pesos de los enlaces terminaban midiendo 7px de alto real.
+ */
+@media (max-width: 30rem) {
+  .lienzo {
+    --t-peso: 4px;
+    --t-dentro: 4.6px;
+    --t-nombre: 4.2px;
+    --t-etiqueta: 4px;
+    --t-eje: 4px;
+    --t-halo: 1.5px;
   }
 }

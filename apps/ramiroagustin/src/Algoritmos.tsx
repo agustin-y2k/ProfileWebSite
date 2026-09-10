@@ -53,46 +53,46 @@ export function Algoritmos() {
           <section className={styles.bloque}>
             <h2 className={styles.tituloSeccion}>
               {t({
-                es: "El caso del mapa, en la vida real",
-                en: "The map case, out in the real world",
+                es: "Dónde corre cada uno, en la vida real",
+                en: "Where each one runs, out in the real world",
               })}
             </h2>
             <p className={styles.introSeccion}>
               {t({
-                es: "Los cuatro que cruzan el tablero —Dijkstra, A*, BFS y DFS— no son ejercicios de facultad: son lo que corre abajo de cosas que usas todos los días.",
-                en: "The four that cross the board —Dijkstra, A*, BFS and DFS— are not classroom exercises: they are what runs underneath things you use every day.",
+                es: "Ninguno de los doce es un ejercicio de facultad. Cada uno tiene un equipo, un protocolo o un producto donde corre, y es ahí donde se lo explica acá.",
+                en: "Not one of the twelve is a classroom exercise. Each has a box, a protocol or a product where it actually runs, and that is where it gets explained here.",
               })}
             </p>
 
             <div className={styles.usos}>
               <div className={styles.uso}>
-                <h3>{t({ es: "Cómo llegar", en: "Getting there" })}</h3>
+                <h3>{t({ es: "Adentro de un router", en: "Inside a router" })}</h3>
                 <p>
                   {t({
-                    es: "El mapa es el grafo y el costo de cada tramo es el tiempo, no la distancia. Por eso el navegador a veces te manda por la avenida larga en vez del atajo con semáforos. Y usa A*, no Dijkstra, porque sí sabe hacia dónde queda el destino.",
-                    en: "The map is the graph and the cost of each leg is time, not distance. That is why the navigation app sometimes sends you down the long avenue instead of the shortcut full of traffic lights. And it uses A*, not Dijkstra, because it does know which way the destination lies.",
+                    es: "OSPF, uno de los protocolos que sostienen internet, hace que cada router junte los LSA de toda el área, arme con ellos el mapa completo y corra SPF sobre su propia copia. Lo que sale de ahí no es un camino: es la tabla de ruteo entera, un renglón por destino.",
+                    en: "OSPF, one of the protocols holding the internet up, has every router collect the LSAs of its whole area, assemble the complete map from them and run SPF over its own copy. What comes out is not a path: it is the entire routing table, one row per destination.",
                   })}
                 </p>
               </div>
 
               <div className={styles.uso}>
-                <h3>{t({ es: "Ruteo de red", en: "Network routing" })}</h3>
+                <h3>{t({ es: "Adentro de un switch", en: "Inside a switch" })}</h3>
                 <p>
                   {t({
-                    es: "OSPF, uno de los protocolos que sostienen internet, hace que cada router arme el mapa de la red y corra Dijkstra sobre él para decidir por dónde sale cada paquete. Ahí no hay heurística posible: no existe «más cerca» en una topología de red.",
-                    en: "OSPF, one of the protocols holding the internet up, has every router build the map of the network and run Dijkstra over it to decide which way each packet leaves. No heuristic is possible there: «closer» does not exist in a network topology.",
+                    es: "Spanning Tree corre en todo switch administrable que se haya enchufado alguna vez, y su trabajo es apagar puertos a propósito. Sin él, un solo cable de más entre dos switches alcanza para que la red deje de funcionar por completo.",
+                    en: "Spanning Tree runs on every managed switch that has ever been plugged in, and its job is to shut ports down on purpose. Without it, a single spare cable between two switches is enough to take the network down entirely.",
                   })}
                 </p>
               </div>
 
               <div className={styles.uso}>
                 <h3>
-                  {t({ es: "Asignar lo que escasea", en: "Allocating what is scarce" })}
+                  {t({ es: "Adentro de un videojuego", en: "Inside a video game" })}
                 </h3>
                 <p>
                   {t({
-                    es: "El flujo de costo mínimo —con el que se reparten turnos, salas o equipos entre quienes los piden— usa Dijkstra adentro, una vez por iteración. Es el mismo motor resolviendo algo que no parece un mapa.",
-                    en: "Min-cost flow —which is how appointments, rooms or equipment get shared among the people asking for them— runs Dijkstra inside, once per iteration. It is the same engine solving something that does not look like a map at all.",
+                    es: "A* es lo que mueve a un personaje por un mapa sin que se choque contra las paredes ni encare para el lado contrario: la heurística es, literalmente, mirar hacia dónde queda el destino antes de dar el primer paso.",
+                    en: "A* is what moves a character across a map without walking into walls or setting off in the wrong direction: the heuristic is, quite literally, looking at where the destination lies before taking the first step.",
                   })}
                 </p>
               </div>
@@ -105,8 +105,8 @@ export function Algoritmos() {
             </h2>
             <p className={styles.introSeccion}>
               {t({
-                es: "Tres categorías de cuatro, elegidas para cubrir las dos mitades del oficio: la red que sostiene todo y el programa que corre encima. Algunos entran en más de una y aparecen una sola vez — el cruce es contenido, no un defecto de la clasificación.",
-                en: "Three categories of four, picked to cover both halves of the craft: the network holding everything up and the program running on top of it. A few belong to more than one and appear only once — the overlap is content, not a flaw in the classification.",
+                es: "Tres categorías de cuatro, elegidas para cubrir las dos mitades del oficio: la red que sostiene todo y el programa que corre encima. Cada uno se explica en la suya, con el dibujo que le corresponde — un router es un router y un tablero es un tablero.",
+                en: "Three categories of four, picked to cover both halves of the craft: the network holding everything up and the program running on top of it. Each one is explained inside its own, with the picture that belongs to it — a router is a router and a board is a board.",
               })}
             </p>
 
@@ -133,9 +133,6 @@ export function Algoritmos() {
                             </span>
                           </div>
                           <p className={styles.entradaQue}>{t(a.indice!.que)}</p>
-                          {a.tambien && (
-                            <p className={styles.entradaTambien}>{t(a.tambien)}</p>
-                          )}
                         </div>
                       ))}
                   </div>

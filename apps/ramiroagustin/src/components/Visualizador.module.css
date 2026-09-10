@@ -78,6 +78,13 @@
   }
 }
 
+.opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
 .opcion {
   padding: 0.4rem 0.85rem;
   border: 1px solid var(--border);
@@ -128,10 +135,6 @@
   .taller {
     grid-template-columns: minmax(0, 1.35fr) minmax(20rem, 1fr);
     align-items: start;
-  }
-
-  .taller.ancho {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -255,48 +258,6 @@
   }
 }
 
-/* ── Comparación ────────────────────────────────────────────────────────── */
-.comparar {
-  display: grid;
-  gap: var(--space-4);
-}
-
-@media (min-width: 56rem) {
-  .comparar {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.lado {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.ladoCabecera {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.ladoNombre {
-  font-weight: 700;
-  font-size: 0.9375rem;
-}
-
-.ladoContador {
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--accent-text);
-}
-
-.ladoContador span {
-  color: var(--text-faint);
-}
-
 /* ── Leyenda, narración, resultado ──────────────────────────────────────── */
 .leyenda {
   display: flex;
@@ -410,9 +371,21 @@
 
 .selector select {
   border: none;
-  background: none;
-  color: inherit;
+  background: var(--surface);
+  color: var(--text);
   font: inherit;
+}
+
+/*
+ * El desplegable lo dibuja el navegador, no la página, y lo pinta con el fondo
+ * y el color que tenga el <select>. Con `background: none` el fondo quedaba
+ * transparente y el navegador caía en su blanco de fábrica — con el texto claro
+ * del tema oscuro encima, o sea invisible. Los dos colores van explícitos, acá
+ * y en las opciones, porque Firefox mira las opciones y Chrome el select.
+ */
+.selector select option {
+  background: var(--surface);
+  color: var(--text);
 }
 
 .lineaTiempo {
@@ -598,5 +571,91 @@
 
   .sello {
     animation: none;
+  }
+}
+
+/* ── Teléfono ───────────────────────────────────────────────────────────────
+ *
+ * A 390px cada uno de los veintidós botones cae en su propia fila, y el
+ * visualizador termina arrancando a mil doscientos píxeles de scroll: una
+ * pantalla y media de nombres antes de ver nada moverse. Cada categoría pasa
+ * a ser una sola fila que se desliza en horizontal, con la etiqueta arriba y
+ * quieta —si la etiqueta se fuera con el scroll, las cuatro filas quedarían
+ * indistinguibles entre sí—.
+ */
+@media (max-width: 48rem) {
+  .filaSelector {
+    flex-direction: column;
+    align-items: stretch;
+    /* En columna, `wrap` arma columnas: cada línea se dimensiona por su
+       contenido y el hijo deja de tomar el ancho del contenedor. */
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+  }
+
+  .opciones {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding-bottom: 0.3rem;
+    scrollbar-width: thin;
+    /* Un ítem flex arranca con min-width:auto, o sea que se niega a achicarse
+       por debajo de su contenido: sin esto la fila empuja la página entera y
+       aparece el scroll horizontal que se supone que estamos evitando. */
+    min-width: 0;
+  }
+
+  .opciones > * {
+    flex: none;
+  }
+
+  /* 44px es el mínimo táctil de la guía de Apple; estos venían de 37. */
+  .opcion {
+    min-height: 44px;
+    padding: 0.4rem 0.9rem;
+  }
+
+  .selector {
+    min-height: 44px;
+  }
+
+  .selector select {
+    min-height: 40px;
+    padding: 0 0.2rem;
+  }
+
+  /* Los de reproducción vienen del paquete de UI con 38-40px, y las pestañas
+     con 42. Se los sube acá y no en el paquete: el mínimo táctil es de esta
+     pantalla, no una decisión que corresponda tomar por todos los sitios. */
+  .controles button {
+    min-height: 44px;
+  }
+
+  .pestana {
+    min-height: 44px;
+  }
+
+  /*
+   * El listado se parte en vez de esconderse: en un panel de 200px se veía un
+   * tercio de cada línea y el resto quedaba detrás de un scroll horizontal que
+   * nadie descubre. La continuación se indenta hasta donde arranca el código,
+   * así el número de línea sigue leyéndose como número de línea.
+   */
+  .codigo {
+    overflow-x: visible;
+  }
+
+  .codigo li {
+    display: block;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    padding: 0 0.9rem 0 3.2rem;
+    text-indent: -2.3rem;
+  }
+
+  .codigo li::before {
+    display: inline-block;
+    width: 1.4rem;
+    margin-right: 0.9rem;
   }
 }

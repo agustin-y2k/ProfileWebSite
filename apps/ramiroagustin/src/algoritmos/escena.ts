@@ -2,7 +2,7 @@
  * Lo que un algoritmo le pide dibujar al visualizador.
  *
  * El motor de caminos (motor.ts) tiene su propio tipo de paso, porque su
- * dibujo es una grilla y nada más va a serlo. Los otros ocho comparten estos
+ * dibujo es una grilla y nada más va a serlo. Los otros diez comparten estos
  * cuatro dibujantes, y esa es toda la razón por la que existe este archivo:
  * cada dibujante nuevo destraba varios algoritmos, así que conviene que un
  * algoritmo no pueda inventarse una forma de dibujar propia sin pensarlo.
@@ -39,9 +39,9 @@ export type EstadoArista =
   | "tenue"; // contexto, sin protagonismo
 
 // ── Grafo ──────────────────────────────────────────────────────────────────
-// Spanning Tree, Bellman-Ford, orden topológico y Union-Find. Las coordenadas
-// van en un lienzo de 0 a 100 en los dos ejes; el dibujante se encarga de la
-// escala y de que el texto no se deforme.
+// Dijkstra, Spanning Tree, Bellman-Ford, orden topológico y Union-Find. Las
+// coordenadas van en un lienzo de 0 a 100 en los dos ejes; el dibujante se
+// encarga de la escala y de que el texto no se deforme.
 
 export type NodoGrafo = {
   id: string;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { t, type Frase } from "../i18n/idioma";
 import type { EscenaArreglo, EscenaGrafo, EscenaJuego, PasoEscena } from "./escena";
+import { correrDijkstra } from "./dijkstra";
 import { correrSpanning } from "./spanning";
 import { correrBellmanFord } from "./bellmanford";
 import { correrHashing } from "./hashing";
@@ -46,6 +47,9 @@ const lineasSanas = (pasos: PasoEscena[], listado: number) =>
 
 /** Una corrida de cada uno, con el largo de su listado de código. */
 const TODOS: [PasoEscena[], number, string][] = [
+  [correrDijkstra("spf"), 25, "dijkstra"],
+  [correrDijkstra("anchodebanda"), 25, "dijkstra · ancho de banda"],
+  [correrDijkstra("desincronizado"), 25, "dijkstra · mapa viejo"],
   [correrSpanning("prioridad"), 20, "spanning"],
   [correrBellmanFord("cuenta"), 17, "bellman-ford"],
   [correrHashing("caida"), 17, "hashing"],
@@ -56,6 +60,84 @@ const TODOS: [PasoEscena[], number, string][] = [
   [correrGradiente("justo"), 13, "gradiente"],
   [correrKMeans("natural"), 18, "k-means"],
 ];
+
+describe("Dijkstra", () => {
+  /** La tabla de ruteo que quedó: destino → costo y primer salto. */
+  const tabla = (pasos: PasoEscena[]) =>
+    new Map(
+      ultimo(pasos).panel.map((p) => [
+        es(p.clave),
+        { texto: es(p.texto), nota: es(p.nota) },
+      ]),
+    );
+
+  it("cierra todos los destinos, no solo uno", () => {
+    // La moraleja de la página: SPF no busca un camino, llena la tabla. Si
+    // algún día se le colara un corte anticipado, faltarían renglones.
+    const t = tabla(correrDijkstra("spf"));
+
+    expect([...t.keys()].sort()).toEqual(["R2", "R3", "R4", "R5", "R6"]);
+    expect([...t.values()].every((v) => v.texto.startsWith("PATH"))).toBe(true);
+  });
+
+  it("cada destino queda con el costo mínimo y su primer salto", () => {
+    const t = tabla(correrDijkstra("spf"));
+
+    for (const [destino, costo, salto] of [
+      ["R2", 1, "R2"],
+      ["R3", 2, "R3"],
+      ["R4", 5, "R2"],
+      ["R5", 3, "R3"],
+      ["R6", 7, "R2"],
+    ] as const) {
+      expect(t.get(destino)!.texto, destino).toBe(`PATH · costo ${costo}`);
+      expect(t.get(destino)!.nota, destino).toBe(`sale por ${salto}`);
+    }
+  });
+
+  it("R6 figura primero en 9 y recién después baja a 7", () => {
+    // El veredicto afirma exactamente esto: un destino no está resuelto hasta
+    // que sale de TENT, por más número que tenga escrito.
+    const pasos = correrDijkstra("spf");
+    const deR6 = pasos
+      .map((p) => p.panel.find((i) => es(i.clave) === "R6"))
+      .filter((i) => i !== undefined)
+      .map((i) => es(i.texto));
+
+    expect(deR6).toContain("TENT · costo 9");
+    expect(deR6[deR6.length - 1]).toBe("PATH · costo 7");
+    expect(deR6.indexOf("TENT · costo 9")).toBeLessThan(deR6.indexOf("TENT · costo 7"));
+  });
+
+  it("con el costo por ancho de banda, el tráfico se va por los 100 Mbps", () => {
+    const pasos = correrDijkstra("anchodebanda");
+    const t = tabla(pasos);
+
+    // R1–R3–R6 son dos enlaces de 100M; R1–R2–R4–R6, tres de 10G. Gana el
+    // corto porque con el reference-bandwidth de fábrica todos cuestan 1.
+    expect(t.get("R6")!.nota).toBe("sale por R3");
+    expect(t.get("R6")!.texto).toBe("PATH · costo 2");
+
+    // Y la razón: con el reference-bandwidth de fábrica, los nueve cables
+    // cuestan lo mismo por más que uno mueva cien veces más que otro.
+    const enlaces = (ultimo(pasos).escena as EscenaGrafo).aristas;
+    expect(enlaces.every((a) => es(a.peso).endsWith("·1"))).toBe(true);
+  });
+
+  it("con el mapa viejo, calcula sobre un enlace que ya no existe", () => {
+    const pasos = correrDijkstra("desincronizado");
+
+    // El cable R3–R5 está caído y R1 no se enteró: lo usa igual, y por eso
+    // la ruta a R5 sale por R3. Ese es el bucle que cuenta el veredicto.
+    expect(tabla(pasos).get("R5")!.nota).toBe("sale por R3");
+
+    const caido = (ultimo(pasos).escena as EscenaGrafo).aristas.find(
+      (a) => (a.a === "R3" && a.b === "R5") || (a.a === "R5" && a.b === "R3"),
+    );
+    expect(es(caido!.peso)).toContain("caído");
+    expect(caido!.estado).toBe("tenue");
+  });
+});
 
 describe("Spanning Tree", () => {
   /** Un grafo sin bucles y conexo: exactamente lo que STP tiene que dejar. */

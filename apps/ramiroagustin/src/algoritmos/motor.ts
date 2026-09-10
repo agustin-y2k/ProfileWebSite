@@ -1,5 +1,5 @@
 /**
- * Los cuatro algoritmos de búsqueda de caminos, con un contrato común.
+ * Los tres algoritmos que cruzan el tablero, con un contrato común.
  *
  * Cada uno recibe el terreno y devuelve la lista completa de pasos. El
  * visualizador no sabe de ninguno: solo reproduce pasos. Ese corte es lo que
@@ -97,8 +97,7 @@ const pasable = (terreno: Terreno[], id: number) => costoCelda(terreno, id) !== 
  *
  * Es admisible porque ninguna casilla cuesta menos de 1, así que nunca
  * sobreestima lo que falta. Sin esa propiedad A* dejaría de garantizar el
- * óptimo, y comparar su recorrido con el de Dijkstra perdería sentido: estarían
- * resolviendo problemas distintos.
+ * óptimo: la corazonada podría descartar el camino barato antes de mirarlo.
  */
 export function heuristica(id: number): number {
   const f = Math.floor(id / COLS);
@@ -155,144 +154,71 @@ function cerrar(
   return pasos;
 }
 
-// ── Dijkstra ──────────────────────────────────────────────────────────────
-export function correrDijkstra(terreno: Terreno[]): Paso[] {
-  const pasos: Paso[] = [];
+/**
+ * El costo del camino más barato del tablero, sin pasos ni narración.
+ *
+ * BFS y DFS afirman en pantalla cuánto se pasaron, y eso es una afirmación
+ * sobre el tablero —cuál era el mínimo—, no sobre otro algoritmo. Se calcula
+ * acá adentro, en una corrida muda, para que nadie tenga que ejecutar un
+ * visualizador entero para leer un número.
+ */
+export function costoOptimo(terreno: Terreno[]): number | null {
   const dist = new Map([[ORIGEN, 0]]);
-  const previo = new Map<number, number>();
   const cerrados = new Set<number>();
   const cola: [number, number][] = [[ORIGEN, 0]];
-
-  const frontera = () =>
-    [...cola].sort((a, b) => a[1] - b[1]).map(([id, d]) => ({ id, texto: `d = ${d}` }));
-
-  const base = () => ({
-    actual: null,
-    cerrar: null,
-    etiqueta: null,
-    frontera: frontera(),
-    camino: null,
-    cerrados: cerrados.size,
-  });
-
-  pasos.push({
-    ...base(),
-    linea: 4,
-    etiqueta: { id: ORIGEN, valor: 0 },
-    texto: {
-      es: `Arranco en <b>${nombre(ORIGEN)}</b> con distancia <code>0</code>. Todo lo demás vale infinito hasta que se demuestre lo contrario.`,
-      en: `I start at <b>${nombre(ORIGEN)}</b> with distance <code>0</code>. Everything else is worth infinity until proven otherwise.`,
-    },
-  });
 
   while (cola.length) {
     let mi = 0;
     for (let i = 1; i < cola.length; i++) if (cola[i]![1] < cola[mi]![1]) mi = i;
     const [actual, d] = cola.splice(mi, 1)[0]!;
 
-    pasos.push({
-      ...base(),
-      linea: 8,
-      actual,
-      texto: {
-        es: `Saco <b>${nombre(actual)}</b> con <code>d=${d}</code>: es el pendiente más barato de toda la cola.`,
-        en: `I pop <b>${nombre(actual)}</b> with <code>d=${d}</code>: the cheapest pending cell in the whole queue.`,
-      },
-    });
-
-    if (cerrados.has(actual)) {
-      pasos.push({
-        ...base(),
-        linea: 9,
-        actual,
-        texto: {
-          es: `A <b>${nombre(actual)}</b> ya lo había resuelto por un camino más barato. Lo salteo.`,
-          en: `I had already settled <b>${nombre(actual)}</b> through a cheaper path. I skip it.`,
-        },
-      });
-      continue;
-    }
-
+    if (cerrados.has(actual)) continue;
     cerrados.add(actual);
-    pasos.push({
-      ...base(),
-      linea: 10,
-      actual,
-      cerrar: actual,
-      texto: {
-        es: `Cierro <b>${nombre(actual)}</b> y queda sellada: como salió siendo el mínimo, <b>ningún camino futuro puede mejorar su ${d}</b>. Eso es lo que hace correcto al algoritmo.`,
-        en: `I close <b>${nombre(actual)}</b> and it is sealed: since it came out as the minimum, <b>no future path can improve on its ${d}</b>. That is what makes the algorithm correct.`,
-      },
-    });
-
-    if (actual === DESTINO) {
-      pasos.push({
-        ...base(),
-        linea: 11,
-        actual,
-        texto: {
-          es: `Llegué al destino con costo <b>${d}</b>, y por lo de recién ya sé que es el más barato que existe.`,
-          en: `I reached the target at cost <b>${d}</b>, and by what just happened I already know it is the cheapest one there is.`,
-        },
-      });
-      break;
-    }
+    if (actual === DESTINO) return d;
 
     for (const v of vecinos(actual)) {
       if (!pasable(terreno, v)) continue;
-      const costo = costoCelda(terreno, v);
-      const cand = d + costo;
-      const prev = dist.get(v) ?? Infinity;
-
-      const tipo = TERRENO[terreno[v]!];
-      const hoy = prev === Infinity ? "∞" : prev;
-
-      pasos.push({
-        ...base(),
-        linea: 14,
-        actual,
-        texto: {
-          es: `Vecino <b>${nombre(v)}</b> (${tipo.es}, cuesta ${costo}): llegar por acá sale <code>${d} + ${costo} = ${cand}</code>, y hoy tengo <code>${hoy}</code>.`,
-          en: `Neighbour <b>${nombre(v)}</b> (${tipo.en}, costs ${costo}): getting there this way runs <code>${d} + ${costo} = ${cand}</code>, and right now I have <code>${hoy}</code>.`,
-        },
-      });
-
-      if (cand < prev) {
+      const cand = d + costoCelda(terreno, v);
+      if (cand < (dist.get(v) ?? Infinity)) {
         dist.set(v, cand);
-        previo.set(v, actual);
         cola.push([v, cand]);
-        pasos.push({
-          ...base(),
-          linea: 16,
-          actual,
-          etiqueta: { id: v, valor: cand },
-          texto: {
-            es: `Mejora. Anoto <code>${cand}</code> para <b>${nombre(v)}</b> y lo pongo en la cola.`,
-            en: `That is an improvement. I write <code>${cand}</code> down for <b>${nombre(v)}</b> and push it onto the queue.`,
-          },
-        });
       }
     }
   }
 
-  return cerrar(pasos, terreno, previo, cerrados, {
-    es: "Camino reconstruido hacia atrás siguiendo <code>previo</code>.",
-    en: "Path rebuilt backwards by following <code>cameFrom</code>.",
-  });
+  return null;
 }
 
 // ── A* ────────────────────────────────────────────────────────────────────
-export function correrAEstrella(terreno: Terreno[]): Paso[] {
+
+/**
+ * Cuánto se le cree a la corazonada.
+ *
+ * Con 1, `h` nunca sobreestima —ninguna casilla cuesta menos de 1— y el camino
+ * que sale es el óptimo, siempre. Multiplicarla rompe justamente eso: pasa a
+ * decir «falta más de lo que falta», y en cuanto puede exagerar, la garantía se
+ * muere. No es un error de nadie: es el <b>A* ponderado</b> que se usa a
+ * propósito en videojuegos, canjeando calidad del camino por tablero que no
+ * hace falta abrir. El escenario existe para que ese canje se vea.
+ */
+const PESO = (escenario: string) => (escenario === "corazonada" ? 4 : 1);
+
+export function correrAEstrella(terreno: Terreno[], escenario = "rodeo"): Paso[] {
+  const peso = PESO(escenario);
+  const h = (id: number) => peso * heuristica(id);
+  const comoSuma = (id: number) =>
+    peso === 1 ? `${heuristica(id)}` : `${peso}×${heuristica(id)}`;
+
   const pasos: Paso[] = [];
   const g = new Map([[ORIGEN, 0]]);
   const previo = new Map<number, number>();
   const cerrados = new Set<number>();
-  const cola: [number, number][] = [[ORIGEN, heuristica(ORIGEN)]];
+  const cola: [number, number][] = [[ORIGEN, h(ORIGEN)]];
 
   const frontera = () =>
     [...cola]
       .sort((a, b) => a[1] - b[1])
-      .map(([id, f]) => ({ id, texto: `f = ${g.get(id)} + ${heuristica(id)} = ${f}` }));
+      .map(([id, f]) => ({ id, texto: `f = ${g.get(id)} + ${comoSuma(id)} = ${f}` }));
 
   const base = () => ({
     actual: null,
@@ -307,10 +233,16 @@ export function correrAEstrella(terreno: Terreno[]): Paso[] {
     ...base(),
     linea: 5,
     etiqueta: { id: ORIGEN, valor: 0 },
-    texto: {
-      es: `Igual que Dijkstra, pero la prioridad no es solo lo recorrido: es <code>f = g + h</code>, donde <b>h</b> estima lo que falta hasta el destino en línea recta.`,
-      en: `Same as Dijkstra, except the priority is not just the ground covered: it is <code>f = g + h</code>, where <b>h</b> estimates what is left to the target in a straight line.`,
-    },
+    texto:
+      peso === 1
+        ? {
+            es: `Arranco en <b>${nombre(ORIGEN)}</b>. La prioridad no es solo lo recorrido: es <code>f = g + h</code>, donde <b>g</b> es lo que ya gasté y <b>h</b> estima lo que falta hasta el destino en línea recta.`,
+            en: `I start at <b>${nombre(ORIGEN)}</b>. The priority is not just the ground covered: it is <code>f = g + h</code>, where <b>g</b> is what I have already spent and <b>h</b> estimates what is left to the target in a straight line.`,
+          }
+        : {
+            es: `Mismo tablero que «El rodeo» y mismo algoritmo, con un solo cambio: la prioridad es <code>f = g + ${peso}h</code>. A la corazonada <b>se le cree ${peso} veces más de lo que vale</b>, y con eso deja de ser una estimación prudente para pasar a ser una orden de ir hacia el destino.`,
+            en: `Same board as «The long way round» and the same algorithm, with a single change: the priority is <code>f = g + ${peso}h</code>. The hunch is <b>believed ${peso} times more than it is worth</b>, and with that it stops being a cautious estimate and becomes an order to head for the target.`,
+          },
   });
 
   while (cola.length) {
@@ -324,8 +256,8 @@ export function correrAEstrella(terreno: Terreno[]): Paso[] {
       linea: 9,
       actual,
       texto: {
-        es: `Saco <b>${nombre(actual)}</b>: <code>f = ${gAct} + ${heuristica(actual)} = ${f}</code>, el más prometedor. Fijate que prefiere las que apuntan al destino.`,
-        en: `I pop <b>${nombre(actual)}</b>: <code>f = ${gAct} + ${heuristica(actual)} = ${f}</code>, the most promising one. Notice how it favours the cells pointing at the target.`,
+        es: `Saco <b>${nombre(actual)}</b>: <code>f = ${gAct} + ${comoSuma(actual)} = ${f}</code>, el más prometedor. Fijate que prefiere las que apuntan al destino.`,
+        en: `I pop <b>${nombre(actual)}</b>: <code>f = ${gAct} + ${comoSuma(actual)} = ${f}</code>, the most promising one. Notice how it favours the cells pointing at the target.`,
       },
     });
 
@@ -337,10 +269,16 @@ export function correrAEstrella(terreno: Terreno[]): Paso[] {
       linea: 11,
       actual,
       cerrar: actual,
-      texto: {
-        es: `Cierro <b>${nombre(actual)}</b> con <code>g=${gAct}</code>. Como <b>h</b> nunca sobreestima lo que falta, sigue valiendo la garantía: esta distancia es definitiva.`,
-        en: `I close <b>${nombre(actual)}</b> with <code>g=${gAct}</code>. Since <b>h</b> never overestimates what is left, the guarantee still holds: this distance is final.`,
-      },
+      texto:
+        peso === 1
+          ? {
+              es: `Cierro <b>${nombre(actual)}</b> con <code>g=${gAct}</code>. Como <b>h</b> nunca sobreestima lo que falta, sigue valiendo la garantía: esta distancia es definitiva.`,
+              en: `I close <b>${nombre(actual)}</b> with <code>g=${gAct}</code>. Since <b>h</b> never overestimates what is left, the guarantee still holds: this distance is final.`,
+            }
+          : {
+              es: `Cierro <b>${nombre(actual)}</b> con <code>g=${gAct}</code> y no lo vuelvo a tocar. <b>Acá se rompe todo</b>: la garantía se apoyaba en que <b>h</b> nunca se pasara, y ahora se pasa — así que sellar esta casilla puede estar sellando un valor que no era el mínimo.`,
+              en: `I close <b>${nombre(actual)}</b> with <code>g=${gAct}</code> and never touch it again. <b>This is where it breaks</b>: the guarantee rested on <b>h</b> never overshooting, and now it does — so sealing this square may well be sealing a value that was not the minimum.`,
+            },
     });
 
     if (actual === DESTINO) {
@@ -348,39 +286,58 @@ export function correrAEstrella(terreno: Terreno[]): Paso[] {
         ...base(),
         linea: 12,
         actual,
-        texto: {
-          es: `Llegué con costo <b>${gAct}</b> — el mismo que encuentra Dijkstra, pero abriendo muchas menos celdas.`,
-          en: `I got there at cost <b>${gAct}</b> — the same one Dijkstra finds, but opening far fewer cells.`,
-        },
+        texto:
+          peso === 1
+            ? {
+                es: `Llegué con costo <b>${gAct}</b>, y es el mínimo: con una <b>h</b> que nunca sobreestima, el primer cierre del destino ya es el definitivo.`,
+                en: `I got there at cost <b>${gAct}</b>, and it is the minimum: with an <b>h</b> that never overestimates, the first time the target is settled is already final.`,
+              }
+            : {
+                es: `Llegué con costo <b>${gAct}</b>. Y llegué rápido — pero <b>nadie garantiza que sea el mínimo</b>, y no lo es.`,
+                en: `I got there at cost <b>${gAct}</b>. And I got there fast — but <b>nothing guarantees it is the minimum</b>, and it is not.`,
+              },
       });
       break;
     }
 
     for (const v of vecinos(actual)) {
       if (!pasable(terreno, v)) continue;
-      const cand = gAct + costoCelda(terreno, v);
+      const costo = costoCelda(terreno, v);
+      const cand = gAct + costo;
       if (cand < (g.get(v) ?? Infinity)) {
+        const tipo = TERRENO[terreno[v]!];
         g.set(v, cand);
         previo.set(v, actual);
-        cola.push([v, cand + heuristica(v)]);
+        cola.push([v, cand + h(v)]);
         pasos.push({
           ...base(),
           linea: 17,
           actual,
           etiqueta: { id: v, valor: cand },
           texto: {
-            es: `Encolo <b>${nombre(v)}</b> con <code>g=${cand}</code> y <code>h=${heuristica(v)}</code>: prioridad <b>${cand + heuristica(v)}</b>.`,
-            en: `I queue <b>${nombre(v)}</b> with <code>g=${cand}</code> and <code>h=${heuristica(v)}</code>: priority <b>${cand + heuristica(v)}</b>.`,
+            es: `Encolo <b>${nombre(v)}</b> —${tipo.es}, cuesta ${costo}— con <code>g=${cand}</code> y <code>h=${comoSuma(v)}</code>: prioridad <b>${cand + h(v)}</b>.`,
+            en: `I queue <b>${nombre(v)}</b> —${tipo.en}, costs ${costo}— with <code>g=${cand}</code> and <code>h=${comoSuma(v)}</code>: priority <b>${cand + h(v)}</b>.`,
           },
         });
       }
     }
   }
 
-  return cerrar(pasos, terreno, previo, cerrados, {
-    es: "Mismo camino que Dijkstra, encontrado mirando una fracción del tablero.",
-    en: "The same path Dijkstra finds, reached by looking at a fraction of the board.",
-  });
+  return cerrar(
+    pasos,
+    terreno,
+    previo,
+    cerrados,
+    peso === 1
+      ? {
+          es: "Camino óptimo: la corazonada orientó la búsqueda sin llegar a mentir nunca.",
+          en: "An optimal path: the hunch steered the search without ever once lying.",
+        }
+      : {
+          es: `Llegó, y mirando mucho menos tablero. El camino, en cambio, ya no es el más barato — y el algoritmo <b>no tiene forma de notarlo</b>.`,
+          en: `It arrived, and looked at far less board. The path, on the other hand, is no longer the cheapest — and the algorithm <b>has no way of noticing</b>.`,
+        },
+  );
 }
 
 // ── BFS ───────────────────────────────────────────────────────────────────
@@ -411,8 +368,8 @@ export function correrBFS(terreno: Terreno[]): Paso[] {
     linea: 4,
     etiqueta: { id: ORIGEN, valor: 0 },
     texto: {
-      es: `Una <b>cola</b> común: el primero que entra es el primero que sale. Para BFS todas las casillas valen igual — <b>no mira los costos</b>.`,
-      en: `A plain <b>queue</b>: first in, first out. To BFS every square is worth the same — <b>it never looks at the costs</b>.`,
+      es: `Una <b>cola</b> común: el primero que entra es el primero que sale. Toda la diferencia entre este algoritmo y el otro está en esa línea.`,
+      en: `A plain <b>queue</b>: first in, first out. The entire difference between this algorithm and the other one lives in that line.`,
     },
   });
 
@@ -437,8 +394,8 @@ export function correrBFS(terreno: Terreno[]): Paso[] {
         linea: 8,
         actual,
         texto: {
-          es: `Llegué en <b>${profundidad.get(actual)} pasos</b>. Es el camino con menos casillas que existe — pero nadie dijo que fuera el más barato.`,
-          en: `I got there in <b>${profundidad.get(actual)} steps</b>. It is the path with the fewest squares there is — but nobody said it was the cheapest.`,
+          es: `Llegué en <b>${profundidad.get(actual)} pasos</b>, y es el camino más corto que existe. <b>No hace falta comprobar nada más</b>: como la cola sale en orden de profundidad, todo lo que quedaba pendiente está a esta distancia o más lejos.`,
+          en: `I got there in <b>${profundidad.get(actual)} steps</b>, and it is the shortest path there is. <b>Nothing else needs checking</b>: since the queue comes out in depth order, everything still pending sits at this distance or further.`,
         },
       });
       break;
@@ -456,7 +413,7 @@ export function correrBFS(terreno: Terreno[]): Paso[] {
         actual,
         etiqueta: { id: v, valor: profundidad.get(v)! },
         texto: {
-          es: `Descubro <b>${nombre(v)}</b> y lo mando al final de la cola. No pregunto cuánto cuesta pisarlo: para BFS el barro y el camino son lo mismo.`,
+          es: `Descubro <b>${nombre(v)}</b> y lo mando <b>al final</b> de la cola. Por eso no lo voy a mirar hasta haber terminado con todo lo que está más cerca que él.`,
           en: `I discover <b>${nombre(v)}</b> and send it to the back of the queue. I never ask what stepping on it costs: to BFS, mud and open ground are the same thing.`,
         },
       });
@@ -493,8 +450,8 @@ export function correrDFS(terreno: Terreno[]): Paso[] {
     ...base(),
     linea: 4,
     texto: {
-      es: `Una <b>pila</b> en vez de una cola: sale el último que entró. Ese solo cambio hace que en vez de abrirse en círculos, se zambulla por un pasillo.`,
-      en: `A <b>stack</b> instead of a queue: last in, first out. That single change is why it dives down one corridor instead of spreading out in circles.`,
+      es: `Una <b>pila</b> en vez de una cola: sale el último que entró. Ese solo cambio hace que en vez de abrirse en anillos, se zambulla por un pasillo.`,
+      en: `A <b>stack</b> instead of a queue: last in, first out. That single change is why it dives down one corridor instead of spreading out in rings.`,
     },
   });
 
@@ -523,8 +480,8 @@ export function correrDFS(terreno: Terreno[]): Paso[] {
         linea: 10,
         actual,
         texto: {
-          es: `Llegué. Pero el camino que traigo es el primero que apareció, no el mejor: DFS <b>no garantiza absolutamente nada</b> sobre su calidad.`,
-          en: `I got there. But the path I carry is the first one that turned up, not the best one: DFS <b>guarantees absolutely nothing</b> about its quality.`,
+          es: `Llegué. Pero el camino que traigo es <b>el primero que apareció</b>, no el mejor — y cuál aparece primero lo decide el orden en que apilé los vecinos, que es un detalle de implementación, no una propiedad del problema.`,
+          en: `I got there. But the path I carry is <b>the first one that turned up</b>, not the best one — and which one turns up first is decided by the order I pushed the neighbours in, which is an implementation detail, not a property of the problem.`,
         },
       });
       break;
@@ -541,14 +498,14 @@ export function correrDFS(terreno: Terreno[]): Paso[] {
       linea: 15,
       actual,
       texto: {
-        es: `Apilo los vecinos de <b>${nombre(actual)}</b>. El próximo en salir va a ser uno de estos, así que sigue metiéndose para el mismo lado.`,
-        en: `I push the neighbours of <b>${nombre(actual)}</b>. The next one out will be one of these, so it keeps burrowing the same way.`,
+        es: `Apilo los vecinos de <b>${nombre(actual)}</b>. El próximo en salir va a ser <b>el último que apilé</b>, así que sigue metiéndose para el mismo lado hasta que choque.`,
+        en: `I push the neighbours of <b>${nombre(actual)}</b>. The next one out will be <b>the last one I pushed</b>, so it keeps burrowing the same way until it hits something.`,
       },
     });
   }
 
   return cerrar(pasos, terreno, previo, cerrados, {
-    es: "Un camino cualquiera que llega, encontrado a los tumbos.",
-    en: "Some path that happens to arrive, stumbled upon along the way.",
+    es: "El camino es el primero con el que se topó la pila. Que salga bueno o malo lo decide el tablero, no el algoritmo.",
+    en: "The path is the first one the stack ran into. Whether it comes out good or bad is decided by the board, not by the algorithm.",
   });
 }

@@ -10,11 +10,11 @@ import type {
 /**
  * Bellman-Ford, en la forma en que se lo encuentra en una red de verdad: RIP.
  *
- * Dijkstra necesita que alguien conozca el mapa entero. Bellman-Ford no: cada
- * router solo habla con sus vecinos y solo sabe lo que ellos le cuentan. Esa
- * es su gracia —y también su desgracia, porque nadie verifica nada—. Cuando un
- * enlace se cae, los routers se creen entre ellos rutas que ya no existen y se
- * pasan el error de a un salto por vez: la «cuenta hasta infinito».
+ * Acá nadie tiene el mapa. Cada router solo habla con sus vecinos y solo sabe
+ * lo que ellos le cuentan. Esa es su gracia —y también su desgracia, porque
+ * nadie verifica nada—. Cuando un enlace se cae, los routers se creen entre
+ * ellos rutas que ya no existen y se pasan el error de a un salto por vez: la
+ * «cuenta hasta infinito».
  *
  * Los tres escenarios son el mismo algoritmo. Lo único que cambia es qué pasó
  * en la red y si alguien se acordó de activar split horizon.

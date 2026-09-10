@@ -1,13 +1,7 @@
-import {
-  correrAEstrella,
-  correrBFS,
-  correrDFS,
-  correrDijkstra,
-  type Paso,
-  type Terreno,
-} from "./motor";
+import { correrAEstrella, correrBFS, correrDFS, type Paso, type Terreno } from "./motor";
 import type { PasoEscena } from "./escena";
 import type { Frase, Idioma } from "../i18n/idioma";
+import { correrDijkstra } from "./dijkstra";
 import { correrSpanning } from "./spanning";
 import { correrBellmanFord } from "./bellmanford";
 import { correrHashing } from "./hashing";
@@ -17,7 +11,7 @@ import { correrUnionFind } from "./unionfind";
 import { correrMinimax } from "./minimax";
 import { correrGradiente } from "./gradiente";
 import { correrKMeans } from "./kmeans";
-import { ESCENARIOS as TABLEROS } from "./escenarios";
+import { LABERINTOS, TERRENOS } from "./escenarios";
 
 /**
  * Los trece algoritmos de la sección, y todo lo que el visualizador necesita
@@ -29,9 +23,13 @@ import { ESCENARIOS as TABLEROS } from "./escenarios";
  * puede quedar desfasado del selector: si un algoritmo existe, está en los
  * dos lados o en ninguno.
  *
- * Son trece definiciones para doce entradas del índice porque BFS y DFS se
- * cuentan juntos: son el mismo recorrido con la estructura cambiada, y esa es
- * precisamente la comparación que valía la pena.
+ * Son trece definiciones para doce entradas del índice porque BFS y DFS
+ * comparten una: recorrer con cola y recorrer con pila es un solo tema, y el
+ * selector deja elegir cuál de los dos se mira.
+ *
+ * Ningún algoritmo declara «además entra en tal otra categoría». Entra en una,
+ * se explica con el dibujo de esa, y listo — que no exista el campo es lo que
+ * garantiza que nadie lo escriba de nuevo por inercia.
  *
  * Los números de línea de los pasos apuntan al `codigo` de acá, así que mover
  * una línea desincroniza el resaltado. Es la única atadura entre los motores y
@@ -64,8 +62,6 @@ type Base = {
   categoria: Categoria;
   /** Cómo aparece en el índice. Sin esto, no aparece: lo cubre otro. */
   indice?: { nombre: Frase; que: Frase };
-  /** La otra categoría en la que también entra, cuando cruza. */
-  tambien?: Frase;
   panel: Frase;
   tesis: Frase;
   codigo: Listado;
@@ -74,17 +70,22 @@ type Base = {
 
 /**
  * Dos familias, no dos jerarquías: la de la grilla recibe un tablero de
- * terreno y la otra el id del escenario. Se separan porque los cuatro de la
- * grilla comparten tablero entre sí —esa comparación es media sección— y
- * ninguno de los otros comparte nada con nadie.
+ * terreno y la otra el id del escenario. Es la única distinción que queda:
+ * cada algoritmo se explica con el dibujo de su propia categoría y no depende
+ * de que se lo mire al lado de otro.
  */
 export type Definicion = Base &
   (
-    | { familia: "grilla"; correr: (terreno: Terreno[]) => Paso[] }
+    | { familia: "grilla"; correr: (terreno: Terreno[], escenario: string) => Paso[] }
     | { familia: "escena"; correr: (escenario: string) => PasoEscena[] }
   );
 
-const DEL_TABLERO: Escenario[] = TABLEROS.map((e) => ({ id: e.id, nombre: e.nombre }));
+const solo = (fuente: { id: string; nombre: Frase }[]): Escenario[] =>
+  fuente.map((e) => ({ id: e.id, nombre: e.nombre }));
+
+/** Con costos, para A*. Sin costos, para los dos que los ignoran. */
+const CON_COSTO: Escenario[] = solo(TERRENOS);
+const SIN_COSTO: Escenario[] = solo(LABERINTOS);
 
 export const ALGORITMOS: Definicion[] = [
   // ── Redes e infraestructura ──────────────────────────────────────────────
@@ -92,74 +93,84 @@ export const ALGORITMOS: Definicion[] = [
     id: "dijkstra",
     nombre: "Dijkstra",
     categoria: "redes",
-    familia: "grilla",
+    familia: "escena",
     correr: correrDijkstra,
-    escenarios: DEL_TABLERO,
+    escenarios: [
+      { id: "spf", nombre: { es: "El cálculo SPF", en: "The SPF calculation" } },
+      {
+        id: "anchodebanda",
+        nombre: { es: "Costo por ancho de banda", en: "Cost from bandwidth" },
+      },
+      {
+        id: "desincronizado",
+        nombre: { es: "Mapa desactualizado", en: "A stale map" },
+      },
+    ],
     indice: {
       nombre: "Dijkstra",
       que: {
-        es: "OSPF e IS-IS: cada router arma el mapa de la red y calcula desde ahí.",
-        en: "OSPF and IS-IS: every router builds the map of the network and computes from it.",
+        es: "El cálculo SPF de OSPF e IS-IS: cada router arma el mapa del área y saca de ahí su tabla entera.",
+        en: "The SPF calculation inside OSPF and IS-IS: every router builds the map of the area and derives its whole table from it.",
       },
     },
-    tambien: {
-      es: "También es el que resuelve «cómo llegar» en un GPS, y el que va adentro del flujo de costo mínimo.",
-      en: "It is also what answers «how do I get there» in a GPS, and what sits inside min-cost flow.",
-    },
-    panel: { es: "Cola de prioridad", en: "Priority queue" },
+    panel: { es: "Listas TENT y PATH", en: "TENT and PATH lists" },
     tesis: {
-      es: "No tiene idea de dónde está el destino, así que crece parejo en todas las direcciones hasta tropezárselo. <em>A cambio, cuando lo encuentra, garantiza que no existe camino más barato.</em>",
-      en: "It has no idea where the target is, so it grows evenly in every direction until it bumps into it. <em>In exchange, when it does find it, it guarantees that no cheaper path exists.</em>",
+      es: "Un router no le pregunta a nadie por dónde salir: junta los LSA de toda el área, arma el mapa completo y lo calcula solo. <em>Y no calcula un camino — cierra todos los destinos en orden de costo creciente, y la tabla de ruteo es lo que queda cuando terminó.</em>",
+      en: "A router asks nobody which way to go: it collects the LSAs of the whole area, assembles the complete map and computes on its own. <em>And it does not compute a path — it settles every destination in order of increasing cost, and the routing table is what is left when it finishes.</em>",
     },
     codigo: {
       es: [
-        "function dijkstra(origen, destino) {",
-        "  const dist = new Map([[origen, 0]]);",
-        "  const previo = new Map();",
-        "  const cola = new ColaDePrioridad([[origen, 0]]);",
-        "  const cerrados = new Set();",
+        "function spf(yo, lsdb) {",
+        "  // El LSDB ya está completo: todos los routers del área",
+        "  // inundaron sus LSA. SPF no le pregunta nada a nadie.",
+        "  const costo = new Map([[yo, 0]]);",
+        "  const salida = new Map();   // destino → primer salto",
+        "  const tent = new ColaDePrioridad([[yo, 0]]);",
+        "  const path = new Set();",
         "",
-        "  while (!cola.vacia()) {",
-        "    const actual = cola.sacarMinimo();",
-        "    if (cerrados.has(actual)) continue;",
-        "    cerrados.add(actual);",
-        "    if (actual === destino) break;",
+        "  while (!tent.vacia()) {",
+        "    const r = tent.sacarMinimo();",
+        "    if (path.has(r)) continue;",
+        "    path.add(r);   // sellado: ya no se toca más",
         "",
-        "    for (const vecino of vecinos(actual)) {",
-        "      const candidata = dist.get(actual) + costo(vecino);",
-        "      if (candidata < (dist.get(vecino) ?? Infinity)) {",
-        "        dist.set(vecino, candidata);",
-        "        previo.set(vecino, actual);",
-        "        cola.insertar(vecino, candidata);",
+        "    for (const [vecino, c] of lsdb.enlacesDe(r)) {",
+        "      const candidata = costo.get(r) + c;",
+        "      if (candidata < (costo.get(vecino) ?? Infinity)) {",
+        "        costo.set(vecino, candidata);",
+        "        salida.set(vecino, r === yo ? vecino : salida.get(r));",
+        "        tent.insertar(vecino, candidata);",
         "      }",
         "    }",
         "  }",
-        "  return reconstruir(previo, destino);",
+        "  // No hay «llegué»: la tabla es para todos los destinos.",
+        "  return tablaDeRuteo(costo, salida);",
         "}",
       ],
       en: [
-        "function dijkstra(source, target) {",
-        "  const dist = new Map([[source, 0]]);",
-        "  const cameFrom = new Map();",
-        "  const queue = new PriorityQueue([[source, 0]]);",
-        "  const settled = new Set();",
+        "function spf(me, lsdb) {",
+        "  // The LSDB is already complete: every router in the area",
+        "  // flooded its LSAs. SPF asks nobody anything.",
+        "  const cost = new Map([[me, 0]]);",
+        "  const exit = new Map();     // destination -> first hop",
+        "  const tent = new PriorityQueue([[me, 0]]);",
+        "  const path = new Set();",
         "",
-        "  while (!queue.isEmpty()) {",
-        "    const current = queue.popMin();",
-        "    if (settled.has(current)) continue;",
-        "    settled.add(current);",
-        "    if (current === target) break;",
+        "  while (!tent.isEmpty()) {",
+        "    const r = tent.popMin();",
+        "    if (path.has(r)) continue;",
+        "    path.add(r);   // sealed: never touched again",
         "",
-        "    for (const next of neighbours(current)) {",
-        "      const candidate = dist.get(current) + cost(next);",
-        "      if (candidate < (dist.get(next) ?? Infinity)) {",
-        "        dist.set(next, candidate);",
-        "        cameFrom.set(next, current);",
-        "        queue.push(next, candidate);",
+        "    for (const [neighbour, c] of lsdb.linksFrom(r)) {",
+        "      const candidate = cost.get(r) + c;",
+        "      if (candidate < (cost.get(neighbour) ?? Infinity)) {",
+        "        cost.set(neighbour, candidate);",
+        "        exit.set(neighbour, r === me ? neighbour : exit.get(r));",
+        "        tent.push(neighbour, candidate);",
         "      }",
         "    }",
         "  }",
-        "  return rebuild(cameFrom, target);",
+        "  // There is no «I arrived»: the table covers every destination.",
+        "  return routingTable(cost, exit);",
         "}",
       ],
     },
@@ -272,8 +283,8 @@ export const ALGORITMOS: Definicion[] = [
       en: "Each router's routing table",
     },
     tesis: {
-      es: "Dijkstra necesita que alguien conozca el mapa entero; este no: cada router solo habla con sus vecinos. <em>Esa es su gracia y su desgracia, porque nadie verifica nada — y cuando la noticia es mala, se creen entre ellos rutas que ya no existen.</em>",
-      en: "Dijkstra needs someone to know the whole map; this one does not — each router only ever talks to its neighbours. <em>That is its charm and its curse, because nobody verifies anything, and when the news is bad they believe each other about routes that no longer exist.</em>",
+      es: "Acá nadie conoce el mapa: cada router solo habla con sus vecinos y solo sabe lo que ellos le cuentan. <em>Esa es su gracia y su desgracia, porque nadie verifica nada — y cuando la noticia es mala, se creen entre ellos rutas que ya no existen.</em>",
+      en: "Nobody here knows the map: each router only ever talks to its neighbours and only knows what they tell it. <em>That is its charm and its curse, because nobody verifies anything, and when the news is bad they believe each other about routes that no longer exist.</em>",
     },
     codigo: {
       es: [
@@ -391,7 +402,7 @@ export const ALGORITMOS: Definicion[] = [
     categoria: "estructuras",
     familia: "grilla",
     correr: correrBFS,
-    escenarios: DEL_TABLERO,
+    escenarios: SIN_COSTO,
     indice: {
       nombre: { es: "BFS y DFS", en: "BFS and DFS" },
       que: {
@@ -404,8 +415,8 @@ export const ALGORITMOS: Definicion[] = [
       en: "Queue · in at the back, out at the front",
     },
     tesis: {
-      es: "Ignora los costos: para BFS todas las casillas valen igual. <em>Encuentra el camino con menos casillas, que casi nunca es el más barato. Y en un tablero sin costos —prueba «Empate»— hace exactamente lo mismo que Dijkstra, celda por celda.</em>",
-      en: "It ignores the costs: to BFS every tile is worth the same. <em>It finds the path with the fewest tiles, which is almost never the cheapest one. And on a board with no costs — try «Tie» — it does exactly what Dijkstra does, cell for cell.</em>",
+      es: "Una cola, y nada más: el primero que entra es el primero que sale. <em>De ahí sale todo lo demás — explora por anillos, así que la primera vez que toca el destino ya llegó por el camino de menos casillas que existe.</em>",
+      en: "A queue, and nothing else: first in, first out. <em>Everything else follows from that — it explores in rings, so the first time it touches the target it has already arrived by the shortest path there is.</em>",
     },
     codigo: {
       es: [
@@ -456,14 +467,14 @@ export const ALGORITMOS: Definicion[] = [
     categoria: "estructuras",
     familia: "grilla",
     correr: correrDFS,
-    escenarios: DEL_TABLERO,
+    escenarios: SIN_COSTO,
     panel: {
       es: "Pila · entra y sale por el mismo lado",
       en: "Stack · in and out through the same end",
     },
     tesis: {
-      es: "Cambiar la cola por una pila es todo lo que hace falta. <em>En vez de abrirse en círculos se zambulle por un pasillo y solo vuelve cuando choca. Llega, y a veces mirando poquísimo — pero el camino que trae no tiene ninguna garantía.</em>",
-      en: "Swapping the queue for a stack is all it takes. <em>Instead of spreading in circles it dives down a corridor and only comes back when it hits a wall. It arrives, sometimes after looking at very little — but the path it brings carries no guarantee whatsoever.</em>",
+      es: "La misma función con una pila en lugar de una cola. <em>En vez de abrirse en anillos se zambulle por un pasillo y solo vuelve cuando choca. Llega, y a veces mirando poquísimo — pero el camino que trae no tiene ninguna garantía, y en «La bifurcación» se ve exactamente cuánto.</em>",
+      en: "The same function with a stack where the queue was. <em>Instead of spreading in rings it dives down a corridor and only turns back when it hits a wall. It arrives, sometimes after looking at very little — but the path it brings carries no guarantee at all, and «The fork» shows exactly how little.</em>",
     },
     codigo: {
       es: [
@@ -670,10 +681,6 @@ export const ALGORITMOS: Definicion[] = [
         en: "Path compression flattening the trees before your eyes.",
       },
     },
-    tambien: {
-      es: "Es lo que usa Kruskal para armar un árbol de expansión mínima sin cerrar bucles.",
-      en: "It is what Kruskal uses to build a minimum spanning tree without closing a loop.",
-    },
     panel: { es: "Los conjuntos", en: "The sets" },
     tesis: {
       es: "Contesta una sola pregunta —<b>¿estos dos ya están conectados?</b>— y es el ejemplo más limpio que existe de <em>dos optimizaciones de una línea cada una que cambian la complejidad de la estructura entera</em>.",
@@ -730,26 +737,26 @@ export const ALGORITMOS: Definicion[] = [
     categoria: "ia",
     familia: "grilla",
     correr: correrAEstrella,
-    escenarios: DEL_TABLERO,
+    escenarios: CON_COSTO,
     indice: {
       nombre: "A*",
       que: {
-        es: "Búsqueda informada: la heurística que evita mirar para el lado equivocado.",
-        en: "Informed search: the heuristic that stops it looking the wrong way.",
+        es: "Búsqueda informada: la heurística que evita mirar para el lado equivocado, y lo que se rompe cuando exagera.",
+        en: "Informed search: the heuristic that stops it looking the wrong way, and what breaks when it overshoots.",
       },
     },
     panel: { es: "Cola de prioridad · f = g + h", en: "Priority queue · f = g + h" },
     tesis: {
-      es: "El mismo algoritmo más una corazonada: cuánto falta en línea recta. <em>Encuentra exactamente el mismo camino óptimo, pero deja de mirar para el lado contrario.</em>",
-      en: "The same algorithm plus a hunch: how far is left as the crow flies. <em>It finds exactly the same optimal path, but it stops looking in the wrong direction.</em>",
+      es: "Prioriza por <code>f = g + h</code>: lo que ya gastó más una corazonada de cuánto falta en línea recta. <em>Mientras esa corazonada no se pase —y no puede, porque ninguna casilla cuesta menos de 1— el camino que devuelve es el óptimo. En cuanto se pasa, sigue llegando, sigue pareciendo que funciona, y deja de ser el mejor.</em>",
+      en: "It prioritises by <code>f = g + h</code>: what it has already spent plus a hunch about how far is left as the crow flies. <em>As long as that hunch never overshoots —and it cannot, since no square costs less than 1— the path it returns is optimal. The moment it does overshoot, it still arrives, still looks like it works, and stops being the best.</em>",
     },
     codigo: {
       es: [
         "function aEstrella(origen, destino) {",
         "  const g = new Map([[origen, 0]]);",
         "  const previo = new Map();",
-        "  // La prioridad ya no es g, sino g + h.",
-        "  const cola = new ColaDePrioridad([[origen, h(origen)]]);",
+        "  // Prioridad: g + peso·h. Con peso 1 la corazonada nunca miente.",
+        "  const cola = new ColaDePrioridad([[origen, peso * h(origen)]]);",
         "  const cerrados = new Set();",
         "",
         "  while (!cola.vacia()) {",
@@ -763,7 +770,7 @@ export const ALGORITMOS: Definicion[] = [
         "      if (candidata < (g.get(vecino) ?? Infinity)) {",
         "        g.set(vecino, candidata);",
         "        previo.set(vecino, actual);",
-        "        cola.insertar(vecino, candidata + h(vecino));",
+        "        cola.insertar(vecino, candidata + peso * h(vecino));",
         "      }",
         "    }",
         "  }",
@@ -774,8 +781,8 @@ export const ALGORITMOS: Definicion[] = [
         "function aStar(source, target) {",
         "  const g = new Map([[source, 0]]);",
         "  const cameFrom = new Map();",
-        "  // The priority is no longer g, but g + h.",
-        "  const queue = new PriorityQueue([[source, h(source)]]);",
+        "  // Priority: g + weight·h. At weight 1 the hunch never lies.",
+        "  const queue = new PriorityQueue([[source, weight * h(source)]]);",
         "  const settled = new Set();",
         "",
         "  while (!queue.isEmpty()) {",
@@ -789,7 +796,7 @@ export const ALGORITMOS: Definicion[] = [
         "      if (candidate < (g.get(next) ?? Infinity)) {",
         "        g.set(next, candidate);",
         "        cameFrom.set(next, current);",
-        "        queue.push(next, candidate + h(next));",
+        "        queue.push(next, candidate + weight * h(next));",
         "      }",
         "    }",
         "  }",
