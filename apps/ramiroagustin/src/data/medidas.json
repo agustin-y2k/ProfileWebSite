@@ -1,11 +1,11 @@
 {
   "01-mostrador": {
-    "completa": [2880, 3720],
-    "detalle": [2240, 1400],
+    "completa": [2880, 1846],
+    "detalle": [2472, 1545],
     "foco": [1170, 878]
   },
   "02-nueva-reserva": {
-    "completa": [2880, 2352],
+    "completa": [2880, 2692],
     "detalle": [2112, 1320],
     "foco": [1170, 878]
   },
@@ -20,12 +20,12 @@
     "foco": [1170, 878]
   },
   "04-inventario-admin": {
-    "completa": [2880, 5320],
+    "completa": [2880, 5408],
     "detalle": [1900, 1187],
     "foco": [1170, 878]
   },
   "08-academico": {
-    "completa": [2880, 2082],
+    "completa": [2880, 3064],
     "detalle": [1900, 1187],
     "foco": [1170, 878]
   },

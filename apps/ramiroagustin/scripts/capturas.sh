@@ -76,32 +76,37 @@ slides=(
 # pantalla con mucho aire —mis reservas, por ejemplo— agrandar es preferible a
 # mostrar el vacío de la página.
 #
+# El del mostrador es la excepción al ancho de ~2100: esa pantalla entra entera
+# en el marco, y encuadrarla más cerrado obligaba a dejar afuera el saludo o a
+# cortar una clase por la mitad. A 2472 px el texto llega a la tarjeta en 12 y
+# no en 14, y se sigue leyendo; mostrar media pantalla se notaba más.
+#
 # El foco es una franja de ancho completo de la captura del teléfono: ahí lo
 # único que hay que elegir es a qué altura empieza. Va más alto que el detalle
 # —4:3 y no 16:10— porque la fuente es una pantalla vertical: una franja 16:10
 # de un teléfono muestra menos de un tercio de lo que se ve al entrar.
 declare -A detalle=(
-  [01-mostrador]="320:140:2240:1400"          # el saludo, las cuatro tarjetas y los contadores
+  [01-mostrador]="204:165:2472:1545"          # la pantalla entera, del saludo a las próximas clases
   [02-nueva-reserva]="384:380:2112:1320"      # el formulario entero, de la materia a las computadoras
   [03-mis-reservas]="500:120:1840:1150"       # el título y las dos clases con sus botones
   [10-inventario-docente]="480:140:1900:1187" # la tabla del carro, de PC 1 a PC 8
   [04-inventario-admin]="480:600:1900:1187"   # los equipos sueltos y el arranque del carro
-  [08-academico]="480:680:1900:1187"          # el ciclo activo, el alta de curso y las materias
+  [08-academico]="480:1230:1900:1187"         # el alta de curso y las materias de 1°A, con sus docentes
   [07-licencias]="300:120:2280:1425"          # el listado con los plazos de renovación
   [05-reportes]="480:440:1900:1187"           # uso por equipo y horas por docente
   [09-reportes-oscuro]="480:440:1900:1187"    # el mismo bloque, en oscuro
 )
 
 declare -A foco=(
-  [01-mostrador]="0:1900:1170:878"         # el laboratorio ahora y la entrega sin reserva
-  [02-nueva-reserva]="0:1970:1170:878"     # las computadoras del carro, para tildar
+  [01-mostrador]="0:2230:1170:878"         # el equipo que está afuera, con el botón de recibirlo
+  [02-nueva-reserva]="0:2400:1170:878"     # las computadoras del carro, para tildar
   [03-mis-reservas]="0:850:1170:878"       # la clase del lunes con sus computadoras
   [10-inventario-docente]="0:725:1170:878" # la ficha de la PC 1 del carro
   [04-inventario-admin]="0:1800:1170:878"  # la notebook suelta, con todas sus acciones
-  [08-academico]="0:1550:1170:878"         # división y modalidad, las dos opcionales
-  [07-licencias]="0:950:1170:878"          # tres licencias sin fecha de vencimiento
-  [05-reportes]="0:1160:1170:878"          # el uso por equipo, con su total
-  [09-reportes-oscuro]="0:1160:1170:878"   # lo mismo, en oscuro
+  [08-academico]="0:2620:1170:878"         # división y modalidad, las dos opcionales
+  [07-licencias]="0:950:1170:878"          # dos licencias sin fecha de vencimiento
+  [05-reportes]="0:1120:1170:878"          # el uso por equipo, con su total
+  [09-reportes-oscuro]="0:1120:1170:878"   # lo mismo, en oscuro
 )
 
 # El inicio del docente ya es una captura de teléfono, así que no tiene un
