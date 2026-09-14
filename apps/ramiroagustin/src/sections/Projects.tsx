@@ -11,7 +11,6 @@ export function Projects() {
     <Section id="proyectos" labelledBy="proyectos-titulo">
       <Container>
         <header className={styles.head}>
-          <p className="label">{t({ es: "Proyectos", en: "Projects" })}</p>
           <h2 id="proyectos-titulo" className={styles.title}>
             {t({ es: "Lo que construí", en: "What I've built" })}
           </h2>

@@ -9,7 +9,6 @@ export function Contact() {
       <Container>
         <div className={styles.layout}>
           <div className={styles.copy}>
-            <p className="label">Contacto</p>
             <h2 id="contacto-titulo" className={styles.title}>
               Contame qué le pasa a tu equipo
             </h2>

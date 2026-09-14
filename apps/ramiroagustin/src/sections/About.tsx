@@ -9,7 +9,6 @@ export function About() {
     <Section id="sobre" labelledBy="sobre-titulo" tone="alt">
       <Container className={styles.layout}>
         <div className={styles.text}>
-          <p className="label">{t({ es: "Sobre mí", en: "About" })}</p>
           <h2 id="sobre-titulo" className={styles.title}>
             {t({
               es: "Entre el taller y el código",

@@ -7,7 +7,6 @@ export function Pricing() {
     <Section id="precios" labelledBy="precios-titulo" tone="alt">
       <Container>
         <header className={styles.head}>
-          <p className="label">Tarifas</p>
           <h2 id="precios-titulo" className={styles.title}>
             Precios de referencia
           </h2>

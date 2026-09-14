@@ -27,8 +27,46 @@ body::before {
   background-color: var(--bg);
   background-image:
     radial-gradient(ellipse 70% 45% at 12% -8%, var(--accent-soft), transparent 60%),
-    radial-gradient(ellipse 55% 40% at 95% 12%, var(--bg-tint), transparent 55%);
+    radial-gradient(ellipse 55% 40% at 95% 12%, var(--bg-tint), transparent 55%),
+    /* Renglones de cuaderno: el "papel" deja de ser solo un color y pasa a
+       tener una superficie. Muy tenue a propósito —es textura, no una tabla—
+       así que no compite con el contenido ni molesta en modo oscuro. */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 2.15rem,
+      color-mix(in srgb, var(--border-strong) 55%, transparent) 2.15rem,
+      color-mix(in srgb, var(--border-strong) 55%, transparent) calc(2.15rem + 1px)
+    ),
+    /* Margen del cuaderno: una regla vertical fina cerca del borde izquierdo. */
+    linear-gradient(
+      90deg,
+      transparent calc(var(--gutter) + 1.5rem),
+      color-mix(in srgb, var(--accent) 22%, transparent) calc(var(--gutter) + 1.5rem),
+      color-mix(in srgb, var(--accent) 22%, transparent) calc(var(--gutter) + 1.5rem + 1px),
+      transparent calc(var(--gutter) + 1.5rem + 1px)
+    );
+  background-repeat: repeat, no-repeat, repeat, no-repeat;
   transition: background-color var(--duration) var(--ease-out);
+}
+
+/* El margen del cuaderno solo tiene sentido hasta el ancho donde el texto
+   sigue estando cerca del borde izquierdo: en pantallas anchas el contenedor
+   se centra y la regla quedaría flotando en el medio de nada. */
+@media (min-width: 78rem) {
+  body::before {
+    background-image:
+      radial-gradient(ellipse 70% 45% at 12% -8%, var(--accent-soft), transparent 60%),
+      radial-gradient(ellipse 55% 40% at 95% 12%, var(--bg-tint), transparent 55%),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 2.15rem,
+        color-mix(in srgb, var(--border-strong) 55%, transparent) 2.15rem,
+        color-mix(in srgb, var(--border-strong) 55%, transparent) calc(2.15rem + 1px)
+      );
+    background-repeat: repeat, no-repeat, repeat;
+  }
 }
 
 /* ── Utilidades tipográficas del sitio ───────────────────────────────────── */

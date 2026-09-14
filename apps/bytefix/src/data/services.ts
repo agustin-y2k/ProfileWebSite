@@ -8,9 +8,9 @@ export type Service = {
 export const services: readonly Service[] = [
   {
     id: "gobierno",
-    title: "Notebooks del Gobierno",
+    title: "Notebooks Escolares",
     description:
-      "Desbloqueo definitivo, optimización del sistema y puesta a punto integral para estudiar o trabajar sin límites.",
+      "Activación y optimización del sistema, con puesta a punto integral para estudiar o trabajar sin límites.",
     badge: "Más pedido",
   },
   {

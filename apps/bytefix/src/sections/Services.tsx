@@ -7,9 +7,8 @@ export function Services() {
     <Section id="servicios" labelledBy="servicios-titulo">
       <Container>
         <header className={styles.head}>
-          <p className="label">Servicios</p>
           <h2 id="servicios-titulo" className={styles.title}>
-            Qué hacemos
+            Qué hago
           </h2>
           <p className={styles.intro}>
             Tocá cualquier servicio para ver su tarifa de referencia.

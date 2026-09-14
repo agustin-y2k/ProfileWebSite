@@ -10,7 +10,6 @@ export function Work() {
     <Section id="trabajo" labelledBy="trabajo-titulo" tone="alt">
       <Container>
         <header className={styles.head}>
-          <p className="label">{t({ es: "Servicios", en: "Services" })}</p>
           <h2 id="trabajo-titulo" className={styles.title}>
             {t({ es: "En qué puedo ayudarte", en: "How I can help" })}
           </h2>

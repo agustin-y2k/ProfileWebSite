@@ -22,13 +22,11 @@
   margin-top: var(--space-1);
 }
 
+/* Cursiva en vez de color: el énfasis queda dentro del propio alfabeto serif
+   —tinta, no resaltador— así que sobrevive a un lector sin color y no compite
+   con el acento, que ya se usa en la cita y en la ficha técnica. */
 .name {
-  color: var(--accent-text);
-  /* Subrayado que no choca con las descendentes de la tipografía serif. */
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 6px;
-  text-decoration-color: var(--accent-soft);
+  font-style: italic;
 }
 
 .subtitle {

@@ -1,12 +1,16 @@
 .hero {
   padding-block: var(--space-8) var(--space-9);
-  text-align: center;
 }
 
-.inner {
+.layout {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.copy {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: start;
   gap: var(--space-4);
 }
 
@@ -19,14 +23,8 @@
   max-width: 15ch;
 }
 
-.accent {
-  color: var(--accent);
-  /* Resplandor sutil: refuerza la marca sin sacrificar contraste de lectura. */
-  text-shadow: 0 0 42px var(--accent-glow);
-}
-
 .lead {
-  max-width: 56ch;
+  max-width: 48ch;
   font-size: var(--text-lg);
   color: var(--text-muted);
 }
@@ -34,7 +32,6 @@
 .actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: var(--space-3);
   margin-top: var(--space-3);
 }
@@ -47,7 +44,6 @@
   margin-top: var(--space-7);
   padding-top: var(--space-6);
   border-top: 1px solid var(--border);
-  text-align: left;
   list-style: none;
 }
 
@@ -76,13 +72,71 @@
   color: var(--text-muted);
 }
 
-@media (min-width: 48rem) {
-  .hero {
-    padding-block: var(--space-9) var(--space-7);
-  }
+/* ── Ficha de diagnóstico ────────────────────────────────────────────────── */
+.visual {
+  display: none;
+}
 
+.panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: var(--space-6);
+}
+
+.diagram {
+  width: 100%;
+  height: auto;
+  color: var(--accent);
+}
+
+.dotOk {
+  fill: var(--whatsapp);
+}
+
+.dotWarn {
+  fill: var(--accent);
+}
+
+.rowLabel,
+.rowValue {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: var(--tracking-wide);
+  fill: var(--text-muted);
+  stroke: none;
+}
+
+.rowValue {
+  fill: var(--text);
+  font-weight: 600;
+}
+
+@media (min-width: 40rem) {
   .trust {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-6);
+  }
+}
+
+@media (min-width: 62rem) {
+  .hero {
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: var(--space-9);
+    align-items: center;
+  }
+
+  .visual {
+    display: block;
+  }
+
+  .panel {
+    max-width: 22rem;
+    margin-inline: auto;
   }
 }

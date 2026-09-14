@@ -20,7 +20,6 @@ export function Testimonials() {
     <Section labelledBy="testimonios-titulo" tone="alt">
       <Container>
         <header className={styles.head}>
-          <p className="label">Clientes</p>
           <h2 id="testimonios-titulo" className={styles.title}>
             Lo que dicen
           </h2>

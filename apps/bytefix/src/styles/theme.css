@@ -42,10 +42,11 @@
   --shadow: 0 24px 60px -24px rgb(0 0 0 / 0.75);
 
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Los títulos van en Inter. Syne quedó reservada al logotipo: su dibujo es
-     muy ancho en los pesos altos y sus descendentes cortos hacen que la g y
-     la q se lean truncadas a tamaño grande. */
-  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Space Grotesk en los títulos: tiene el carácter técnico que buscábamos en
+     Syne, pero con descendentes de proporción normal, así que no corta la g
+     ni la q en los tamaños grandes del H1 (ver fonts.css). Syne queda
+     reservada al logotipo, chico, donde nunca dio ese problema. */
+  --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-logo: "Syne", "Inter", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }

@@ -14,7 +14,6 @@ export function Process() {
     <Section labelledBy="proceso-titulo" space="tight">
       <Container>
         <header className={styles.head}>
-          <p className="label">Cómo trabajo</p>
           <h2 id="proceso-titulo" className={styles.title}>
             Sin sorpresas en el precio
           </h2>

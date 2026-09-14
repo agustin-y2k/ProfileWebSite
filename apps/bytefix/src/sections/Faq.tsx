@@ -32,7 +32,6 @@ export function Faq() {
           dangerouslySetInnerHTML={{ __html: faqJsonLd() }}
         />
         <header className={styles.head}>
-          <p className="label">Preguntas frecuentes</p>
           <h2 id="preguntas-titulo" className={styles.title}>
             Antes de escribir
           </h2>

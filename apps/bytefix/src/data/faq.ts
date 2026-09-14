@@ -19,9 +19,9 @@ export const faq: readonly FaqItem[] = [
       "En San Rafael, Mendoza: Dr. Carlos Pellegrini 1157, depto. 3. Conviene escribir por WhatsApp antes de acercarse.",
   },
   {
-    question: "¿El desbloqueo de las notebooks del gobierno es definitivo?",
+    question: "¿La activación de las notebooks escolares es definitiva?",
     answer:
-      "Sí, es un desbloqueo definitivo. Además se hace una puesta a punto del sistema para que el equipo quede usable para estudiar o trabajar.",
+      "Sí, es una activación definitiva. Además se hace una puesta a punto del sistema para que el equipo quede usable para estudiar o trabajar.",
   },
   {
     question: "¿Siempre se pueden recuperar los datos de un disco dañado?",

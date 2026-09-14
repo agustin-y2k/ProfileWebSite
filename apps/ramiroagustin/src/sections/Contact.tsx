@@ -55,7 +55,6 @@ export function Contact() {
     <Section id="contacto" labelledBy="contacto-titulo" tone="alt">
       <Container>
         <header className={styles.head}>
-          <p className="label">{t({ es: "Contacto", en: "Contact" })}</p>
           <h2 id="contacto-titulo" className={styles.title}>
             {t({ es: "Cuéntame qué necesitas", en: "Tell me what you need" })}
           </h2>

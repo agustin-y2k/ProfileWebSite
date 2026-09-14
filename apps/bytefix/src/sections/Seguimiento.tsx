@@ -21,7 +21,6 @@ export function Seguimiento() {
       <Container>
         <div className={styles.caja}>
           <div>
-            <p className="label">Ya dejaste tu equipo</p>
             <h2 id="seguimiento-titulo" className={styles.title}>
               Seguí el estado de tu equipo
             </h2>

@@ -1,11 +1,18 @@
-/* Inter (texto) + Syne (display). Self-hosted desde Fontsource.
+/* Inter (texto) + Space Grotesk (títulos) + Syne (solo el logotipo).
  *
  * Los archivos anteriores estaban rotos: `Inter-Regular.woff2` e
  * `Inter-Bold.woff2` eran páginas HTML de GitHub de 299 KB cada una —
  * descargadas desde la URL de la página en vez del archivo raw—, así que el
  * navegador las rechazaba y el sitio caía a system-ui. Syne, por su parte,
  * era un TTF renombrado a .woff2.
- */
+ *
+ * Space Grotesk reemplaza a Syne como fuente de título: Syne tiene
+ * descendentes muy cortos y en H1 (`text-4xl`) la g de "Tecnología" se leía
+ * cortada por la línea siguiente, pasara lo que pasara con el peso. Space
+ * Grotesk es una grotesca con carácter técnico —tabla de espaciado ancha,
+ * detalles geométricos en la a y la g— pero con proporciones normales, así
+ * que no tiene ese problema. Syne queda reservada al logotipo, donde su
+ * tamaño chico nunca llegó a mostrar el corte. */
 
 @font-face {
   font-family: "Inter";
@@ -35,4 +42,13 @@
   font-weight: 400 800;
   font-display: swap;
   src: url("/fonts/syne-latin-wght-normal.woff2") format("woff2");
+}
+
+/* Variable en el eje `wght`: un solo archivo cubre de 500 a 700. */
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("/fonts/space-grotesk-latin-wght-normal.woff2") format("woff2");
 }

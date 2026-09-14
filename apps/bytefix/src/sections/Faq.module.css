@@ -11,20 +11,15 @@
   margin-top: var(--space-2);
 }
 
+/* Lista dividida por reglas, sin chrome de card: el propio <details> ya
+   avisa que es interactivo, así que un borde+radio+fondo alrededor de cada
+   pregunta solo repetía el mismo kit de tarjeta que Servicios y Testimonios. */
 .list {
-  display: grid;
-  gap: var(--space-3);
+  border-top: 1px solid var(--border);
 }
 
 .item {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  transition: border-color var(--duration) var(--ease-out);
-}
-
-.item[open] {
-  border-color: var(--border-strong);
+  border-bottom: 1px solid var(--border);
 }
 
 .question {
@@ -32,11 +27,12 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
+  padding-block: var(--space-4);
   font-weight: 600;
   color: var(--text);
   cursor: pointer;
   list-style: none;
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
 /* Oculta el triángulo por defecto en Safari/WebKit. */
@@ -59,7 +55,8 @@
 }
 
 .answer {
-  padding: 0 var(--space-5) var(--space-5);
+  padding-bottom: var(--space-4);
+  max-width: 62ch;
   color: var(--text-muted);
   font-size: var(--text-base);
 }

@@ -30,15 +30,15 @@ body::before {
       0deg,
       transparent,
       transparent 39px,
-      rgb(148 163 184 / 0.028) 39px,
-      rgb(148 163 184 / 0.028) 40px
+      rgb(148 163 184 / 0.05) 39px,
+      rgb(148 163 184 / 0.05) 40px
     ),
     repeating-linear-gradient(
       90deg,
       transparent,
       transparent 39px,
-      rgb(148 163 184 / 0.028) 39px,
-      rgb(148 163 184 / 0.028) 40px
+      rgb(148 163 184 / 0.05) 39px,
+      rgb(148 163 184 / 0.05) 40px
     );
 }
 
