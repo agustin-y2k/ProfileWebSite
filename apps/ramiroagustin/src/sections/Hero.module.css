@@ -1,10 +1,10 @@
 .hero {
-  padding-block: var(--space-8) var(--space-9);
+  padding-block: var(--space-6);
 }
 
 .layout {
   display: grid;
-  gap: var(--space-7);
+  gap: var(--space-5);
 }
 
 .copy {
@@ -16,25 +16,11 @@
 
 .title {
   font-family: var(--font-serif);
+  font-style: italic;
   font-size: var(--text-3xl);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
   margin-top: var(--space-1);
-}
-
-/* Cursiva en vez de color: el énfasis queda dentro del propio alfabeto serif
-   —tinta, no resaltador— así que sobrevive a un lector sin color y no compite
-   con el acento, que ya se usa en la cita y en la ficha técnica. */
-.name {
-  font-style: italic;
-}
-
-.subtitle {
-  font-size: var(--text-lg);
-  line-height: var(--leading-snug);
-  color: var(--text);
-  max-width: 32ch;
-  text-wrap: balance;
 }
 
 .lead {
@@ -49,32 +35,11 @@
   margin-top: var(--space-2);
 }
 
-/* ── Ficha técnica ───────────────────────────────────────────────────────── */
-.ficha {
-  display: grid;
-  gap: var(--space-3);
-  width: 100%;
-  margin-top: var(--space-5);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--border);
-}
-
-.fichaRow {
-  display: grid;
-  grid-template-columns: 7.5rem 1fr;
-  gap: var(--space-4);
-  align-items: baseline;
-}
-
-.fichaValue {
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
-
 /* ── Retrato ─────────────────────────────────────────────────────────────── */
 .visual {
-  justify-self: center;
-  width: min(100%, 20rem);
+  order: -1;
+  justify-self: start;
+  width: 9rem;
 }
 
 .frame {
@@ -103,18 +68,26 @@
   object-fit: cover;
 }
 
-@media (min-width: 62rem) {
-  .hero {
-    padding-block: var(--space-9) var(--space-8);
-  }
-
+@media (min-width: 40rem) {
   .layout {
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    gap: var(--space-9);
+    gap: var(--space-7);
     align-items: center;
   }
 
   .visual {
-    width: 100%;
+    order: 0;
+    justify-self: end;
+    width: min(100%, 25rem);
+  }
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    padding-block: var(--space-7);
+  }
+
+  .layout {
+    gap: var(--space-8);
   }
 }

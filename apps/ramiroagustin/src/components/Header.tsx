@@ -31,7 +31,7 @@ export function Header() {
       className={[styles.header, scrolled && styles.scrolled].filter(Boolean).join(" ")}
     >
       <Container className={styles.inner}>
-        <a className={styles.logo} href="#top">
+        <a className={styles.logo} href="#top" aria-label={site.name}>
           <span className={styles.logoMark} aria-hidden="true">
             RA
           </span>

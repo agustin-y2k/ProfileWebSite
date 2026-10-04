@@ -13,8 +13,7 @@ import "./styles/global.css";
  * El idioma se lee del `data-idioma` que el prerender dejó en el propio nodo,
  * y no de `navigator.language`: tiene que ser exactamente el mismo con el que
  * se generó este HTML, o la hidratación encontraría un árbol distinto al que
- * está en la página. Quién decide qué idioma servir es nginx, antes de todo
- * esto.
+ * está en la página. Cada URL sirve el HTML del idioma que declara.
  */
 const root = document.getElementById("root");
 if (root) {

@@ -1,6 +1,6 @@
 .head {
   max-width: var(--measure);
-  margin-bottom: var(--space-8);
+  margin-bottom: clamp(2rem, 3vw, 3rem);
 }
 
 .title {

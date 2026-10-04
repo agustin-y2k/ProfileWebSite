@@ -3,6 +3,11 @@
 @import "./fonts.css";
 @import "./theme.css";
 
+:root {
+  --section-space: clamp(3rem, 5vw, 4rem);
+  --section-space-tight: clamp(1.5rem, 3vw, 2rem);
+}
+
 body {
   font-family: var(--font-sans);
   font-size: var(--text-md);
@@ -32,20 +37,21 @@ body::before {
        tener una superficie. Muy tenue a propósito —es textura, no una tabla—
        así que no compite con el contenido ni molesta en modo oscuro. */
     repeating-linear-gradient(
-      0deg,
-      transparent 0,
-      transparent 2.15rem,
-      color-mix(in srgb, var(--border-strong) 55%, transparent) 2.15rem,
-      color-mix(in srgb, var(--border-strong) 55%, transparent) calc(2.15rem + 1px)
-    ),
+        0deg,
+        transparent 0,
+        transparent 2.15rem,
+        color-mix(in srgb, var(--border-strong) 20%, transparent) 2.15rem,
+        color-mix(in srgb, var(--border-strong) 20%, transparent) calc(2.15rem + 1px)
+      ),
     /* Margen del cuaderno: una regla vertical fina cerca del borde izquierdo. */
     linear-gradient(
-      90deg,
-      transparent calc(var(--gutter) + 1.5rem),
-      color-mix(in srgb, var(--accent) 22%, transparent) calc(var(--gutter) + 1.5rem),
-      color-mix(in srgb, var(--accent) 22%, transparent) calc(var(--gutter) + 1.5rem + 1px),
-      transparent calc(var(--gutter) + 1.5rem + 1px)
-    );
+        90deg,
+        transparent calc(var(--gutter) + 1.5rem),
+        color-mix(in srgb, var(--accent) 12%, transparent) calc(var(--gutter) + 1.5rem),
+        color-mix(in srgb, var(--accent) 12%, transparent)
+          calc(var(--gutter) + 1.5rem + 1px),
+        transparent calc(var(--gutter) + 1.5rem + 1px)
+      );
   background-repeat: repeat, no-repeat, repeat, no-repeat;
   transition: background-color var(--duration) var(--ease-out);
 }
@@ -62,8 +68,8 @@ body::before {
         0deg,
         transparent 0,
         transparent 2.15rem,
-        color-mix(in srgb, var(--border-strong) 55%, transparent) 2.15rem,
-        color-mix(in srgb, var(--border-strong) 55%, transparent) calc(2.15rem + 1px)
+        color-mix(in srgb, var(--border-strong) 20%, transparent) 2.15rem,
+        color-mix(in srgb, var(--border-strong) 20%, transparent) calc(2.15rem + 1px)
       );
     background-repeat: repeat, no-repeat, repeat;
   }

@@ -1,5 +1,6 @@
 .caja {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
   align-items: center;
   padding: var(--space-6);
@@ -10,7 +11,7 @@
 
 @media (min-width: 48rem) {
   .caja {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-7);
   }
 }
@@ -35,13 +36,14 @@
   align-items: center;
   justify-content: center;
   min-height: 3rem;
-  padding: 0 var(--space-5);
+  padding: var(--space-3) var(--space-5);
   border-radius: var(--radius-md);
   background: var(--accent);
   color: var(--accent-contrast);
   font-weight: 600;
   text-decoration: none;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
 }
 
 .cta:hover {

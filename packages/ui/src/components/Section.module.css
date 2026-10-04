@@ -3,11 +3,11 @@
 }
 
 .tight {
-  padding-block: var(--space-7);
+  padding-block: var(--section-space-tight, var(--space-7));
 }
 
 .default {
-  padding-block: var(--space-9);
+  padding-block: var(--section-space, var(--space-9));
 }
 
 .loose {

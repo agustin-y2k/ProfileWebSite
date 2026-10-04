@@ -1,4 +1,5 @@
 import { IDIOMAS, prefijo, type Idioma } from "./idioma";
+import { site } from "../data/site";
 
 /**
  * Todo lo que va en el `<head>` y cambia según la página y el idioma.
@@ -10,9 +11,7 @@ import { IDIOMAS, prefijo, type Idioma } from "./idioma";
  * combinación, así que una página nueva es una entrada acá y nada más.
  *
  * El `hreflang` no es decorativo: es lo que le dice a Google que `/` y `/en/`
- * son la misma página en dos idiomas y no contenido duplicado compitiendo
- * entre sí. Sin eso, publicar una traducción puede hundir el posicionamiento
- * del original.
+ * son versiones de una página en dos idiomas y ayuda a elegir la apropiada.
  */
 
 export const SITIO = "https://ramiroagustin.online";
@@ -44,58 +43,85 @@ export type Meta = {
 };
 
 const PERSONA = {
-  "@context": "https://schema.org",
   "@type": "Person",
-  name: "Ramiro Agustín Pintos",
-  alternateName: "Ramiro Agustín",
+  "@id": `${SITIO}/#persona`,
+  name: site.fullName,
+  alternateName: [...site.alternateNames],
   url: `${SITIO}/`,
-  email: "mailto:agustin.y2k@gmail.com",
-  telephone: "+54-9-260-431-6731",
+  image: `${SITIO}/img/retrato.jpg`,
+  sameAs: [site.github],
+  email: `mailto:${site.email}`,
+  telephone: site.phone.href.replace("tel:", ""),
   address: {
     "@type": "PostalAddress",
     addressLocality: "San Rafael",
     addressRegion: "Mendoza",
     addressCountry: "AR",
   },
-  owns: {
+  worksFor: {
     "@type": "Organization",
     name: "ByteFix",
-    url: "https://bytefix.shop/",
+    url: site.bytefix,
   },
 };
+
+function perfil(idioma: Idioma) {
+  const url = `${SITIO}${prefijo(idioma)}/`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITIO}/#sitio`,
+        url: `${SITIO}/`,
+        name: site.name,
+        alternateName: site.shortName,
+        inLanguage: [...IDIOMAS],
+        publisher: { "@id": PERSONA["@id"] },
+      },
+      {
+        ...PERSONA,
+        jobTitle: idioma === "es" ? "Programador" : "Software Developer",
+        knowsAbout:
+          idioma === "es"
+            ? ["Desarrollo de software", "Reparación de computadoras", "Redes"]
+            : ["Software development", "Computer repair", "Computer networks"],
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": `${url}#perfil`,
+        url,
+        name: site.name,
+        inLanguage: idioma,
+        isPartOf: { "@id": `${SITIO}/#sitio` },
+        mainEntity: { "@id": PERSONA["@id"] },
+      },
+    ],
+  };
+}
 
 export const META: Record<Pagina, Record<Idioma, Meta>> = {
   inicio: {
     es: {
-      titulo: "Ramiro Agustín — Programador",
-      descripcion:
-        "Ramiro Agustín, programador y estudiante de Ingeniería en Informática en San Rafael, Mendoza. Reparación de equipos, desarrollo de software y redes que se sostienen en el día a día.",
-      ogTitulo: "Ramiro Agustín — Programador",
+      titulo: `${site.fullName} — Programador`,
+      descripcion: `${site.fullName}, conocido como ${site.name}. Programador y estudiante de Ingeniería en Informática en San Rafael, Mendoza. Software y automatizaciones.`,
+      ogTitulo: `${site.name} — Programador`,
       ogDescripcion:
         "Reparación de equipos, desarrollo de software y redes. San Rafael, Mendoza.",
-      jsonLd: {
-        ...PERSONA,
-        jobTitle: "Programador",
-        knowsAbout: ["Reparación de computadoras", "Desarrollo de software", "Redes"],
-      },
+      jsonLd: perfil("es"),
     },
     en: {
-      titulo: "Ramiro Agustín — Software Developer",
-      descripcion:
-        "Ramiro Agustín, software developer and Computer Engineering student in San Rafael, Argentina. Hardware repair, software development, and networks that hold up day to day.",
-      ogTitulo: "Ramiro Agustín — Software Developer",
+      titulo: `${site.fullName} — Software Developer`,
+      descripcion: `${site.fullName}, also known as ${site.name}. Software developer and Computer Engineering student in San Rafael, Argentina. Software and automation.`,
+      ogTitulo: `${site.name} — Software Developer`,
       ogDescripcion:
         "Hardware repair, software development and networking. San Rafael, Argentina.",
-      jsonLd: {
-        ...PERSONA,
-        jobTitle: "Software Developer",
-        knowsAbout: ["Computer repair", "Software development", "Computer networks"],
-      },
+      jsonLd: perfil("en"),
     },
   },
   algoritmos: {
     es: {
-      titulo: "Doce algoritmos, paso a paso — Ramiro Agustín",
+      titulo: `Doce algoritmos, paso a paso — ${site.fullName}`,
       descripcion:
         "Doce algoritmos de redes, estructuras e inteligencia artificial, animados paso a paso y con el código sincronizado. Spanning Tree, Dijkstra, A*, minimax con poda alfa-beta y k-means.",
       ogTitulo: "Doce algoritmos, paso a paso",
@@ -103,7 +129,7 @@ export const META: Record<Pagina, Record<Idioma, Meta>> = {
         "Redes, estructuras e IA animados con el código al lado, y los escenarios donde cada uno falla.",
     },
     en: {
-      titulo: "Twelve Algorithms, Step by Step — Ramiro Agustín",
+      titulo: `Twelve Algorithms, Step by Step — ${site.fullName}`,
       descripcion:
         "Twelve algorithms from networking, data structures and AI, animated step by step with the code in sync. Spanning Tree, Dijkstra, A*, alpha-beta minimax and k-means.",
       ogTitulo: "Twelve Algorithms, Step by Step",
@@ -134,6 +160,7 @@ export function bloqueMeta(pagina: Pagina, idioma: Idioma): string {
   const lineas = [
     `<title>${escapar(meta.titulo)}</title>`,
     `<meta name="description" content="${escapar(meta.descripcion)}" />`,
+    `<meta name="author" content="${escapar(site.fullName)}" />`,
     `<link rel="canonical" href="${url}" />`,
     "",
     // Una etiqueta por idioma más `x-default`, que es la que le dice al
@@ -145,6 +172,7 @@ export function bloqueMeta(pagina: Pagina, idioma: Idioma): string {
     `<link rel="alternate" hreflang="x-default" href="${SITIO}${RUTAS[pagina]}" />`,
     "",
     `<meta property="og:url" content="${url}" />`,
+    `<meta property="og:site_name" content="${escapar(site.name)}" />`,
     `<meta property="og:title" content="${escapar(meta.ogTitulo)}" />`,
     `<meta property="og:description" content="${escapar(meta.ogDescripcion)}" />`,
     `<meta property="og:locale" content="${OG_LOCALE[idioma]}" />`,

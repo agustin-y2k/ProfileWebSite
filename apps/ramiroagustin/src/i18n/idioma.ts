@@ -30,7 +30,7 @@ export type Frase = string | Record<Idioma, string>;
 
 export const PREDETERMINADO: Idioma = "es";
 
-/** Para lo que llega de afuera del tipo: un `data-idioma`, una URL, una cookie. */
+/** Para lo que llega de afuera del tipo: un `data-idioma` o una URL. */
 export const esIdioma = (x: unknown): x is Idioma =>
   typeof x === "string" && (IDIOMAS as readonly string[]).includes(x);
 
@@ -73,12 +73,3 @@ export const ETIQUETA_HTML: Record<Idioma, string> = {
   es: "es",
   en: "en",
 };
-
-/**
- * La cookie con la que la persona pisa la detección automática.
- *
- * nginx la lee antes de mirar `Accept-Language` (ver nginx.conf): sin esto,
- * alguien con el navegador en inglés que elige español volvería al inglés en
- * la próxima visita, y el selector de idioma sería decorativo.
- */
-export const COOKIE_IDIOMA = "idioma";

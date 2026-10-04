@@ -472,6 +472,30 @@ cualquier origen que no esté declarado.
 
 ## Detalles que no son obvios
 
+**El idioma lo fija la URL.** `/` y `/algoritmos/` sirven español;
+`/en/` y `/en/algoritmos/` sirven inglés. El selector enlaza la otra versión
+sin cookies ni redirecciones por país o idioma del navegador. Cada página
+declara su propia canónica y las alternativas con `hreflang`.
+
+### Comprobar la indexación del portfolio después de publicar
+
+1. Verificar la propiedad de dominio `ramiroagustin.online` en
+   [Google Search Console](https://search.google.com/search-console).
+2. Enviar `https://ramiroagustin.online/sitemap.xml` en el informe de sitemaps.
+3. Inspeccionar `/`, `/en/`, `/algoritmos/` y `/en/algoritmos/`: comprobar que
+   Google puede acceder, que recibe HTML completo y que la canónica elegida
+   corresponde a la versión solicitada.
+4. Solicitar indexación de la portada después de publicar los cambios. El CV
+   conserva `noindex` porque es un documento para compartir directamente.
+5. En Rendimiento, comparar impresiones, clics y posición para el nombre
+   completo y sus variantes. Vincular el portfolio desde los perfiles propios
+   usando el mismo nombre público.
+
+Enviar el sitemap o solicitar indexación no garantiza aparición ni posición.
+Consultar la [guía de rastreo de Google](https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl).
+
+### Implementación
+
 **El prerender es lo que sostiene el SEO.** `vite build` deja un
 `<div id="root">` vacío; `scripts/prerender.mjs` renderiza la app con
 `react-dom/server` y la inyecta en el HTML. Si ese paso falla, el sitio sigue

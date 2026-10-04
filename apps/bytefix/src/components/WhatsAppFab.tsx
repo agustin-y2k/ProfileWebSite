@@ -6,15 +6,14 @@ import styles from "./WhatsAppFab.module.css";
 /**
  * Botón flotante de WhatsApp para pantallas chicas.
  *
- * En desktop el CTA del header está siempre visible, así que el flotante
- * sobra. En móvil el header no lo muestra y, sin esto, hay que scrollear
- * hasta contacto para encontrar cómo escribir.
+ * Aparece en pantallas menores de 480 px, donde el encabezado no muestra
+ * WhatsApp. En las demás, el botón del encabezado queda siempre disponible.
  *
  * Se oculta cuando la sección de contacto entra en pantalla: ahí ya hay un
  * botón de WhatsApp grande, y dejarlo encima taparía justamente eso.
  */
 export function WhatsAppFab() {
-  const esMovil = useMediaQuery("(max-width: 51.99rem)");
+  const esMovil = useMediaQuery("(max-width: 29.99rem)");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

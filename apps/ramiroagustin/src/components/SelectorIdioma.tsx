@@ -1,10 +1,8 @@
 import { VisuallyHidden } from "@sites/ui";
 import { useIdioma } from "../i18n/contexto";
-import { alternar, COOKIE_IDIOMA, NOMBRE_IDIOMA, ruta } from "../i18n/idioma";
+import { alternar, NOMBRE_IDIOMA, ruta } from "../i18n/idioma";
 import { RUTAS, type Pagina } from "../i18n/meta";
 import styles from "./SelectorIdioma.module.css";
-
-const UN_ANIO = 60 * 60 * 24 * 365;
 
 /**
  * El cambio de idioma es un enlace de verdad, no un botón que reescribe la
@@ -16,20 +14,12 @@ const UN_ANIO = 60 * 60 * 24 * 365;
  * las dos versiones compartiendo una sola dirección, que es justo lo que el
  * `hreflang` intenta evitar.
  *
- * Lo único que necesita JavaScript es recordar la elección, y esa parte
- * degrada bien: sin él la persona igual llega a la página que pidió, solo que
- * la próxima visita vuelve a decidirse por el idioma del navegador.
+ * Cada URL conserva su idioma, independientemente del navegador, el país o
+ * las cookies. El selector funciona también sin JavaScript.
  */
 export function SelectorIdioma({ pagina }: { pagina: Pagina }) {
   const { idioma, t } = useIdioma();
   const otro = alternar(idioma);
-
-  // nginx lee esta cookie antes que Accept-Language. Sin ella, alguien con el
-  // navegador en inglés que elige español volvería al inglés en la próxima
-  // visita y el selector sería decorativo.
-  const recordar = () => {
-    document.cookie = `${COOKIE_IDIOMA}=${otro}; path=/; max-age=${UN_ANIO}; samesite=lax`;
-  };
 
   const etiqueta = t({
     es: `Ver esta página en ${NOMBRE_IDIOMA[otro]}`,
@@ -40,7 +30,6 @@ export function SelectorIdioma({ pagina }: { pagina: Pagina }) {
     <a
       className={styles.selector}
       href={ruta(otro, RUTAS[pagina])}
-      onClick={recordar}
       // `hreflang` y `lang` van los dos: el primero declara el idioma del
       // destino y el segundo el de la etiqueta, para que un lector de pantalla
       // pronuncie «English» en inglés y no leyéndolo como si fuera español.

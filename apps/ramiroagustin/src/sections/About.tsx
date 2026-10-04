@@ -7,7 +7,7 @@ export function About() {
 
   return (
     <Section id="sobre" labelledBy="sobre-titulo" tone="alt">
-      <Container className={styles.layout}>
+      <Container>
         <div className={styles.text}>
           <h2 id="sobre-titulo" className={styles.title}>
             {t({
@@ -28,18 +28,6 @@ export function About() {
             }}
           />
         </div>
-
-        <figure className={styles.quote}>
-          {/* La cita es de Torvalds y es en inglés: la versión española es la
-              traducción, no al revés. Se muestra en el idioma de quien lee. */}
-          <blockquote className={styles.quoteText}>
-            {t({
-              es: "Los malos programadores se preocupan por el código. Los buenos programadores se preocupan por las estructuras de datos y sus relaciones.",
-              en: "Bad programmers worry about the code. Good programmers worry about data structures and their relationships.",
-            })}
-          </blockquote>
-          <figcaption className={styles.quoteAuthor}>Linus Torvalds</figcaption>
-        </figure>
       </Container>
     </Section>
   );

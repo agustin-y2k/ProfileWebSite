@@ -5,6 +5,7 @@ import type { Escena, ItemPanel, PasoEscena } from "../algoritmos/escena";
 import type { Paso } from "../algoritmos/motor";
 import { IDIOMAS, type Frase } from "./idioma";
 import { bloqueMeta, META, RUTAS, type Pagina } from "./meta";
+import { site } from "../data/site";
 
 /**
  * La red que impide que una frase se quede a medio traducir.
@@ -125,6 +126,44 @@ describe("Los listados de código", () => {
 
 describe("Las cabeceras", () => {
   const PAGINAS = Object.keys(RUTAS) as Pagina[];
+
+  it("identifican a la misma persona y enlazan cada perfil con su sitio", () => {
+    for (const idioma of IDIOMAS) {
+      const bloque = bloqueMeta("inicio", idioma);
+      const json = bloque.match(
+        /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
+      )?.[1];
+      expect(json).toBeDefined();
+      const grafo = JSON.parse(json!) as {
+        "@graph": Array<{
+          "@type": string;
+          "@id": string;
+          name: string;
+          alternateName?: string[];
+          url: string;
+          sameAs?: string[];
+          mainEntity?: { "@id": string };
+          isPartOf?: { "@id": string };
+        }>;
+      };
+      const persona = grafo["@graph"].find((n) => n["@type"] === "Person");
+      const perfil = grafo["@graph"].find((n) => n["@type"] === "ProfilePage");
+      const sitio = grafo["@graph"].find((n) => n["@type"] === "WebSite");
+      expect(persona?.name).toBe(site.fullName);
+      expect(persona?.alternateName).toContain(site.name);
+      expect(persona?.alternateName).toContain("Ramiro Pintos");
+      expect(persona?.sameAs).toContain(site.github);
+      expect(perfil?.mainEntity?.["@id"]).toBe(persona?.["@id"]);
+      expect(perfil?.isPartOf?.["@id"]).toBe(sitio?.["@id"]);
+      expect(perfil?.url).toBe(
+        idioma === "es"
+          ? "https://ramiroagustin.online/"
+          : "https://ramiroagustin.online/en/",
+      );
+      expect(sitio?.name).toBe(site.name);
+      expect(META.inicio[idioma].titulo).toContain(site.fullName);
+    }
+  });
 
   it("existen para cada página en cada idioma, y son distintas", () => {
     for (const pagina of PAGINAS) {

@@ -9,17 +9,8 @@ import jpg320 from "../assets/profile-320.jpg";
 import jpg640 from "../assets/profile-640.jpg";
 import styles from "./Hero.module.css";
 
-/** Ancho real de render del retrato: 320px en móvil, ~400px desde 62rem. */
-const IMAGE_SIZES = "(min-width: 62rem) 400px, min(100vw - 3rem, 320px)";
-
-const ficha = [
-  { key: { es: "Ubicación", en: "Based in" }, value: site.location },
-  {
-    key: { es: "Foco", en: "Focus" },
-    value: { es: "Hardware · Software · Redes", en: "Hardware · Software · Networks" },
-  },
-  { key: { es: "Proyecto", en: "Venture" }, value: "ByteFix" },
-];
+/** Retrato compacto en móvil; desde tablet acompaña el texto en otra columna. */
+const IMAGE_SIZES = "(min-width: 64rem) 400px, (min-width: 40rem) 35vw, 144px";
 
 export function Hero() {
   const { t } = useIdioma();
@@ -28,50 +19,28 @@ export function Hero() {
     <section className={styles.hero} id="top">
       <Container className={styles.layout}>
         <div className={styles.copy}>
-          <p className="label">{t(site.role)}</p>
+          <p className="label">
+            {t({ es: "Programador", en: "Software developer" })} · {t(site.location)}
+          </p>
 
-          <Prosa
-            as="h1"
-            className={styles.title}
-            frase={{
-              es: `Hola, soy <span class="${styles.name}">Ramiro Agustín</span>.`,
-              en: `Hi, I'm <span class="${styles.name}">Ramiro Agustín</span>.`,
-            }}
-          />
-
-          <Prosa
-            className={styles.subtitle}
-            frase={{
-              es: "Equipos que funcionan, código con criterio y redes que se sostienen en el día a día.",
-              en: "Machines that work, code written with judgement, and networks that hold up day after day.",
-            }}
-          />
+          <h1 className={styles.title}>{site.name}</h1>
 
           <Prosa
             className={styles.lead}
             frase={{
-              es: "Paso el día traduciendo problemas técnicos en soluciones concretas: a veces hace falta abrir el gabinete, a veces escribir un script, a veces revisar el router. Me gusta que cada cosa quede en su lugar.",
-              en: "I spend my days turning technical problems into concrete fixes: sometimes that means opening the case, sometimes writing a script, sometimes going through the router. I like leaving things where they belong.",
+              es: "Desarrollo software y automatizaciones. Estudio Ingeniería en Informática y también trabajo con hardware y redes.",
+              en: "I build software and automation tools. I study Computer Engineering and also work with hardware and networks.",
             }}
           />
 
           <div className={styles.actions}>
-            <Button href="#contacto" size="lg">
+            <Button href={`${site.github}?tab=repositories`} target="_blank" size="lg">
+              {t({ es: "Ver proyectos", en: "View projects" })}
+            </Button>
+            <Button href="#contacto" variant="soft" size="lg">
               {t({ es: "Escríbeme", en: "Get in touch" })}
             </Button>
-            <Button href="#trabajo" variant="soft" size="lg">
-              {t({ es: "Ver lo que hago", en: "See what I do" })}
-            </Button>
           </div>
-
-          <dl className={styles.ficha}>
-            {ficha.map((item) => (
-              <div key={item.key.es} className={styles.fichaRow}>
-                <dt className="label">{t(item.key)}</dt>
-                <dd className={styles.fichaValue}>{t(item.value)}</dd>
-              </div>
-            ))}
-          </dl>
         </div>
 
         <div className={styles.visual}>
@@ -97,8 +66,8 @@ export function Hero() {
                 width={640}
                 height={640}
                 alt={t({
-                  es: "Retrato de Ramiro Agustín",
-                  en: "Portrait of Ramiro Agustín",
+                  es: `Retrato de ${site.name}`,
+                  en: `Portrait of ${site.name}`,
                 })}
                 className={styles.photo}
                 /* Es la imagen LCP: prioridad alta y sin lazy loading. */

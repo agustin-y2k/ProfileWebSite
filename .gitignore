@@ -4,8 +4,13 @@ node_modules/
 
 # Artefactos de build
 dist/
+dist-ssr/
 out/
 *.tsbuildinfo
+
+# Capturas y sesiones de revisión local
+/.playwright-cli/
+/output/playwright/
 
 # Datos del taller: base SQLite, fotos de equipos de clientes y comprobantes en
 # PDF. En la Pi viven en un volumen de Docker, pero si alguna vez se corre el

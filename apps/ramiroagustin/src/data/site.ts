@@ -9,6 +9,15 @@ import type { Frase } from "../i18n/idioma";
  */
 export const site = {
   name: "Ramiro Agustín",
+  fullName: "Ramiro Agustín Pintos De Nucci",
+  shortName: "Ramiro Agustín",
+  alternateNames: [
+    "Ramiro Agustin",
+    "Ramiro Agustín",
+    "Ramiro Agustín Pintos",
+    "Ramiro Pintos",
+    "agustin-y2k",
+  ],
   role: {
     es: "Programador · Estudiante de Ingeniería en Informática",
     en: "Software Developer · Computer Engineering Student",
@@ -32,9 +41,9 @@ export const site = {
  * cualquier enlace profundo que alguien haya guardado.
  */
 export const navItems: readonly { id: string; label: Frase }[] = [
+  { id: "proyectos", label: { es: "Proyectos", en: "Projects" } },
   { id: "trabajo", label: { es: "Lo que hago", en: "What I do" } },
   { id: "sobre", label: { es: "Sobre mí", en: "About" } },
-  { id: "proyectos", label: { es: "Proyectos", en: "Projects" } },
   { id: "contacto", label: { es: "Contacto", en: "Contact" } },
 ];
 

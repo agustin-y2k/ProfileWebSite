@@ -16,11 +16,11 @@ export function App() {
       <Header />
       <main id="contenido">
         <Hero />
+        <Projects />
+        <AlgoritmosBand />
         <Work />
         <ByteFixBand />
         <About />
-        <Projects />
-        <AlgoritmosBand />
         <Contact />
       </main>
       <Footer />

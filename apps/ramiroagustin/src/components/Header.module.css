@@ -62,6 +62,7 @@
   display: none;
   align-items: center;
   gap: var(--space-5);
+  white-space: nowrap;
 }
 
 .navLink,
@@ -121,6 +122,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex-shrink: 0;
 }
 
 /* ── Botón hamburguesa ───────────────────────────────────────────────────── */
@@ -128,8 +130,8 @@
   display: grid;
   place-content: center;
   gap: 5px;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--border);
   background: var(--surface);
@@ -170,7 +172,8 @@
 }
 
 .drawer[data-open] {
-  max-height: 22rem;
+  max-height: calc(100dvh - var(--header-h));
+  overflow-y: auto;
   border-bottom-color: var(--border);
 }
 
@@ -188,7 +191,7 @@
 }
 
 /* ── Desktop ─────────────────────────────────────────────────────────────── */
-@media (min-width: 48rem) {
+@media (min-width: 64rem) {
   .nav {
     display: flex;
   }
@@ -196,6 +199,24 @@
   .menuButton,
   .drawer {
     display: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .inner,
+  .logo,
+  .actions {
+    gap: var(--space-2);
+  }
+}
+
+/* En teléfonos pequeños, el nombre ocupa dos líneas y deja espacio para
+   idioma, tema y menú sin ocultar ninguno de los controles. */
+@media (max-width: 24rem) {
+  .logoText {
+    max-width: 4.5rem;
+    font-size: 0.9rem;
+    line-height: var(--leading-tight);
   }
 }
 

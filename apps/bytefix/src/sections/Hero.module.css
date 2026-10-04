@@ -1,10 +1,10 @@
 .hero {
-  padding-block: var(--space-8) var(--space-9);
+  padding-block: clamp(2rem, 4vw, 3rem);
 }
 
 .layout {
   display: grid;
-  gap: var(--space-8);
+  gap: var(--space-6);
 }
 
 .copy {
@@ -17,15 +17,15 @@
 .title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: var(--text-4xl);
+  font-size: clamp(2rem, 4vw, 3.5rem);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
-  max-width: 15ch;
+  max-width: 22ch;
 }
 
 .lead {
   max-width: 48ch;
-  font-size: var(--text-lg);
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
   color: var(--text-muted);
 }
 
@@ -41,8 +41,8 @@
   display: grid;
   gap: var(--space-4);
   width: 100%;
-  margin-top: var(--space-7);
-  padding-top: var(--space-6);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--border);
   list-style: none;
 }
@@ -122,12 +122,12 @@
 
 @media (min-width: 62rem) {
   .hero {
-    padding-block: var(--space-9) var(--space-8);
+    padding-block: var(--space-7);
   }
 
   .layout {
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    gap: var(--space-9);
+    gap: var(--space-7);
     align-items: center;
   }
 

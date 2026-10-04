@@ -16,11 +16,11 @@ export function Hero() {
         <div className={styles.copy}>
           <p className="label">Taller de informática y software</p>
 
-          <h1 className={styles.title}>Tecnología que funciona bien.</h1>
+          <h1 className={styles.title}>Reparación de computadoras en {site.city}.</h1>
 
           <p className={styles.lead}>
-            Activación y optimización de notebooks escolares, reparación de hardware a nivel de placa y
-            desarrollo de software a medida. En {site.city}, {site.region}.
+            Reparación de notebooks y PC, activación de notebooks escolares y software a
+            medida. En taller o a domicilio, en {site.city}, {site.region}.
           </p>
 
           <div className={styles.actions}>
@@ -65,7 +65,12 @@ export function Hero() {
             oficio —una lectura, tres estados— en vez de un efecto de CSS. */}
         <div className={styles.visual} aria-hidden="true">
           <div className={styles.panel}>
-            <svg viewBox="0 0 280 320" className={styles.diagram} fill="none" stroke="currentColor">
+            <svg
+              viewBox="0 0 280 320"
+              className={styles.diagram}
+              fill="none"
+              stroke="currentColor"
+            >
               <path d="M18 46V22h24" strokeWidth="2" strokeLinecap="round" />
               <path d="M262 46V22h-24" strokeWidth="2" strokeLinecap="round" />
               <path d="M18 190v24h24" strokeWidth="2" strokeLinecap="round" />

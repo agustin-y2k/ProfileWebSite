@@ -18,14 +18,10 @@ export function App() {
       <Header />
       <main id="contenido">
         <Hero />
-        {/* El proceso va antes de los servicios: responde «¿cuánto me va a
-            salir?» antes de que el precio aparezca en pantalla. */}
-        <Process />
-        {/* No renderiza nada mientras el subdominio del taller no esté
-            publicado. */}
-        <Seguimiento />
         <Services />
         <Pricing />
+        <Process />
+        <Seguimiento />
         {/* No renderiza nada mientras no haya testimonios reales cargados. */}
         <Testimonials />
         <Faq />
