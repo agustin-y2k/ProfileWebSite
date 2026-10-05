@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@sites/ui";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { Button, useMediaQuery } from "@sites/ui";
 import {
   CATEGORIAS,
   deCategoria,
@@ -153,6 +153,23 @@ export function Visualizador() {
   const [reproduciendo, setReproduciendo] = useState(false);
   const [ritmo, setRitmo] = useState<Ritmo>("normal");
   const [pestana, setPestana] = useState<"codigo" | "cola">("codigo");
+  const desktop = useMediaQuery("(min-width: 64rem)");
+  const panelId = useId();
+  const teclasPestanas = (event: KeyboardEvent<HTMLButtonElement>) => {
+    let siguiente: "codigo" | "cola";
+    if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+      siguiente = pestana === "codigo" ? "cola" : "codigo";
+    } else if (event.key === "Home") {
+      siguiente = "codigo";
+    } else if (event.key === "End") {
+      siguiente = "cola";
+    } else {
+      return;
+    }
+    event.preventDefault();
+    setPestana(siguiente);
+    document.getElementById(`${panelId}-tab-${siguiente}`)?.focus();
+  };
   const montado = useRef(false);
 
   const def: Definicion = porId(algoritmoId);
@@ -415,10 +432,18 @@ export function Visualizador() {
         </div>
 
         <div className={styles.columna}>
-          <div className={styles.pestanas} role="tablist">
+          <div
+            className={styles.pestanas}
+            role="tablist"
+            aria-label={t({ es: "Paneles del algoritmo", en: "Algorithm panels" })}
+          >
             <button
               type="button"
               role="tab"
+              id={`${panelId}-tab-codigo`}
+              aria-controls={`${panelId}-codigo`}
+              tabIndex={pestana === "codigo" ? 0 : -1}
+              onKeyDown={teclasPestanas}
               className={styles.pestana}
               aria-selected={pestana === "codigo"}
               onClick={() => setPestana("codigo")}
@@ -428,6 +453,10 @@ export function Visualizador() {
             <button
               type="button"
               role="tab"
+              id={`${panelId}-tab-cola`}
+              aria-controls={`${panelId}-cola`}
+              tabIndex={pestana === "cola" ? 0 : -1}
+              onKeyDown={teclasPestanas}
               className={styles.pestana}
               aria-selected={pestana === "cola"}
               onClick={() => setPestana("cola")}
@@ -437,13 +466,17 @@ export function Visualizador() {
           </div>
 
           <section
+            id={`${panelId}-codigo`}
+            role={desktop ? "region" : "tabpanel"}
+            aria-labelledby={`${panelId}-${desktop ? "titulo" : "tab"}-codigo`}
+            tabIndex={0}
             className={
               pestana === "codigo"
                 ? styles.seccionPanel
                 : `${styles.seccionPanel} ${styles.ocultaEnMovil}`
             }
           >
-            <p className={styles.panelTitulo}>
+            <p id={`${panelId}-titulo-codigo`} className={styles.panelTitulo}>
               {t({
                 es: "La línea que se está ejecutando",
                 en: "The line being executed",
@@ -461,13 +494,19 @@ export function Visualizador() {
           </section>
 
           <section
+            id={`${panelId}-cola`}
+            role={desktop ? "region" : "tabpanel"}
+            aria-labelledby={`${panelId}-${desktop ? "titulo" : "tab"}-cola`}
+            tabIndex={0}
             className={
               pestana === "cola"
                 ? styles.seccionPanel
                 : `${styles.seccionPanel} ${styles.ocultaEnMovil}`
             }
           >
-            <p className={styles.panelTitulo}>{t(def.panel)}</p>
+            <p id={`${panelId}-titulo-cola`} className={styles.panelTitulo}>
+              {t(def.panel)}
+            </p>
             <Panel items={items} />
           </section>
         </div>

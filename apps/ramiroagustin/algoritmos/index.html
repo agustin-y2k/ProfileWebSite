@@ -38,7 +38,6 @@
          antes del primer paint, así que no puede venir de un módulo. Si se
          toca uno, hay que tocar el otro. */
       (function () {
-        document.documentElement.classList.add("js");
         try {
           var saved = localStorage.getItem("tema");
           if (saved === "claro" || saved === "oscuro") {

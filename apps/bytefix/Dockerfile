@@ -19,6 +19,7 @@ COPY apps/${APP}/package.json apps/${APP}/
 RUN pnpm install --frozen-lockfile
 
 COPY tsconfig.base.json ./
+COPY scripts/ scripts/
 COPY packages/ packages/
 COPY apps/${APP}/ apps/${APP}/
 
@@ -40,6 +41,7 @@ FROM nginx:alpine AS runtime
 ARG APP
 COPY --from=build /repo/apps/${APP}/dist /usr/share/nginx/html
 COPY apps/${APP}/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /repo/apps/${APP}/dist-security/security-headers.conf /etc/nginx/snippets/security-headers.conf
 
 EXPOSE 80
 

@@ -1,3 +1,4 @@
 dist/
 dist-ssr/
+dist-security/
 pnpm-lock.yaml

@@ -5,6 +5,7 @@ import { dirname, resolve } from "node:path";
 import Fastify from "fastify";
 import formbody from "@fastify/formbody";
 import estaticos from "@fastify/static";
+import rateLimit from "@fastify/rate-limit";
 import { config, correoConfigurado } from "./config";
 import {
   COOKIE,
@@ -37,7 +38,6 @@ import {
   buscarPorNumero,
   buscarPorToken,
   crearOrden,
-  ordenesDelTelefono,
   esEstado,
   eventosDe,
   leerFormulario,
@@ -74,10 +74,30 @@ const app = Fastify({
   // Detrás de Cloudflare, la IP del cliente y el protocolo llegan en cabeceras
   // `X-Forwarded-*`. Sin esto, todos los intentos de login vendrían de la IP
   // del túnel y el freno de fuerza bruta bloquearía a Ramiro junto con todos.
-  trustProxy: true,
+  // Cloudflare agrega la IP real al final de X-Forwarded-For. Confiar en un
+  // salto evita tomar como cliente un prefijo que el visitante haya inventado.
+  trustProxy: (_address, hop) => hop === 0,
+});
+
+// onSend cubre HTML, archivos, redirecciones y errores, también los emitidos
+// antes de ejecutar una ruta (autenticación, límite de intentos o bodyLimit).
+app.addHook("onSend", async (_peticion, reply, payload) => {
+  reply
+    .header("Cache-Control", "private, no-store")
+    .header("Referrer-Policy", "no-referrer")
+    .header("X-Content-Type-Options", "nosniff")
+    .header("X-Frame-Options", "DENY")
+    .header("X-Robots-Tag", "noindex, nofollow")
+    .header("Permissions-Policy", "geolocation=(), microphone=(), camera=(self)")
+    .header(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'none'",
+    );
+  return payload;
 });
 
 await app.register(formbody);
+await app.register(rateLimit, { global: false });
 await app.register(estaticos, {
   root: resolve(aqui, "..", "public"),
   prefix: "/",
@@ -309,7 +329,7 @@ app.get("/fotos/:id", async (peticion, reply) => {
 
   return reply
     .type("image/jpeg")
-    .header("Cache-Control", "private, max-age=3600")
+    .header("Cache-Control", "private, no-store")
     .send(createReadStream(ruta));
 });
 
@@ -347,47 +367,59 @@ app.get("/s/:token", async (peticion, reply) => {
   const orden = buscarPorToken(token);
   if (!orden) return reply.callNotFound();
 
-  // Todas las órdenes del mismo teléfono. Quien llega hasta acá ya probó ser
-  // el dueño —con el token del correo o con número más teléfono—, así que ver
-  // su propio historial no expone nada nuevo.
-  const otras = ordenesDelTelefono(orden.cliente_telefono).filter(
-    (previa) => previa.id !== orden.id,
-  );
-
-  return pagina(reply, vistaSeguimiento(orden, eventosDe(orden.id), otras));
+  // El token autoriza únicamente esta orden, aunque el teléfono tenga otras.
+  return pagina(reply, vistaSeguimiento(orden, eventosDe(orden.id)));
 });
 
 app.get("/seguimiento", async (_peticion, reply) => {
   return pagina(reply, vistaBuscarSeguimiento({}));
 });
 
-app.post("/seguimiento", async (peticion, reply) => {
-  const { numero, telefono } = (peticion.body ?? {}) as {
-    numero?: string;
-    telefono?: string;
-  };
+app.post(
+  "/seguimiento",
+  {
+    bodyLimit: 4096,
+    config: {
+      rateLimit: {
+        max: 5,
+        timeWindow: "15 minutes",
+        errorResponseBuilder: () => ({
+          statusCode: 429,
+          error: "Demasiados intentos",
+          message: "Esperá 15 minutos antes de volver a buscar una orden.",
+        }),
+      },
+    },
+  },
+  async (peticion, reply) => {
+    const { numero, telefono } = (peticion.body ?? {}) as {
+      numero?: string;
+      telefono?: string;
+    };
 
-  const orden =
-    typeof numero === "string" && typeof telefono === "string"
-      ? buscarParaSeguimiento(numero, telefono)
-      : undefined;
+    const orden =
+      typeof numero === "string" && typeof telefono === "string"
+        ? buscarParaSeguimiento(numero, telefono)
+        : undefined;
 
-  if (!orden) {
-    // Un solo mensaje para "no existe" y para "el teléfono no coincide": con
-    // dos mensajes distintos, probar números de orden diría cuáles existen.
-    reply.status(404);
-    return pagina(
-      reply,
-      vistaBuscarSeguimiento({
-        numero: typeof numero === "string" ? numero : "",
-        telefono: typeof telefono === "string" ? telefono : "",
-        error: "No encontramos una orden con esos datos. Revisá el número y el teléfono.",
-      }),
-    );
-  }
+    if (!orden) {
+      // Un solo mensaje para "no existe" y para "el teléfono no coincide": con
+      // dos mensajes distintos, probar números de orden diría cuáles existen.
+      reply.status(404);
+      return pagina(
+        reply,
+        vistaBuscarSeguimiento({
+          numero: typeof numero === "string" ? numero : "",
+          telefono: typeof telefono === "string" ? telefono : "",
+          error:
+            "No encontramos una orden con esos datos. Revisá el número y el teléfono.",
+        }),
+      );
+    }
 
-  return reply.redirect(`/s/${orden.token}`, 303);
-});
+    return reply.redirect(`/s/${orden.token}`, 303);
+  },
+);
 
 app.setNotFoundHandler(async (_peticion, reply) => {
   reply.status(404);

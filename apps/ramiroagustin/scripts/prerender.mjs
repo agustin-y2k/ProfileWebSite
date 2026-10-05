@@ -1,3 +1,4 @@
+import { generarCabeceras } from "../../../scripts/security-headers.mjs";
 /**
  * Prerender estático, para todas las páginas del sitio y en los dos idiomas.
  *
@@ -109,3 +110,5 @@ if (renderizadas === 0) {
 }
 
 await rm(resolve(root, "dist-ssr"), { recursive: true, force: true });
+
+await generarCabeceras(root);

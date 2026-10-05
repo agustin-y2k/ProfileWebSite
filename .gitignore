@@ -34,3 +34,15 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Configuración y archivos locales de asistentes de IA
+.codex/
+.agents/
+.claude/
+.cursor/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.aider*
+
+**/dist-security/

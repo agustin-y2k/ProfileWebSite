@@ -11,14 +11,13 @@ type RevealProps = {
 /**
  * Entrada al hacer scroll, con mejora progresiva.
  *
- * El contenido se sirve visible en el HTML: la clase que lo oculta vive bajo
- * `html.js`, y esa clase la pone un script inline en el <head>. Si el JS falla
- * o no llega, la página se lee igual — que es justo lo que pasa hoy con el
- * IntersectionObserver imperativo, donde un error deja todo en opacity: 0.
+ * El HTML se sirve visible. Solo se oculta después de montar y registrar el
+ * observador: si el JavaScript no llega, el contenido sigue siendo legible.
  */
 export function Reveal({ children, delay = 0, className }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
@@ -50,6 +49,7 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
     );
 
     observer.observe(node);
+    setReady(true);
     return () => observer.disconnect();
   }, []);
 
@@ -58,6 +58,7 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
       ref={ref}
       className={[styles.reveal, className].filter(Boolean).join(" ")}
       data-visible={visible || undefined}
+      data-reveal-ready={ready || undefined}
       style={delay ? { transitionDelay: `${delay}ms` } : undefined}
     >
       {children}

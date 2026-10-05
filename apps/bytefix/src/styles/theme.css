@@ -46,7 +46,8 @@
      Syne, pero con descendentes de proporción normal, así que no corta la g
      ni la q en los tamaños grandes del H1 (ver fonts.css). Syne queda
      reservada al logotipo, chico, donde nunca dio ese problema. */
-  --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display:
+    "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-logo: "Syne", "Inter", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }

@@ -1,18 +1,20 @@
 import { VisuallyHidden } from "@sites/ui";
 import { useTheme } from "../hooks/useTheme";
+import { useIdioma } from "../i18n/contexto";
 import styles from "./ThemeToggle.module.css";
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const { t } = useIdioma();
 
   // Antes de montar el tema es desconocido: se rinde el botón con el icono
   // neutro y sin anunciar un estado que podría ser el equivocado.
   const label =
     theme === null
-      ? "Cambiar tema"
+      ? t({ es: "Cambiar tema", en: "Change theme" })
       : theme === "oscuro"
-        ? "Cambiar a tema claro"
-        : "Cambiar a tema oscuro";
+        ? t({ es: "Cambiar a tema claro", en: "Switch to light theme" })
+        : t({ es: "Cambiar a tema oscuro", en: "Switch to dark theme" });
 
   return (
     <button

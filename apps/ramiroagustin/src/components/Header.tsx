@@ -15,6 +15,16 @@ export function Header() {
 
   useLockBodyScroll(open);
 
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 64rem)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setOpen(false);
+    };
+    closeOnDesktop();
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
+
   // Escape cierra el menú: quien lo abrió con teclado tiene que poder salir
   // sin buscar el botón de cerrar.
   useEffect(() => {

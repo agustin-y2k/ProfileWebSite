@@ -1,6 +1,6 @@
-/* Sin JS la clase `js` nunca se agrega y el contenido queda visible tal cual
-   se sirvió. Con JS, arranca oculto y entra al cruzar el viewport. */
-:global(html.js) .reveal {
+/* Solo animar cuando el componente ya registró su observador. El HTML
+   prerenderizado permanece visible aunque falle la carga de JavaScript. */
+.reveal[data-reveal-ready] {
   opacity: 0;
   transform: translateY(14px);
   transition:
@@ -9,14 +9,14 @@
   will-change: opacity, transform;
 }
 
-:global(html.js) .reveal[data-visible] {
+.reveal[data-reveal-ready][data-visible] {
   opacity: 1;
   transform: none;
   will-change: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :global(html.js) .reveal {
+  .reveal[data-reveal-ready] {
     opacity: 1;
     transform: none;
     transition: none;

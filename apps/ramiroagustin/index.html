@@ -41,7 +41,6 @@
          quien eligió oscuro. Es la única razón por la que este script es
          inline y bloqueante: diferirlo reintroduce el parpadeo. */
       (function () {
-        document.documentElement.classList.add("js");
         try {
           var saved = localStorage.getItem("tema");
           if (saved === "claro" || saved === "oscuro") {

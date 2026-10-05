@@ -1,3 +1,4 @@
+import { generarCabeceras } from "../../../scripts/security-headers.mjs";
 /**
  * Prerender estático.
  *
@@ -30,3 +31,5 @@ await rm(resolve(root, "dist-ssr"), { recursive: true, force: true });
 
 const kb = (Buffer.byteLength(appHtml, "utf8") / 1024).toFixed(1);
 console.log(`✓ prerender: ${kb} KB de HTML inyectados en dist/index.html`);
+
+await generarCabeceras(root);

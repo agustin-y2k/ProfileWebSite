@@ -66,7 +66,7 @@ permite que los dos sitios se sientan hermanos sin ser el mismo sitio.
 
 ## Desarrollo
 
-Requiere Node 20+ y pnpm (o solo Docker, ver más abajo).
+Requiere Node 22+ y pnpm (o solo Docker, ver más abajo).
 
 ```bash
 pnpm install
@@ -77,9 +77,43 @@ pnpm dev:bytefix      # http://localhost:5173
 pnpm typecheck        # tsc en todos los paquetes
 pnpm lint             # eslint
 pnpm build            # compila los dos sitios a apps/*/dist
+pnpm verify:build     # valida todas las páginas y sus hashes de CSP
 ```
 
 El taller no tiene paso de build: `pnpm build` solo toca los sitios.
+
+GitHub Actions ejecuta instalación con lockfile congelado, tipos, lint,
+formato, tests, build y `verify:build` sobre Ubuntu 24.04 con Node 22 y la
+versión de pnpm declarada en `packageManager`. Se activa al hacer push a
+`main` o `develop` y al abrir o actualizar un pull request. Un push a otra
+rama sin PR no dispara este workflow.
+
+Para revisar avisos de seguridad en las dependencias de todo el monorepo,
+incluidas las herramientas de desarrollo:
+
+```bash
+pnpm audit
+```
+
+Las actualizaciones deben conservar `pnpm-lock.yaml` y verificarse con
+`pnpm test`, `pnpm typecheck`, `pnpm lint` y `pnpm build`. Las pruebas del taller
+comprueban el acceso, el seguimiento y el envío del PDF mediante SMTP local
+con datos ficticios, sin enviar correos reales.
+
+### Cabeceras de los sitios públicos
+
+El prerender genera `apps/*/dist-security/security-headers.conf` con hashes
+SHA-256 del HTML final: scripts del tema, datos JSON-LD, impresión del CV y
+estilos. La CSP no permite `unsafe-inline` ni `unsafe-eval`; los atributos
+de estilo solo se autorizan por su hash exacto. Los manejadores inline
+como `onclick` hacen fallar el build.
+
+Los Dockerfiles copian ese archivo fuera del directorio público y nginx lo
+incluye en todas las rutas, también en recursos y errores. Publicar cambios
+requiere reconstruir la imagen para que el HTML y sus hashes coincidan.
+La analítica autorizada sigue siendo `https://analytics.ramiroagustin.online`;
+si cambia el origen, actualizar `scripts/security-headers.mjs` junto con los
+argumentos de build de analítica.
 
 ### Sin Node instalado
 
@@ -356,6 +390,22 @@ los datos de otro cliente.
 novedades y lo presupuestado. Nada de DNI, correo, teléfono ni fotos. El token
 es impredecible, pero un enlace se reenvía por WhatsApp sin pensarlo.
 
+**Cada enlace de seguimiento da acceso a una sola orden.** No muestra ni enlaza
+otras órdenes del mismo teléfono. Recuperar un enlace con número y teléfono
+también lleva únicamente a la orden solicitada.
+
+**La búsqueda de seguimiento compara teléfonos completos normalizados.** Hay
+que incluir el código de área; los últimos dígitos no alcanzan. Acepta formatos
+nacionales argentinos e internacionales y permite cinco búsquedas por IP cada
+15 minutos, contando también las exitosas. El límite vive en memoria y se
+reinicia con el proceso; una instancia adicional necesitaría un almacén común.
+
+**Todas las respuestas del taller llevan cabeceras de seguridad y `no-store`.**
+Incluye las páginas públicas de seguimiento, el panel, fotos, comprobantes,
+redirecciones y errores. La CSP permite scripts y estilos del propio origen,
+sin JavaScript inline; el formulario carga su script externo. Ninguna página
+del taller se puede embeber en un iframe ni envía Referer al seguir enlaces.
+
 **Buscar una orden que no existe y acertar el número con el teléfono
 equivocado dan el mismo error.** Con dos mensajes distintos, probar números
 diría cuáles existen.
@@ -509,9 +559,9 @@ generar hashes distintos y la hidratación fallaría.
 **El año del footer se congela en el build.** Calcularlo en runtime haría que
 el HTML prerenderizado y el cliente difieran si el año cambió entremedio.
 
-**Las animaciones de entrada dependen de `html.js`.** Un script inline agrega
-esa clase; el CSS que oculta los bloques vive detrás de ella. Sin JS, la página
-se lee completa en lugar de quedar en blanco.
+**Las animaciones de entrada se activan al montar cada componente.** El CSS
+solo oculta un bloque después de registrar su observador. Si el JavaScript no
+llega o falla al cargar, el HTML prerenderizado sigue siendo visible.
 
 **El fondo va en una capa `position: fixed`, no en `background-attachment`.**
 Esa propiedad fuerza un repintado completo por frame de scroll, y iOS Safari
